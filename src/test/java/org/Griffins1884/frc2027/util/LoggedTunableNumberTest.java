@@ -60,7 +60,7 @@ class LoggedTunableNumberTest {
     tuning(false);
     var number = new LoggedTunableNumber("test/late", 4.0);
     var entry =
-        NetworkTableInstance.getDefault().getEntry("/SmartDashboard/TunableNumbers/test/late");
+        NetworkTableInstance.getDefault().getEntry("/Telemetry/TunableNumbers/test/late");
     entry.setDouble(7.0);
     assertEquals(4.0, number.get());
     tuning(true);
