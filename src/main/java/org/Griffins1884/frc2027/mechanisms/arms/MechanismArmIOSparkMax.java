@@ -2,6 +2,8 @@ package org.Griffins1884.frc2027.mechanisms.arms;
 
 import static com.revrobotics.spark.config.SparkBaseConfig.IdleMode.*;
 
+import org.wpilib.hardware.bus.CANPort;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
@@ -18,10 +20,11 @@ public class MechanismArmIOSparkMax implements MechanismArmIO {
   private SparkBaseConfig config;
   private final SparkMax leader;
   private final double positionCoefficient;
+  private final CANPort canPort;
 
   public MechanismArmIOSparkMax(
-      int[] ids, int currentLimitAmps, boolean brake, double forwardLimit, double reverseLimit) {
-    this(ids, currentLimitAmps, brake, forwardLimit, reverseLimit, 1.0);
+      int[] ids, int currentLimitAmps, boolean brake, double forwardLimit, double reverseLimit, CANPort canPort) {
+    this(ids, currentLimitAmps, brake, forwardLimit, reverseLimit, 1.0, canPort);
   }
 
   public MechanismArmIOSparkMax(
@@ -30,8 +33,9 @@ public class MechanismArmIOSparkMax implements MechanismArmIO {
       boolean brake,
       double forwardLimit,
       double reverseLimit,
-      double positionCoefficient) {
+      double positionCoefficient, CANPort canPort) {
     this.positionCoefficient = positionCoefficient;
+    this.canPort=canPort;
 
     motors = new SparkMax[ids.length];
     config =
@@ -41,12 +45,12 @@ public class MechanismArmIOSparkMax implements MechanismArmIO {
         .forwardSoftLimit(forwardLimit / positionCoefficient)
         .reverseSoftLimit(reverseLimit / positionCoefficient);
 
-    leader = motors[0] = new SparkMax(ids[0], SparkLowLevel.MotorType.kBrushless);
+    leader = motors[0] = new SparkMax(this.canPort, ids[0], SparkLowLevel.MotorType.kBrushless);
     leader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     if (ids.length > 1) {
       for (int i = 1; i < ids.length; i++) {
-        motors[i] = new SparkMax(ids[i], SparkLowLevel.MotorType.kBrushless);
+        motors[i] = new SparkMax(this.canPort, ids[i], SparkLowLevel.MotorType.kBrushless);
         motors[i].configure(
             new SparkMaxConfig().apply(config).follow(leader),
             ResetMode.kResetSafeParameters,
@@ -66,15 +70,15 @@ public class MechanismArmIOSparkMax implements MechanismArmIO {
         inputs.connected[i] = true;
       }
       double positionRotations =
-          (absoluteEncoder != null) ? absoluteEncoder.getPosition() : relativeEncoder.getPosition();
+          (absoluteEncoder != null) ? absoluteEncoder.getPosition().get() : relativeEncoder.getPosition().get();
       double velocityRpm =
-          (absoluteEncoder != null) ? absoluteEncoder.getVelocity() : relativeEncoder.getVelocity();
+          (absoluteEncoder != null) ? absoluteEncoder.getVelocity().get() : relativeEncoder.getVelocity().get();
       inputs.encoderPosition = positionRotations * positionCoefficient;
       inputs.velocity = velocityRpm * positionCoefficient / 60.0;
-      inputs.appliedVoltage = leader.getAppliedOutput() * leader.getBusVoltage();
-      inputs.supplyCurrentAmps = leader.getOutputCurrent();
-      inputs.torqueCurrentAmps = leader.getOutputCurrent();
-      inputs.tempCelsius = leader.getMotorTemperature();
+      inputs.appliedVoltage = leader.getAppliedOutput().get() * leader.getBusVoltage().get();
+      inputs.supplyCurrentAmps = leader.getOutputCurrent().get();
+      inputs.torqueCurrentAmps = leader.getOutputCurrent().get();
+      inputs.tempCelsius = leader.getMotorTemperature().get();
     }
   }
 
