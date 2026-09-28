@@ -39,15 +39,6 @@ public class XboxDriverMap extends CommandXboxController implements DriverMap {
   }
 
   @Override
-<<<<<<< HEAD
-  public Trigger resetHeading() {
-    return start();
-  }
-
-  @Override
-  public Trigger robotRelativeOverride() {
-    return leftTrigger();
-=======
   public Trigger alignWithBall() {
     return new Trigger(() -> this.getLeftTriggerAxis() > 0.5);
   }
@@ -65,15 +56,11 @@ public class XboxDriverMap extends CommandXboxController implements DriverMap {
   @Override
   public Trigger intakeDeployToggle() {
     return leftBumper();
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
   }
 
   @Override
   public Command rumble() {
     return startEnd(
-<<<<<<< HEAD
-        () -> getHID().setRumble(kBothRumble, 1.0), () -> getHID().setRumble(kBothRumble, 0.0));
-=======
         () -> getHID().setRumble(kBothRumble, 1), () -> getHID().setRumble(kBothRumble, 0));
   }
 
@@ -91,6 +78,5 @@ public class XboxDriverMap extends CommandXboxController implements DriverMap {
 
   public Trigger turretRight() {
     return b();
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
   }
 }
