@@ -33,7 +33,7 @@ import org.wpilib.driverstation.DriverStationErrors;
 import org.wpilib.driverstation.Alliance;
 import org.wpilib.driverstation.GenericHID;
 import org.wpilib.driverstation.XboxController;
-import org.wpilib.smartdashboard.SmartDashboard;
+import org.wpilib.telemetry.Telemetry;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.button.CommandXboxController;
@@ -342,8 +342,8 @@ public class RobotContainer {
           "Turn | SysId (Dynamic Reverse)",
           drive.sysIdTurnDynamic(SysIdRoutine.Direction.kReverse).ignoringDisable(true));
     }
-
-    SmartDashboard.putBoolean("drive/test", DriveCommands.getTest().get());
+    
+    Telemetry.log("drive/test", DriveCommands.getTest().get());
 
     superstructure.registerSuperstructureCharacterization(() -> characterizationChooser);
     if (turret != null) {
