@@ -3,10 +3,10 @@ package org.Griffins1884.frc2027.commands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj2.command.Command;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.wpilibj.DriverStation.Alliance;
+import org.wpilib.wpilibj2.command.Command;
 import java.util.Optional;
 import org.Griffins1884.frc2027.subsystems.swerve.GyroIO;
 import org.Griffins1884.frc2027.subsystems.swerve.ModuleIO;
