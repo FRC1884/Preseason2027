@@ -2,11 +2,11 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.wpi.first.hal.HAL;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.simulation.DriverStationSim;
+import org.wpilib.hal.HAL;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.kinematics.ChassisSpeeds;
+import org.wpilib.wpilibj.DriverStation;
+import org.wpilib.wpilibj.simulation.DriverStationSim;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;

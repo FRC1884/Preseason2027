@@ -2,7 +2,7 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.wpi.first.hal.HAL;
+import org.wpilib.hal.HAL;
 import java.util.Queue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
