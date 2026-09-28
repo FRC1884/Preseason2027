@@ -35,10 +35,10 @@ public class MechanismArmIOSim implements MechanismArmIO {
       sim.setInputVoltage(appliedVolts);
     }
     sim.update(0.02);
-    inputs.encoderPosition = sim.getAngleRads() + positionOffset;
+    inputs.encoderPosition = sim.getAngle() + positionOffset;
     inputs.velocity = sim.getVelocity();
     inputs.appliedVoltage = appliedVolts;
-    inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
+    inputs.supplyCurrentAmps = sim.getCurrentDraw();
     inputs.torqueCurrentAmps = inputs.supplyCurrentAmps;
     if (inputs.connected.length != 1) {
       inputs.connected = new boolean[] {true};
@@ -55,6 +55,6 @@ public class MechanismArmIOSim implements MechanismArmIO {
 
   @Override
   public void setPosition(double position) {
-    positionOffset = position - sim.getAngleRads();
+    positionOffset = position - sim.getAngle();
   }
 }
