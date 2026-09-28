@@ -3,7 +3,7 @@ package org.Griffins1884.frc2027.subsystems.pincer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import edu.wpi.first.wpilibj2.command.Command;
+import org.wpilib.wpilibj2.command.Command;
 import org.junit.jupiter.api.Test;
 
 class PincerSubsystemTest {

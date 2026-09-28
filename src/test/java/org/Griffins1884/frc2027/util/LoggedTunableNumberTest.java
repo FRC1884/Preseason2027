@@ -2,7 +2,7 @@ package org.Griffins1884.frc2027.util;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
+import org.wpilib.networktables.NetworkTableInstance;
 import java.lang.reflect.Field;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
