@@ -1,6 +1,6 @@
 package org.Griffins1884.frc2027.mechanisms.turrets;
 
-import static org.wpilib.math.system.LinearSystemId.createDCMotorSystem;
+import static org.wpilib.math.system.Models.singleJointedArmFromPhysicalConstants;
 
 import org.wpilib.math.util.MathUtil;
 import org.wpilib.math.system.DCMotor;
@@ -22,7 +22,7 @@ public class MechanismTurretIOSim implements MechanismTurretIO {
   }
 
   public MechanismTurretIOSim(DCMotor motorModel, double gearRatio, double moi, boolean inverted) {
-    sim = new DCMotorSim(createDCMotorSystem(motorModel, gearRatio, moi), motorModel);
+    sim = new DCMotorSim(singleJointedArmFromPhysicalConstants(motorModel, moi, gearRatio), motorModel);
     invertSign = inverted ? -1.0 : 1.0;
   }
 
@@ -37,15 +37,15 @@ public class MechanismTurretIOSim implements MechanismTurretIO {
     } else {
       inputs.connected[0] = true;
     }
-    double rawPositionRad = sim.getAngularPositionRad() * invertSign;
+    double rawPositionRad = sim.getAngularPosition() * invertSign;
     inputs.positionRad = rawPositionRad + positionOffsetRad;
-    inputs.velocityRadPerSec = sim.getAngularVelocityRadPerSec() * invertSign;
+    inputs.velocityRadPerSec = sim.getAngularVelocity() * invertSign;
     inputs.motorPositionRotations = Double.NaN;
     inputs.motorPositionTicks = Double.NaN;
     inputs.motorGoalRotations = Double.NaN;
     inputs.motorGoalTicks = Double.NaN;
     inputs.appliedVoltage = appliedVolts;
-    inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
+    inputs.supplyCurrentAmps = sim.getCurrentDraw();
     inputs.torqueCurrentAmps = inputs.supplyCurrentAmps;
     inputs.tempCelsius = 0.0;
     inputs.absoluteConnected = false;
@@ -60,6 +60,6 @@ public class MechanismTurretIOSim implements MechanismTurretIO {
 
   @Override
   public void setPosition(double positionRad) {
-    positionOffsetRad = positionRad - sim.getAngularPositionRad() * invertSign;
+    positionOffsetRad = positionRad - sim.getAngularPosition() * invertSign;
   }
 }
