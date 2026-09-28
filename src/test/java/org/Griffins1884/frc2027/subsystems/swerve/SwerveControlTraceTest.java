@@ -2,13 +2,13 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.wpi.first.hal.HAL;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.simulation.DriverStationSim;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.wpilib.hal.HAL;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.kinematics.ChassisSpeeds;
+import org.wpilib.math.kinematics.SwerveDriveKinematics;
+import org.wpilib.math.kinematics.SwerveModuleState;
+import org.wpilib.wpilibj.simulation.DriverStationSim;
+import org.wpilib.wpilibj2.command.CommandScheduler;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;

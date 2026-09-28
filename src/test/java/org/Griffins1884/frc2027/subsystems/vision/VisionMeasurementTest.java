@@ -2,8 +2,8 @@ package org.Griffins1884.frc2027.subsystems.vision;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Transform3d;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Transform3d;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +33,7 @@ class VisionMeasurementTest {
       next.standardDeviations = AprilTagVisionConstants.getLimelightStandardDeviations();
       next.megatagPoseEstimate =
           new MegatagPoseEstimate(
-              new Pose2d(1.0, 2.0, new edu.wpi.first.math.geometry.Rotation2d()),
+              new Pose2d(1.0, 2.0, new org.wpilib.math.geometry.Rotation2d()),
               timestamp,
               0.0,
               1.0,
