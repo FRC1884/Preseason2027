@@ -103,8 +103,7 @@ public class AutoAlignToPoseCommand extends Command {
 
     // Get robot-relative speeds and convert to field-relative
     ChassisVelocities robotSpeeds = drive.getRobotRelativeSpeeds();
-    ChassisVelocities fieldSpeeds =
-        ChassisVelocities.fromRobotRelativeSpeeds(robotSpeeds, currentPose.getRotation());
+    ChassisVelocities fieldSpeeds = robotSpeeds.toFieldRelative(currentPose.getRotation());
 
     // Unit vector pointing from robot → target
     double ux = (distance > 1e-6) ? toTarget.getX() / distance : 0.0;
@@ -184,7 +183,7 @@ public class AutoAlignToPoseCommand extends Command {
     // Command speeds
     var driveVelocity =
         new Translation2d(driveVelocityScalar, 0.0)
-            .rotateBy(currentPose.getTranslation().minus(target.getTranslation()).getAngle());
+            .rotateBy(currentPose.getTranslation().minus(target.getTranslation()).getAngle().get());
     double maxLinearSpeed = AlignConstants.Auto.MAX_LINEAR_SPEED_MPS.get() * constraintFactor;
     if (driveVelocity.getNorm() > maxLinearSpeed) {
       driveVelocity = driveVelocity.times(maxLinearSpeed / driveVelocity.getNorm());
@@ -198,9 +197,9 @@ public class AutoAlignToPoseCommand extends Command {
       Logger.recordOutput("DriveToPose/DriveVelocitySetpoint", driveVelocity);
       Logger.recordOutput("DriveToPose/ThetaVelocitySetpointRadPerSec", thetaVelocity);
     }
-    drive.runVelocity(
-        ChassisVelocities.fromFieldRelativeSpeeds(
-            driveVelocity.getX(), driveVelocity.getY(), thetaVelocity, currentPose.getRotation()));
+
+    ChassisVelocities driveVelocities = new ChassisVelocities(driveVelocity.getX(), driveVelocity.getY(), thetaVelocity);
+    drive.runVelocity(driveVelocities.toRobotRelative(currentPose.getRotation()));
   }
 
   @Override
