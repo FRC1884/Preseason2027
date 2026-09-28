@@ -88,10 +88,8 @@ public class DriveCommands {
             linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
             omega * drive.getMaxAngularSpeedRadPerSec());
     boolean isFlipped = AllianceFlipUtil.shouldFlip(drive.getPose());
-    drive.runVelocity(
-        ChassisVelocities.fromFieldRelativeSpeeds(
-            speeds,
-            isFlipped ? drive.getRotation().plus(new Rotation2d(Math.PI)) : drive.getRotation()));
+    
+    drive.runVelocity(speeds.toRobotRelative(drive.getRotation()));
   }
 
   public static Command joystickDriveCommand(
