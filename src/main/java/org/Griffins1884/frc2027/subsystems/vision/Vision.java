@@ -16,7 +16,7 @@ import org.wpilib.driverstation.Alliance;
 import org.wpilib.driverstation.MatchType;
 import org.wpilib.driverstation.DriverStationErrors;
 import org.wpilib.system.Timer;
-import org.wpilib.smartdashboard.SmartDashboard;
+import org.wpilib.telemetry.Telemetry;
 import org.wpilib.command2.SubsystemBase;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -549,8 +549,8 @@ public class Vision extends SubsystemBase implements VisionTargetProvider {
     Logger.recordOutput(prefix + "/MegatagCount", cam.megatagCount);
 
     if (RobotState.isDisabled()) {
-      SmartDashboard.putBoolean(prefix + "/SeesTarget", cam.seesTarget);
-      SmartDashboard.putNumber(prefix + "/MegatagCount", cam.megatagCount);
+      Telemetry.log(prefix + "/SeesTarget", cam.seesTarget);
+      Telemetry.log(prefix + "/MegatagCount", cam.megatagCount);
     }
 
     if (cam.pose3d != null) {
