@@ -1,7 +1,7 @@
 package org.Griffins1884.frc2027.util;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import org.wpilib.wpilibj.DriverStation;
+import org.wpilib.wpilibj.DriverStation.Alliance;
 import java.util.Optional;
 
 /** Alliance state helper that does not encode a season field's dimensions or coordinates. */
