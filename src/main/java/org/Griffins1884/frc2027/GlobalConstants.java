@@ -58,19 +58,6 @@ public final class GlobalConstants {
     return LOGGING_MODE == LoggingMode.COMP;
   }
 
-<<<<<<< HEAD
-  private static RobotMode determineRobotMode() {
-    String override = System.getProperty("frc.mode", "").trim().toLowerCase(Locale.ROOT);
-    return switch (override) {
-      case "real" -> RobotMode.REAL;
-      case "replay" -> RobotMode.REPLAY;
-      case "sim" -> RobotMode.SIM;
-      default -> RobotBase.isReal() ? RobotMode.REAL : RobotMode.SIM;
-    };
-  }
-
-  /** PID and feedforward gains with runtime tuning support. */
-=======
   /**
    * Checks whether the correct robot is selected when deploying (the main method is only ever
    * called on deploy).
@@ -430,7 +417,6 @@ public final class GlobalConstants {
   public static final class AlignOffsets {}
 
   /** PID + FF gains, using LoggedTunableNumber for live tuning. */
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
   public record Gains(
       LoggedTunableNumber kP,
       LoggedTunableNumber kI,
@@ -440,19 +426,11 @@ public final class GlobalConstants {
       LoggedTunableNumber kA,
       LoggedTunableNumber kG) {
     public Gains(String prefix, double kP, double kI, double kD) {
-<<<<<<< HEAD
-      this(prefix, kP, kI, kD, 0.0, 0.0, 0.0, 0.0);
-    }
-
-    public Gains(String prefix, double kP, double kI, double kD, double kS, double kV, double kA) {
-      this(prefix, kP, kI, kD, kS, kV, kA, 0.0);
-=======
       this(prefix, kP, kI, kD, 0, 0, 0, 0);
     }
 
     public Gains(String prefix, double kP, double kI, double kD, double kS, double kV, double kA) {
       this(prefix, kP, kI, kD, kS, kV, kA, 0);
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
     }
 
     public Gains(
