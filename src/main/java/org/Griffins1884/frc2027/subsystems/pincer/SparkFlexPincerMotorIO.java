@@ -1,7 +1,7 @@
 package org.Griffins1884.frc2027.subsystems.pincer;
 
 import com.revrobotics.spark.SparkFlex;
-import edu.wpi.first.math.MathUtil;
+import org.wpilib.math.util.MathUtil;
 import java.util.Objects;
 
 /** Adapts a NEO Vortex's preconfigured SPARK Flex controller for pincer use. */
@@ -25,7 +25,7 @@ public final class SparkFlexPincerMotorIO implements PincerMotorIO {
       return;
     }
 
-    motor.set(MathUtil.clamp(output, -1.0, 1.0));
+    motor.set(Math.clamp(output, -1.0, 1.0));
   }
 
   @Override
