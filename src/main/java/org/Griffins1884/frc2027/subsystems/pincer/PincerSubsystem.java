@@ -1,9 +1,9 @@
 package org.Griffins1884.frc2027.subsystems.pincer;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.wpilib.math.util.MathUtil;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.Commands;
+import org.wpilib.command2.SubsystemBase;
 import java.util.Objects;
 
 /** Vendor-neutral two-motor pincer control. */
@@ -64,8 +64,8 @@ public class PincerSubsystem extends SubsystemBase {
     }
 
     double limitedOutput =
-        MathUtil.clamp(
-            MathUtil.clamp(requestedOutput, -1.0, 1.0),
+        Math.clamp(
+            Math.clamp(requestedOutput, -1.0, 1.0),
             -config.maxActuatorOutput(),
             config.maxActuatorOutput());
 

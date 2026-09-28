@@ -1,7 +1,7 @@
 package org.Griffins1884.frc2027.subsystems.pincer;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-import edu.wpi.first.math.MathUtil;
+import org.wpilib.math.util.MathUtil;
 import java.util.Objects;
 
 /** Adapts a Kraken X60's preconfigured Talon FX controller for pincer use. */
@@ -25,7 +25,7 @@ public final class TalonFXPincerMotorIO implements PincerMotorIO {
       return;
     }
 
-    motor.set(MathUtil.clamp(output, -1.0, 1.0));
+    motor.set(Math.clamp(output, -1.0, 1.0));
   }
 
   @Override
