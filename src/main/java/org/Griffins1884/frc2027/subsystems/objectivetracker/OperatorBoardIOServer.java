@@ -99,71 +99,71 @@ public class OperatorBoardIOServer implements OperatorBoardIO {
     requestedStateIn =
         inputTable
             .getStringTopic(OperatorBoardContract.REQUESTED_STATE)
-            .subscribe("", PubSubOption.keepDuplicates(true));
+            .subscribe("", PubSubOption.KEEP_DUPLICATES);
     autoStateEnableIn =
         inputTable
             .getBooleanTopic(OperatorBoardContract.AUTO_STATE_ENABLE)
-            .subscribe(false, PubSubOption.keepDuplicates(true));
+            .subscribe(false, PubSubOption.KEEP_DUPLICATES);
     playSwerveMusicIn =
         inputTable
             .getBooleanTopic(OperatorBoardContract.PLAY_SWERVE_MUSIC)
-            .subscribe(false, PubSubOption.keepDuplicates(true));
+            .subscribe(false, PubSubOption.KEEP_DUPLICATES);
     stopSwerveMusicIn =
         inputTable
             .getBooleanTopic(OperatorBoardContract.STOP_SWERVE_MUSIC)
-            .subscribe(false, PubSubOption.keepDuplicates(true));
+            .subscribe(false, PubSubOption.KEEP_DUPLICATES);
     swerveMusicVolumeIn =
         inputTable
             .getDoubleTopic(OperatorBoardContract.SWERVE_MUSIC_VOLUME)
-            .subscribe(Double.NaN, PubSubOption.keepDuplicates(true));
+            .subscribe(Double.NaN, PubSubOption.KEEP_DUPLICATES);
     rollLogsIn =
         inputTable
             .getBooleanTopic(OperatorBoardContract.ROLL_LOGS)
-            .subscribe(false, PubSubOption.keepDuplicates(true));
+            .subscribe(false, PubSubOption.KEEP_DUPLICATES);
     cleanLogsIn =
         inputTable
             .getBooleanTopic(OperatorBoardContract.CLEAN_LOGS)
-            .subscribe(false, PubSubOption.keepDuplicates(true));
+            .subscribe(false, PubSubOption.KEEP_DUPLICATES);
     requestIntakeDeployRezeroIn =
         inputTable
             .getBooleanTopic(OperatorBoardContract.REQUEST_INTAKE_DEPLOY_REZERO)
-            .subscribe(false, PubSubOption.keepDuplicates(true));
+            .subscribe(false, PubSubOption.KEEP_DUPLICATES);
     cancelIntakeDeployRezeroIn =
         inputTable
             .getBooleanTopic(OperatorBoardContract.CANCEL_INTAKE_DEPLOY_REZERO)
-            .subscribe(false, PubSubOption.keepDuplicates(true));
+            .subscribe(false, PubSubOption.KEEP_DUPLICATES);
     requestManualIntakeDeployZeroSeekIn =
         inputTable
             .getBooleanTopic(OperatorBoardContract.REQUEST_MANUAL_INTAKE_DEPLOY_ZERO_SEEK)
-            .subscribe(false, PubSubOption.keepDuplicates(true));
+            .subscribe(false, PubSubOption.KEEP_DUPLICATES);
     cancelManualIntakeDeployZeroSeekIn =
         inputTable
             .getBooleanTopic(OperatorBoardContract.CANCEL_MANUAL_INTAKE_DEPLOY_ZERO_SEEK)
-            .subscribe(false, PubSubOption.keepDuplicates(true));
+            .subscribe(false, PubSubOption.KEEP_DUPLICATES);
     selectedAutoIdIn =
         inputTable
             .getStringTopic(OperatorBoardContract.SELECTED_AUTO_ID)
-            .subscribe("", PubSubOption.keepDuplicates(true));
+            .subscribe("", PubSubOption.KEEP_DUPLICATES);
     autoQueueSpecIn =
         inputTable
             .getStringTopic(OperatorBoardContract.AUTO_QUEUE_SPEC)
-            .subscribe("", PubSubOption.keepDuplicates(true));
+            .subscribe("", PubSubOption.KEEP_DUPLICATES);
     autoQueueCommandIn =
         inputTable
             .getStringTopic(OperatorBoardContract.AUTO_QUEUE_COMMAND)
-            .subscribe("", PubSubOption.keepDuplicates(true));
+            .subscribe("", PubSubOption.KEEP_DUPLICATES);
     runtimeProfileSpecIn =
         inputTable
             .getStringTopic(OperatorBoardContract.RUNTIME_PROFILE_SPEC)
-            .subscribe("", PubSubOption.keepDuplicates(true));
+            .subscribe("", PubSubOption.KEEP_DUPLICATES);
     applyRuntimeProfileIn =
         inputTable
             .getBooleanTopic(OperatorBoardContract.APPLY_RUNTIME_PROFILE)
-            .subscribe(false, PubSubOption.keepDuplicates(true));
+            .subscribe(false, PubSubOption.KEEP_DUPLICATES);
     resetRuntimeProfileIn =
         inputTable
             .getBooleanTopic(OperatorBoardContract.RESET_RUNTIME_PROFILE)
-            .subscribe(false, PubSubOption.keepDuplicates(true));
+            .subscribe(false, PubSubOption.KEEP_DUPLICATES);
 
     var outputTable =
         NetworkTableInstance.getDefault().getTable(OperatorBoardContract.TO_DASHBOARD);
