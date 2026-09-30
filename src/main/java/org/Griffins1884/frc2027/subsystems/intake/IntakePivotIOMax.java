@@ -1,5 +1,6 @@
 package org.Griffins1884.frc2027.subsystems.intake;
 
+import org.Griffins1884.frc2027.CanIDConstants;
 import org.Griffins1884.frc2027.mechanisms.arms.MechanismArmIOSparkMax;
 
 public class IntakePivotIOMax extends MechanismArmIOSparkMax implements IntakePivotIO {
@@ -10,7 +11,8 @@ public class IntakePivotIOMax extends MechanismArmIOSparkMax implements IntakePi
         IntakePivotConstants.BRAKE_MODE,
         IntakePivotConstants.FORWARD_LIMIT,
         IntakePivotConstants.REVERSE_LIMIT,
-        IntakePivotConstants.POSITION_COEFFICIENT);
+        IntakePivotConstants.POSITION_COEFFICIENT,
+        CanIDConstants.INTAKE_PIVOT_IO_MAX);
     if (inverted) {
       invert(0);
     }
