@@ -55,7 +55,7 @@ public class LEDIOSim implements LEDIO {
       }
 
       ledLocal.setLength(bufferLocal.getLength());
-      ledLocal.start();
+      ledLocal.setStart(ledLocal.getChannel());
     } catch (RuntimeException ex) {
       enabled = false;
       disabledReason = "InitFailure";
