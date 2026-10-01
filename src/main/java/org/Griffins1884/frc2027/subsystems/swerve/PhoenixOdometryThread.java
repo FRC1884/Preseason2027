@@ -4,6 +4,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import org.wpilib.units.measure.Angle;
+import org.wpilib.hardware.hal.ThreadsJNI;
 import org.wpilib.system.RobotController;
 import org.wpilib.system.Threads;
 import java.util.ArrayList;
@@ -112,7 +113,7 @@ public class PhoenixOdometryThread extends Thread {
   public void run() {
     // DO NOT COPY UNLESS YOU UNDERSTAND THE CONSEQUENCES
     // https://docs.advantagekit.org/getting-started/template-projects/spark-swerve-template#real-time-thread-priority
-    Threads.setCurrentThreadPriority(true, 1);
+    ThreadsJNI.setCurrentThreadPriority(1);
 
     while (true) {
       // Wait for updates from all signals
@@ -139,7 +140,7 @@ public class PhoenixOdometryThread extends Thread {
         // Sample timestamp is current FPGA time minus average CAN latency
         // Default timestamps from Phoenix are NOT compatible with
         // FPGA timestamps, this solution is imperfect but close
-        double timestamp = RobotController.getFPGATime() / 1e6;
+        double timestamp = RobotController.getTime() / 1e6;
         double totalLatency = 0.0;
         for (BaseStatusSignal signal : phoenixSignals) {
           totalLatency += signal.getTimestamp().getLatency();

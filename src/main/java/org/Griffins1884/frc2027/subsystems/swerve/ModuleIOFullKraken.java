@@ -4,6 +4,7 @@ import static org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.*;
 import static org.Griffins1884.frc2027.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -26,6 +27,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import org.Griffins1884.frc2027.CanIDConstants;
 import org.Griffins1884.frc2027.GlobalConstants;
 import org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.ModuleConstants;
 import org.Griffins1884.frc2027.util.PhoenixUtil;
@@ -89,7 +92,7 @@ public class ModuleIOFullKraken implements ModuleIO {
     softwareZeroTrimRotations = SwerveCalibration.getModuleZeroTrimRotations(calibrationKey);
     driveMotor = new TalonFX(moduleConstants.driveID(), SwerveConstants.canBus);
     turnMotor = new TalonFX(moduleConstants.rotatorID(), SwerveConstants.canBus);
-    turnEncoder = hasCancoder ? new CANcoder(moduleConstants.cancoderID()) : null;
+    turnEncoder = hasCancoder ? new CANcoder(moduleConstants.cancoderID(), new CANBus(CanIDConstants.MODULE_IO_FULL_KRAKEN)) : null;
     if (hasCancoder) {
       var cancoderConfig = new CANcoderConfiguration();
       // Match Mechanical Advantage: apply zeroRotation as the CANCoder magnet offset.
