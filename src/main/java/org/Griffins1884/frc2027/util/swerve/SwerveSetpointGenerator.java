@@ -7,7 +7,7 @@ import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.math.geometry.Twist2d;
 import org.wpilib.math.kinematics.ChassisVelocities;
 import org.wpilib.math.kinematics.SwerveDriveKinematics;
-import org.wpilib.math.kinematics.SwerveModuleState;
+import org.wpilib.math.kinematics.SwerveModuleVelocity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -172,10 +172,10 @@ public class SwerveSetpointGenerator {
       double dt) {
     final Translation2d[] modules = moduleLocations;
 
-    SwerveModuleState[] desiredModuleState = kinematics.toSwerveModuleStates(desiredState);
+    SwerveModuleVelocity[] desiredModuleState = kinematics.toSwerveModuleVelocities(desiredState);
     // Make sure desiredState respects velocity limits.
     if (limits.maxDriveVelocity() > 0.0) {
-      SwerveDriveKinematics.desaturateWheelSpeeds(desiredModuleState, limits.maxDriveVelocity());
+      SwerveDriveKinematics.desaturateWheelVelocities(desiredModuleState, limits.maxDriveVelocity());
       desiredState = kinematics.toChassisVelocities(desiredModuleState);
     }
 
@@ -362,7 +362,7 @@ public class SwerveSetpointGenerator {
             prevSetpoint.chassisSpeeds().vx + min_s * dx,
             prevSetpoint.chassisSpeeds().vy + min_s * dy,
             prevSetpoint.chassisSpeeds().omega + min_s * dtheta);
-    var retStates = kinematics.toSwerveModuleStates(retSpeeds);
+    var retStates = kinematics.toSwerveModuleVelocities(retSpeeds);
     for (int i = 0; i < modules.length; ++i) {
       final var maybeOverride = overrideSteering.get(i);
       if (maybeOverride.isPresent()) {
