@@ -1,6 +1,6 @@
 package org.Griffins1884.frc2027.subsystems.swerve;
 
-import org.wpilib.util.Preferences;
+import org.wpilib.preferences.Preferences;
 
 public final class SwerveCalibration {
   private static final String WHEEL_RADIUS_KEY = "Swerve/Calibration/WheelRadiusMeters";
