@@ -91,7 +91,7 @@ public class GamePieceVisualizer {
                                     defaultLauncherTransform
                                         .getTranslation()
                                         .toTranslation2d()
-                                        .getAngle()))
+                                        .getAngle().get()))
                             .getTranslation()))));
   }
 }
