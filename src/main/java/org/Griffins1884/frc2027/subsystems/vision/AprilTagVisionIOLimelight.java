@@ -83,7 +83,7 @@ public class AprilTagVisionIOLimelight implements VisionIO {
         limelightName, gyroYawDeg, 0.0, 0.0, gyroYawRateDegPerSec, 0.0, 0.0);
 
     long lastChange = table.getEntry("tl").getLastChange();
-    long now = RobotController.getFPGATime();
+    long now = RobotController.getTime();
     inputs.connected = lastChange > 0 && (now - lastChange) < DISCONNECT_TIMEOUT_MICROS;
     inputs.seesTarget = LimelightHelpers.getTV(limelightName);
     if (inputs.seesTarget) {
