@@ -2,18 +2,18 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.wpilib.hal.HAL;
+import org.wpilib.hardware.hal.HAL;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;
-import org.wpilib.math.kinematics.ChassisSpeeds;
-import org.wpilib.wpilibj2.command.CommandScheduler;
+import org.wpilib.math.kinematics.ChassisVelocities;
+import org.wpilib.command2.CommandScheduler;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class SwerveMeasurementRegressionTest {
   @BeforeAll
   static void initializeHal() {
-    assertTrue(HAL.initialize(500, 0));
+    assertTrue(HAL.initialize());
   }
 
   @Test
@@ -32,10 +32,10 @@ class SwerveMeasurementRegressionTest {
         assertEquals(cycle * 0.04 * radius, drive.getPose().getX(), 1e-9);
         assertEquals(0.0, drive.getPose().getY(), 1e-9);
         assertEquals(0.0, drive.getPose().getRotation().getRadians(), 1e-9);
-        ChassisSpeeds speeds = drive.getRobotRelativeSpeeds();
-        assertEquals(2.0 * radius, speeds.vxMetersPerSecond, 1e-9);
-        assertEquals(0.0, speeds.vyMetersPerSecond, 1e-9);
-        assertEquals(0.0, speeds.omegaRadiansPerSecond, 1e-9);
+        ChassisVelocities speeds = drive.getRobotRelativeSpeeds();
+        assertEquals(2.0 * radius, speeds.vx, 1e-9);
+        assertEquals(0.0, speeds.vy, 1e-9);
+        assertEquals(0.0, speeds.omega, 1e-9);
       }
     } finally {
       CommandScheduler.getInstance().unregisterSubsystem(drive);
@@ -50,7 +50,7 @@ class SwerveMeasurementRegressionTest {
     try {
       io.position = 1.0;
       drive.periodic();
-      drive.resetOdometry(new Pose2d(2.0, 3.0, Rotation2d.kZero));
+      drive.resetOdometry(new Pose2d(2.0, 3.0, Rotation2d.ZERO));
       io.position = 1.5;
       io.timestamp += 0.02;
       drive.periodic();
@@ -68,7 +68,7 @@ class SwerveMeasurementRegressionTest {
     module.periodic();
     module.runCharacterization(3.25);
     assertEquals(3.25, io.driveOutput);
-    assertEquals(Rotation2d.kZero, io.turnTarget);
+    assertEquals(Rotation2d.ZERO, io.turnTarget);
     module.runTurnCharacterization(-2.0);
     assertEquals(0.0, io.driveOutput);
     assertEquals(-2.0, io.turnOutput);
@@ -91,10 +91,10 @@ class SwerveMeasurementRegressionTest {
       inputs.turnConnected = true;
       inputs.drivePositionRad = position;
       inputs.driveVelocityRadPerSec = velocity;
-      inputs.turnPosition = Rotation2d.kZero;
+      inputs.turnPosition = Rotation2d.ZERO;
       inputs.odometryTimestamps = new double[] {timestamp};
       inputs.odometryDrivePositionsRad = new double[] {position};
-      inputs.odometryTurnPositions = new Rotation2d[] {Rotation2d.kZero};
+      inputs.odometryTurnPositions = new Rotation2d[] {Rotation2d.ZERO};
     }
 
     @Override
