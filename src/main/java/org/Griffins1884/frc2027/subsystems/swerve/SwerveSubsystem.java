@@ -166,7 +166,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
     modules[2] = new Module(blModuleIO, 2);
     modules[3] = new Module(brModuleIO, 3);
 
-    
+
     if (GlobalConstants.MODE != SIM) {
       musicPlayer = new SwerveMusicPlayer(modules, SwerveConstants.SWERVE_MUSIC_FILE);
     } else {
