@@ -2,11 +2,12 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.wpilib.hal.HAL;
+import org.wpilib.hardware.hal.HAL;
 import org.wpilib.math.geometry.Rotation2d;
-import org.wpilib.math.kinematics.ChassisSpeeds;
-import org.wpilib.wpilibj.DriverStation;
-import org.wpilib.wpilibj.simulation.DriverStationSim;
+import org.wpilib.math.kinematics.ChassisVelocities;
+import org.wpilib.driverstation.DriverStation;
+import org.wpilib.driverstation.internal.DriverStationBackend;
+import org.wpilib.simulation.DriverStationSim;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,14 +28,14 @@ class ModuleConfigurationIntegrationTest {
 
   @BeforeAll
   static void initializeHal() {
-    assertTrue(HAL.initialize(500, 0));
+    assertTrue(HAL.initialize());
   }
 
   @BeforeEach
   void setup() {
     previousProfile = RuntimeModeManager.getActiveProfile();
-    previousEnabled = DriverStation.isEnabled();
-    previousDsAttached = DriverStation.isDSAttached();
+    previousEnabled = DriverStationBackend.isEnabled();
+    previousDsAttached = DriverStationBackend.isDSAttached();
     RuntimeModeManager.setActiveProfile(
         new RuntimeModeProfile(GlobalConstants.LoggingMode.COMP, false, Set.of(), null, null));
     enabled(false);
@@ -45,7 +46,7 @@ class ModuleConfigurationIntegrationTest {
     DriverStationSim.setEnabled(previousEnabled);
     DriverStationSim.setDsAttached(previousDsAttached);
     DriverStationSim.notifyNewData();
-    DriverStation.refreshData();
+    DriverStationBackend.refreshData();
     RuntimeModeManager.setActiveProfile(previousProfile);
   }
 
@@ -53,13 +54,13 @@ class ModuleConfigurationIntegrationTest {
     DriverStationSim.setDsAttached(true);
     DriverStationSim.setEnabled(enabled);
     DriverStationSim.notifyNewData();
-    DriverStation.refreshData();
-    assertEquals(enabled, DriverStation.isEnabled());
+    DriverStationBackend.refreshData();
+    assertEquals(enabled, DriverStationBackend.isEnabled());
   }
 
   @Test
   void selectedInitialGainsAreAppliedBeforeOutputsWithNoUnchangedReapplication() {
-    try (var worker = new ModuleConfigurationWorker(DriverStation::isDisabled)) {
+    try (var worker = new ModuleConfigurationWorker(DriverStationBackend::isDisabled)) {
       FakeIO[] ios = modules(worker, (gains, brake) -> "");
       SwerveSubsystem drive = drive(ios);
       try {
@@ -92,7 +93,7 @@ class ModuleConfigurationIntegrationTest {
     CountDownLatch entered = new CountDownLatch(1);
     CountDownLatch release = new CountDownLatch(1);
     AtomicInteger calls = new AtomicInteger();
-    var worker = new ModuleConfigurationWorker(DriverStation::isDisabled);
+    var worker = new ModuleConfigurationWorker(DriverStationBackend::isDisabled);
     ExecutorService executor = Executors.newSingleThreadExecutor();
     FakeIO[] ios =
         modules(
@@ -131,7 +132,7 @@ class ModuleConfigurationIntegrationTest {
       enabled(true);
       drive.periodic();
       int[] before = java.util.Arrays.stream(ios).mapToInt(io -> io.nonzeroRequests).toArray();
-      drive.runVelocity(new ChassisSpeeds(1, 0, 0));
+      drive.runVelocity(new ChassisVelocities(1, 0, 0));
       drive.runCharacterization(3.0);
       drive.runTurnCharacterization(3.0);
       assertInhibited(ios, before);
@@ -182,7 +183,7 @@ class ModuleConfigurationIntegrationTest {
       inputs.add(input);
       values.add(number.get());
     }
-    try (var worker = new ModuleConfigurationWorker(DriverStation::isDisabled)) {
+    try (var worker = new ModuleConfigurationWorker(DriverStationBackend::isDisabled)) {
       FakeIO io = new FakeIO(worker, (gains, brake) -> "");
       Module module = new Module(io, 0);
       try {
@@ -296,7 +297,7 @@ class ModuleConfigurationIntegrationTest {
       inputs.turnConnected = true;
       inputs.odometryTimestamps = new double[] {timestamp};
       inputs.odometryDrivePositionsRad = new double[] {0};
-      inputs.odometryTurnPositions = new Rotation2d[] {Rotation2d.kZero};
+      inputs.odometryTurnPositions = new Rotation2d[] {Rotation2d.ZERO};
     }
 
     @Override

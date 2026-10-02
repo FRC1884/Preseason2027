@@ -2,7 +2,7 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.wpilib.hal.HAL;
+import org.wpilib.hardware.hal.HAL;
 import java.util.Queue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 class PhoenixOdometryQueueTest {
   @BeforeAll
   static void initializeHal() {
-    assertTrue(HAL.initialize(500, 0));
+    assertTrue(HAL.initialize());
   }
 
   @Test

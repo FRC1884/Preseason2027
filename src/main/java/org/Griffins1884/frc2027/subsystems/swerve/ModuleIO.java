@@ -33,6 +33,25 @@ public interface ModuleIO {
   /** Updates the set of loggable inputs. */
   public default void updateInputs(ModuleIOInputs inputs) {}
 
+  public default void updateInputs(ModuleIOInputs inputs, double acquisitionTimestampSeconds) {
+    updateInputs(inputs);
+  }
+
+  public default void updateConfigurationState(boolean disabled) {}
+    default ModuleConfigurationWorker.Status getConfigurationStatus() {
+    return ModuleConfigurationWorker.Status.READY;
+  }
+
+  public default void initializeConfiguration(ModuleConfiguration configuration) {
+    setDrivePID(configuration.driveP(), configuration.driveI(), configuration.driveD());
+    setTurnPID(configuration.turnP(), configuration.turnI(), configuration.turnD());
+  }
+
+  public default boolean requestConfiguration(ModuleConfiguration configuration) {
+    initializeConfiguration(configuration);
+    return true;
+  }
+
   /** Run the drive motor at the specified open loop value. */
   public default void setDriveOpenLoop(double output) {}
 
@@ -45,6 +64,14 @@ public interface ModuleIO {
   /** Run the drive motor at the specified velocity with a feedforward term. */
   public default void setDriveVelocity(double velocityRadPerSec, double feedforward) {
     setDriveVelocity(velocityRadPerSec);
+  }
+
+  public default void close() {}
+
+  public default void clearOdometrySamples() {}
+
+  public default boolean isConfigurationReady() {
+    return true;
   }
 
   /** Run the turn motor to the specified rotation. */
