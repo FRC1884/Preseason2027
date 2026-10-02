@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;
-import org.wpilib.wpilibj.DriverStation.Alliance;
-import org.wpilib.wpilibj2.command.Command;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.command2.Command;
 import java.util.Optional;
 import org.Griffins1884.frc2027.subsystems.swerve.GyroIO;
 import org.Griffins1884.frc2027.subsystems.swerve.ModuleIO;
@@ -21,11 +21,11 @@ class DriveCommandsHeadingResetTest {
     FakeGyro gyro = new FakeGyro();
     SwerveSubsystem drive = newSubsystem(gyro);
     drive.resetOdometry(new Pose2d(1.5, 2.75, Rotation2d.fromDegrees(30.0)));
-    Alliance[] alliance = {Alliance.Blue};
+    Alliance[] alliance = {Alliance.BLUE};
     Command command =
         DriveCommands.resetHeadingToAllianceForwardCommand(drive, () -> Optional.of(alliance[0]));
 
-    alliance[0] = Alliance.Red;
+    alliance[0] = Alliance.RED;
     command.initialize();
 
     assertTrue(command.getRequirements().contains(drive));
