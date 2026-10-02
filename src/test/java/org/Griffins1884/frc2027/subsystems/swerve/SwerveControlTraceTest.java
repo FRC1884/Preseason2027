@@ -2,13 +2,13 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.wpilib.hal.HAL;
+import org.wpilib.hardware.hal.HAL;
 import org.wpilib.math.geometry.Rotation2d;
-import org.wpilib.math.kinematics.ChassisSpeeds;
+import org.wpilib.math.kinematics.ChassisVelocities;
 import org.wpilib.math.kinematics.SwerveDriveKinematics;
-import org.wpilib.math.kinematics.SwerveModuleState;
-import org.wpilib.wpilibj.simulation.DriverStationSim;
-import org.wpilib.wpilibj2.command.CommandScheduler;
+import org.wpilib.math.kinematics.SwerveModuleVelocity;
+import org.wpilib.simulation.DriverStationSim;
+import org.wpilib.command2.CommandScheduler;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 class SwerveControlTraceTest {
   @BeforeAll
   static void initializeHal() {
-    assertTrue(HAL.initialize(500, 0));
+    assertTrue(HAL.initialize());
   }
 
   @Test
@@ -56,9 +56,9 @@ class SwerveControlTraceTest {
         }
         drive.periodic();
         double[] requested = commands[cycle];
-        drive.runVelocity(new ChassisSpeeds(requested[0], requested[1], requested[2]));
+        drive.runVelocity(new ChassisVelocities(requested[0], requested[1], requested[2]));
         if (cycle == 7) drive.stopWithX();
-        ChassisSpeeds measured = drive.getRobotRelativeSpeeds();
+        ChassisVelocities measured = drive.getRobotRelativeSpeeds();
         for (int i = 0; i < 10; i++) drive.getRobotRelativeSpeeds();
         StringBuilder row =
             new StringBuilder(
@@ -68,9 +68,9 @@ class SwerveControlTraceTest {
                     drive.getPose().getX(),
                     drive.getPose().getY(),
                     drive.getPose().getRotation().getRadians(),
-                    measured.vxMetersPerSecond,
-                    measured.vyMetersPerSecond,
-                    measured.omegaRadiansPerSecond));
+                    measured.vx,
+                    measured.vy,
+                    measured.omega));
         for (TraceModule module : io)
           row.append(
               String.format(
@@ -151,9 +151,9 @@ class SwerveControlTraceTest {
     }
 
     @Override
-    public ChassisSpeeds toChassisSpeeds(SwerveModuleState... states) {
+    public ChassisVelocities toChassisVelocities(SwerveModuleVelocity... states) {
       measuredCalls++;
-      return super.toChassisSpeeds(states);
+      return super.toChassisVelocities(states);
     }
   }
 

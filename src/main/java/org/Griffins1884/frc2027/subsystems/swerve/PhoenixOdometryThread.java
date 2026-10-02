@@ -33,6 +33,10 @@ public class PhoenixOdometryThread extends Thread {
   private final List<Queue<Double>> genericQueues = new ArrayList<>();
   private final List<Queue<Double>> timestampQueues = new ArrayList<>();
 
+  private volatile long droppedSamples;
+
+  private static final int QUEUE_CAPACITY = 20;
+
   private static boolean isCANFD = detectCanFd();
 
   private static boolean detectCanFd() {
@@ -41,6 +45,23 @@ public class PhoenixOdometryThread extends Thread {
     } catch (RuntimeException e) {
       return false;
     }
+  }
+
+  public long getDroppedSamples() {
+    return droppedSamples;
+  }
+  
+  public void shutdown() {
+    interrupt();
+    boolean interrupted = false;
+    while (isAlive()) {
+      try {
+        join();
+      } catch (InterruptedException exception) {
+        interrupted = true;
+      }
+    }
+    if (interrupted) Thread.currentThread().interrupt();
   }
 
   private static PhoenixOdometryThread instance = null;
@@ -52,7 +73,7 @@ public class PhoenixOdometryThread extends Thread {
     return instance;
   }
 
-  private PhoenixOdometryThread() {
+  PhoenixOdometryThread() {
     setName("PhoenixOdometryThread");
     setDaemon(true);
   }
@@ -62,6 +83,26 @@ public class PhoenixOdometryThread extends Thread {
     if (timestampQueues.size() > 0) {
       super.start();
     }
+  }
+  
+  private boolean anyQueueFull(List<Queue<Double>> queues){
+    for (Queue<Double> queue : queues) if (queue.size() >= QUEUE_CAPACITY) return true;
+    return false;
+  }
+
+  /** All channels append together or all drop together; caller holds odometryLock. */
+  void publishSample(double timestamp) {
+    if (anyQueueFull(phoenixQueues)
+        || anyQueueFull(genericQueues)
+        || anyQueueFull(timestampQueues)) {
+      droppedSamples++;
+      return;
+    }
+    for (int i = 0; i < phoenixSignals.length; i++)
+      phoenixQueues.get(i).offer(phoenixSignals[i].getValueAsDouble());
+    for (int i = 0; i < genericSignals.size(); i++)
+      genericQueues.get(i).offer(genericSignals.get(i).getAsDouble());
+    for (Queue<Double> queue : timestampQueues) queue.offer(timestamp);
   }
 
   /** Registers a Phoenix signal to be read from the thread. */

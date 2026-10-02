@@ -4,15 +4,19 @@ import static org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.*;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import org.wpilib.math.util.MathUtil;
+import org.wpilib.driverstation.DriverStation;
+import org.wpilib.driverstation.internal.DriverStationBackend;
 import org.wpilib.math.controller.SimpleMotorFeedforward;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.kinematics.SwerveModulePosition;
-import org.wpilib.math.kinematics.SwerveModuleState;
+import org.wpilib.math.kinematics.SwerveModuleVelocity;
 import org.wpilib.math.system.DCMotor;
 import org.wpilib.util.Alert;
 import org.wpilib.util.Alert.Level;
 import java.util.List;
 import lombok.Getter;
+
+import org.Griffins1884.frc2027.runtime.RuntimeModeManager;
 import org.Griffins1884.frc2027.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
@@ -39,7 +43,7 @@ public class Module {
     krakenDrivekS.initDefault(KRAKEN_DRIVE_TORQUE_GAINS.kS().get());
     krakenDrivekV.initDefault(KRAKEN_DRIVE_TORQUE_GAINS.kV().get());
     krakenDrivekT.initDefault(
-        SwerveConstants.KRAKEN_DRIVE_GEAR_RATIO / DCMotor.getKrakenX60Foc(1).KtNMPerAmp);
+        SwerveConstants.KRAKEN_DRIVE_GEAR_RATIO / DCMotor.getKrakenX60Foc(1).Kt);
     krakenDrivekP.initDefault(KRAKEN_DRIVE_TORQUE_GAINS.kP().get());
     krakenDrivekD.initDefault(KRAKEN_DRIVE_TORQUE_GAINS.kD().get());
     krakenTurnkP.initDefault(KRAKEN_TURN_TORQUE_GAINS.kP().get());
@@ -52,6 +56,34 @@ public class Module {
   private SimpleMotorFeedforward krakenFfModel =
       new SimpleMotorFeedforward(krakenDrivekS.get(), krakenDrivekV.get());
 
+  private final String keyInputsDriveConnected;
+  private final String keyInputsDrivePositionRad;
+  private final String keyInputsDriveVelocityRadPerSec;
+  private final String keyInputsDriveAppliedVolts;
+  private final String keyInputsDriveCurrentAmps;
+  private final String keyInputsTurnConnected;
+  private final String keyInputsTurnPosition;
+  private final String keyInputsTurnVelocityRadPerSec;
+  private final String keyInputsTurnAppliedVolts;
+  private final String keyInputsTurnCurrentAmps;
+  private final String keyAngleJumpDetected;
+  private final String keyAngleJumpCount;
+  private final String keyZeroTrimRotations;
+  private final String keyInputsOdometryTimestamps;
+  private final String keyInputsOdometryDrivePositionsRad;
+  private final String keyInputsOdometryTurnPositions;
+  private final String keyInputsOdometryTurnPositionsRotations;
+  private final String keyDesiredSpeedMps;
+  private final String keyActualSpeedMps;
+  private final String keySpeedErrorMps;
+  private final String keySpeedRatio;
+  private final String keyDesiredAngleRad;
+  private final String keyActualAngleRad;
+  private final String keyAbsoluteAngleRad;
+  private final String keyAngleErrorRad;
+  private final String keyLastAngleDeltaRad;
+  private final String keyInvalidOdometryBatches;
+
   private final Alert driveDisconnectedAlert;
   private final Alert turnDisconnectedAlert;
   private double desiredSpeedMetersPerSec = 0.0;
@@ -61,16 +93,112 @@ public class Module {
   private int angleJumpCount = 0;
   private double lastAngleDeltaRad = 0.0;
 
+  private ModuleConfiguration desiredConfiguration;
+  private ModuleConfiguration requestedConfiguration;
+  private double desiredKs = krakenDrivekS.get();
+  private double desiredKv = krakenDrivekV.get();
+  private double appliedKs = desiredKs;
+  private double appliedKv = desiredKv;
+
+  private double lastLoggedTrim = Double.NaN;
+  private int invalidOdometryBatches;
+  private ModuleConfigurationWorker.Status lastConfigurationStatus;
+  private final String configurationDesiredRevisionKey;
+  private final String configurationAppliedRevisionKey;
+  private final String configurationInFlightKey;
+  private final String configurationFailedKey;
+  private final String configurationInhibitedKey;
+  private final String configurationAttemptsKey;
+  private final String configurationCompletionsKey;
+  private final String configurationDurationKey;
+  private final String configurationErrorKey;
+  private final String configurationDesiredGainsKey;
+  private final String appliedFeedforwardKey;
+  private double loggedAppliedKs = Double.NaN;
+  private double loggedAppliedKv = Double.NaN;
+  private final String configurationFailureCountKey;
+  private final String configurationLastFailedRevisionKey;
+  private final String configurationLastFailureErrorKey;
+  private final String telemetryTimingKey;
+  private final String odometryTimingKey;
+
   /** -- GETTER -- Returns the module positions received this cycle. */
   @Getter private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
 
   public Module(ModuleIO io, int index) {
     this.io = io;
     this.index = index;
+    telemetryTimingKey = "Swerve/Module" + index + "/Performance/TelemetryAndFaultEvaluationMS";
+    odometryTimingKey = "Swerve/Module" + index + "/Performance/OdometryConversionMS";
+    String configurationKey = "Swerve/Module" + index + "/Configuration";
+    configurationDesiredRevisionKey = configurationKey + "/DesiredRevision";
+    configurationAppliedRevisionKey = configurationKey + "/AppliedRevision";
+    configurationInFlightKey = configurationKey + "/InFlight";
+    configurationFailedKey = configurationKey + "/Failed";
+    configurationInhibitedKey = configurationKey + "/Inhibited";
+    configurationAttemptsKey = configurationKey + "/Attempts";
+    configurationCompletionsKey = configurationKey + "/Completions";
+    configurationDurationKey = configurationKey + "/LastDurationMS";
+    configurationErrorKey = configurationKey + "/Error";
+    configurationDesiredGainsKey = configurationKey + "/DesiredGains";
+    appliedFeedforwardKey = configurationKey + "/AppliedFeedforward";
+    configurationFailureCountKey = configurationKey + "/FailureCount";
+    configurationLastFailedRevisionKey = configurationKey + "/LastFailedRevision";
+    configurationLastFailureErrorKey = configurationKey + "/LastFailureError";
+    keyInputsDriveConnected = "Swerve/Module" + index + "/Inputs/DriveConnected";
+    keyInputsDrivePositionRad = "Swerve/Module" + index + "/Inputs/DrivePositionRad";
+    keyInputsDriveVelocityRadPerSec = "Swerve/Module" + index + "/Inputs/DriveVelocityRadPerSec";
+    keyInputsDriveAppliedVolts = "Swerve/Module" + index + "/Inputs/DriveAppliedVolts";
+    keyInputsDriveCurrentAmps = "Swerve/Module" + index + "/Inputs/DriveCurrentAmps";
+    keyInputsTurnConnected = "Swerve/Module" + index + "/Inputs/TurnConnected";
+    keyInputsTurnPosition = "Swerve/Module" + index + "/Inputs/TurnPosition";
+    keyInputsTurnVelocityRadPerSec = "Swerve/Module" + index + "/Inputs/TurnVelocityRadPerSec";
+    keyInputsTurnAppliedVolts = "Swerve/Module" + index + "/Inputs/TurnAppliedVolts";
+    keyInputsTurnCurrentAmps = "Swerve/Module" + index + "/Inputs/TurnCurrentAmps";
+    keyAngleJumpDetected = "Swerve/Module" + index + "/AngleJumpDetected";
+    keyAngleJumpCount = "Swerve/Module" + index + "/AngleJumpCount";
+    keyZeroTrimRotations = "Swerve/Module" + index + "/ZeroTrimRotations";
+    keyInputsOdometryTimestamps = "Swerve/Module" + index + "/Inputs/OdometryTimestamps";
+    keyInputsOdometryDrivePositionsRad =
+        "Swerve/Module" + index + "/Inputs/OdometryDrivePositionsRad";
+    keyInputsOdometryTurnPositions = "Swerve/Module" + index + "/Inputs/OdometryTurnPositions";
+    keyInputsOdometryTurnPositionsRotations =
+        "Swerve/Module" + index + "/Inputs/OdometryTurnPositionsRotations";
+    keyDesiredSpeedMps = "Swerve/Module" + index + "/DesiredSpeedMps";
+    keyActualSpeedMps = "Swerve/Module" + index + "/ActualSpeedMps";
+    keySpeedErrorMps = "Swerve/Module" + index + "/SpeedErrorMps";
+    keySpeedRatio = "Swerve/Module" + index + "/SpeedRatio";
+    keyDesiredAngleRad = "Swerve/Module" + index + "/DesiredAngleRad";
+    keyActualAngleRad = "Swerve/Module" + index + "/ActualAngleRad";
+    keyAbsoluteAngleRad = "Swerve/Module" + index + "/AbsoluteAngleRad";
+    keyAngleErrorRad = "Swerve/Module" + index + "/AngleErrorRad";
+    keyLastAngleDeltaRad = "Swerve/Module" + index + "/LastAngleDeltaRad";
+    keyInvalidOdometryBatches = "Swerve/Module" + index + "/InvalidOdometryBatches";
+
+    desiredConfiguration = readConfiguration();
+    requestedConfiguration = desiredConfiguration;
+    advanceGainChecks();
+    io.initializeConfiguration(desiredConfiguration);
     driveDisconnectedAlert =
-        new Alert("Disconnected drive motor on module " + index + ".", Level.HIGH);
+        new Alert("Module Disconnect", "Disconnected drive motor on module " + index + ".", Alert.Level.HIGH);
     turnDisconnectedAlert =
-        new Alert("Disconnected turn motor on module " + index + ".", Level.HIGH);
+        new Alert("Module Disconnect", "Disconnected turn motor on module " + index + ".", Alert.Level.HIGH);
+  }
+
+  private boolean advanceGainChecks() {
+    // Every stateful check must run, including on the first call.
+    boolean changed = krakenDrivekS.hasChanged(hashCode());
+    changed |= krakenDrivekV.hasChanged(hashCode());
+    changed |= krakenDrivekP.hasChanged(hashCode());
+    changed |= krakenDrivekD.hasChanged(hashCode());
+    changed |= krakenTurnkP.hasChanged(hashCode());
+    changed |= krakenTurnkD.hasChanged(hashCode());
+    return changed;
+  }
+
+  private ModuleConfiguration readConfiguration() {
+    return new ModuleConfiguration(
+        krakenDrivekP.get(), 0.0, krakenDrivekD.get(), krakenTurnkP.get(), 0.0, krakenTurnkD.get());
   }
 
   public void addOrchestraInstruments(List<TalonFX> instruments) {
@@ -143,7 +271,7 @@ public class Module {
   }
 
   /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */
-  public void runSetpoint(SwerveModuleState state) {
+  public void runSetpoint(SwerveModuleVelocity state) {
     desiredSpeedMetersPerSec = state.velocity;
     desiredAngle = state.angle;
     // Mechanical Advantage-style control for full Kraken modules
@@ -202,8 +330,8 @@ public class Module {
   }
 
   /** Returns the module state (turn angle and drive velocity). */
-  public SwerveModuleState getState() {
-    return new SwerveModuleState(getVelocityMetersPerSec(), getAngle());
+  public SwerveModuleVelocity getState() {
+    return new SwerveModuleVelocity(getVelocityMetersPerSec(), getAngle());
   }
 
   /** Returns the timestamps of the samples received this cycle. */
@@ -277,6 +405,36 @@ public class Module {
 
   public Rotation2d getAbsoluteAngle() {
     return inputs.turnAbsolutePosition;
+  }
+
+  void close() {
+    io.close();
+  }
+
+  void updateConfiguration(boolean disabled) {
+    io.updateConfigurationState(disabled);
+    if (RuntimeModeManager.allowsTuning(false)) {
+      if (advanceGainChecks()) {
+        desiredConfiguration = readConfiguration();
+        desiredKs = krakenDrivekS.get();
+        desiredKv = krakenDrivekV.get();
+      }
+      if (disabled
+          && DriverStationBackend.isDisabled()
+          && !desiredConfiguration.equals(requestedConfiguration)) {
+        if (io.requestConfiguration(desiredConfiguration))
+          requestedConfiguration = desiredConfiguration;
+      }
+      if (disabled
+          && DriverStationBackend.isDisabled()
+          && io.isConfigurationReady()
+          && desiredConfiguration.equals(requestedConfiguration)
+          && (appliedKs != desiredKs || appliedKv != desiredKv)) {
+        krakenFfModel = new SimpleMotorFeedforward(desiredKs, desiredKv);
+        appliedKs = desiredKs;
+        appliedKv = desiredKv;
+      }
+    }
   }
 
   public void captureZeroTrim() {
