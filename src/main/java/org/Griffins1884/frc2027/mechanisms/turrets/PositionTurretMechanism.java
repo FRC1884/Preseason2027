@@ -89,7 +89,7 @@ public class PositionTurretMechanism extends SubsystemBase {
             new TrapezoidProfile.Constraints(
                 config.maxVelocityRadPerSec(), config.maxAccelRadPerSec2()));
     controller.setTolerance(config.positionToleranceRad());
-    disconnected = new Alert(name + " motor disconnected!", Alert.Level.MEDIUM);
+    disconnected = new Alert("Motor Disconnected", name + " motor disconnected!", Alert.Level.MEDIUM);
     sysIdRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
