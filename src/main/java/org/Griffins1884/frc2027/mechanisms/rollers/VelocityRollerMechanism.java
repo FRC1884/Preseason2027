@@ -125,7 +125,7 @@ public abstract class VelocityRollerMechanism<G extends VelocityRollerMechanism.
                 }),
             new SysIdRoutine.Mechanism(voltage -> io.runVolts(voltage.in(Volts)), sysIdLog, this));
 
-    disconnected = new Alert(name + " motor disconnected!", Level.MEDIUM);
+    disconnected = new Alert("Motor Disconnected",name + " motor disconnected!", Level.MEDIUM);
     stateTimer.start();
     recordConfigSnapshot();
   }
