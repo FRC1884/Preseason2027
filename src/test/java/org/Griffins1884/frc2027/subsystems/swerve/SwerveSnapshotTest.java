@@ -2,7 +2,7 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.wpilib.hal.HAL;
+import org.wpilib.hardware.hal.HAL;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;
 import java.util.concurrent.*;
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 class SwerveSnapshotTest {
   @BeforeAll
   static void initializeHal() {
-    assertTrue(HAL.initialize(500, 0));
+    assertTrue(HAL.initialize());
   }
 
   @Test
@@ -38,14 +38,14 @@ class SwerveSnapshotTest {
       long count = drive.measuredKinematicsCount();
       for (int i = 0; i < 10; i++) {
         var speeds = drive.getRobotRelativeSpeeds();
-        assertEquals(0.05, speeds.vxMetersPerSecond, 1e-9);
-        speeds.vxMetersPerSecond = 999.0; // A consumer cannot corrupt the cached measurement.
+        assertEquals(0.05, speeds.vx, 1e-9);
+        speeds.vy = 999.0; // A consumer cannot corrupt the cached measurement.
       }
       assertEquals(count, drive.measuredKinematicsCount());
       assertEquals(1, reads.get());
       ios[0].velocity = 8.0;
       drive.periodic();
-      assertEquals(0.10, drive.getRobotRelativeSpeeds().vxMetersPerSecond, 1e-9);
+      assertEquals(0.10, drive.getRobotRelativeSpeeds().vx, 1e-9);
       assertEquals(count + 1, drive.measuredKinematicsCount());
       assertEquals(2, reads.get());
     } finally {
@@ -61,14 +61,14 @@ class SwerveSnapshotTest {
     try {
       SwerveCalibration.setWheelRadiusMeters(0.05);
       drive.periodic();
-      assertEquals(0.10, drive.getRobotRelativeSpeeds().vxMetersPerSecond, 1e-9);
+      assertEquals(0.10, drive.getRobotRelativeSpeeds().vx, 1e-9);
       SwerveCalibration.setWheelRadiusMeters(0.06);
-      assertEquals(0.12, drive.getRobotRelativeSpeeds().vxMetersPerSecond, 1e-9);
+      assertEquals(0.12, drive.getRobotRelativeSpeeds().vx, 1e-9);
       SwerveCalibration.clearWheelRadiusMeters();
-      drive.resetOdometry(Pose2d.kZero);
+      drive.resetOdometry(Pose2d.ZERO);
       assertEquals(
           2.0 * SwerveConstants.getWheelRadiusMeters(),
-          drive.getRobotRelativeSpeeds().vxMetersPerSecond,
+          drive.getRobotRelativeSpeeds().vx,
           1e-9);
     } finally {
       SwerveCalibration.clearWheelRadiusMeters();
@@ -84,7 +84,7 @@ class SwerveSnapshotTest {
       ios[1].timestamps = new double[] {0.03};
       drive.periodic();
       assertEquals(1, drive.invalidSnapshotCount());
-      assertEquals(Pose2d.kZero, drive.getPose());
+      assertEquals(Pose2d.ZERO, drive.getPose());
       ios[1].timestamps = new double[] {0.02};
       ios[2].positions = new double[] {};
       drive.periodic();
@@ -133,7 +133,7 @@ class SwerveSnapshotTest {
           var translation = SwerveConstants.MODULE_TRANSLATIONS[m];
           ios[m].positions = new double[] {translation.getNorm() * heading / radius};
           ios[m].angles =
-              new Rotation2d[] {translation.getAngle().plus(Rotation2d.fromDegrees(90))};
+              new Rotation2d[] {translation.getAngle().get().plus(Rotation2d.fromDegrees(90))};
           ios[m].timestamps = new double[] {(cycle + 1) * 0.02};
         }
         gyro.connected = cycle != 2;
@@ -166,7 +166,7 @@ class SwerveSnapshotTest {
       Future<?> periodic = executor.submit(drive::periodic);
       assertTrue(capturing.await(5, TimeUnit.SECONDS));
       CountDownLatch resetting = new CountDownLatch(1);
-      Pose2d target = new Pose2d(3.0, 2.0, Rotation2d.kZero);
+      Pose2d target = new Pose2d(3.0, 2.0, Rotation2d.ZERO);
       Future<?> reset =
           executor.submit(
               () -> {
@@ -199,7 +199,7 @@ class SwerveSnapshotTest {
   void reentrantResetDuringCaptureInvalidatesTheCapturedGeneration() {
     SampleModule[] ios = modules();
     SwerveSubsystem drive = drive(new GyroIO() {}, ios);
-    Pose2d target = new Pose2d(3, 2, Rotation2d.kZero);
+    Pose2d target = new Pose2d(3, 2, Rotation2d.ZERO);
     try {
       ios[0].captureHook = () -> drive.resetOdometry(target);
       drive.periodic();
@@ -218,7 +218,7 @@ class SwerveSnapshotTest {
       ios[2].ready = false;
       drive.runCharacterization(3.0);
       drive.runTurnCharacterization(3.0);
-      drive.runVelocity(new org.wpilib.math.kinematics.ChassisSpeeds(1, 0, 0));
+      drive.runVelocity(new org.wpilib.math.kinematics.ChassisVelocities(1, 0, 0));
       drive.stopWithX();
       for (var io : ios) {
         assertEquals(0.0, io.lastDriveOutput);
@@ -253,7 +253,7 @@ class SwerveSnapshotTest {
   static class SampleModule implements ModuleIO {
     double[] timestamps = {0.02};
     double[] positions = {0.0};
-    Rotation2d[] angles = {Rotation2d.kZero};
+    Rotation2d[] angles = {Rotation2d.ZERO};
     double velocity;
     int clears;
     boolean ready = true;
@@ -268,7 +268,7 @@ class SwerveSnapshotTest {
       inputs.turnConnected = true;
       inputs.drivePositionRad = positions.length == 0 ? 0.0 : positions[positions.length - 1];
       inputs.driveVelocityRadPerSec = velocity;
-      inputs.turnPosition = angles.length == 0 ? Rotation2d.kZero : angles[angles.length - 1];
+      inputs.turnPosition = angles.length == 0 ? Rotation2d.ZERO : angles[angles.length - 1];
       inputs.odometryTimestamps = timestamps;
       inputs.odometryDrivePositionsRad = positions;
       inputs.odometryTurnPositions = angles;
@@ -308,13 +308,13 @@ class SwerveSnapshotTest {
   static class SampleGyro implements GyroIO {
     boolean connected = true;
     double[] timestamps = {0.02};
-    Rotation2d[] positions = {Rotation2d.kZero};
+    Rotation2d[] positions = {Rotation2d.ZERO};
 
     @Override
     public void updateInputs(GyroIOInputs inputs) {
       inputs.connected = connected;
       inputs.yawPosition =
-          positions.length == 0 ? Rotation2d.kZero : positions[positions.length - 1];
+          positions.length == 0 ? Rotation2d.ZERO : positions[positions.length - 1];
       inputs.odometryYawTimestamps = timestamps;
       inputs.odometryYawPositions = positions;
     }
