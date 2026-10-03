@@ -1,7 +1,6 @@
 package org.Griffins1884.frc2027.subsystems.pincer;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-import org.wpilib.math.util.MathUtil;
 import java.util.Objects;
 
 /** Adapts a Kraken X60's preconfigured Talon FX controller for pincer use. */

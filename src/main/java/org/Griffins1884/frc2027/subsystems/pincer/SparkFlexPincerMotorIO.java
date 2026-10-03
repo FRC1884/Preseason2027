@@ -1,7 +1,6 @@
 package org.Griffins1884.frc2027.subsystems.pincer;
 
 import com.revrobotics.spark.SparkFlex;
-import org.wpilib.math.util.MathUtil;
 import java.util.Objects;
 
 /** Adapts a NEO Vortex's preconfigured SPARK Flex controller for pincer use. */
