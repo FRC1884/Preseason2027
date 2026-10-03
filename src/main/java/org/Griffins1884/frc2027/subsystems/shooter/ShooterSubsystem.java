@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.Griffins1884.frc2027.mechanisms.RobotMechanismDefinitions;
 import org.Griffins1884.frc2027.mechanisms.rollers.VelocityRollerMechanism;
+import org.Griffins1884.frc2027.mechanisms.rollers.VelocityRollerMechanism.VelocityGoal;
 
 @Getter
 public class ShooterSubsystem extends VelocityRollerMechanism<ShooterSubsystem.ShooterGoal> {
