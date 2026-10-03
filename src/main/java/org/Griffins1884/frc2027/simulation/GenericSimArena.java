@@ -1,6 +1,6 @@
 package org.Griffins1884.frc2027.simulation;
 
-import org.ironmaple.simulation.SimulatedArena;
+import org.Griffins1884.frc2027.simV2.simulation.SimulatedArena;
 
 /**
  * Empty MapleSim arena used until an official 2027 field model is available.

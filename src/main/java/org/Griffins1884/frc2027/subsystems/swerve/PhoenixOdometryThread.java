@@ -6,7 +6,6 @@ import com.ctre.phoenix6.StatusSignal;
 import org.wpilib.units.measure.Angle;
 import org.wpilib.hardware.hal.ThreadsJNI;
 import org.wpilib.system.RobotController;
-import org.wpilib.system.Threads;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
