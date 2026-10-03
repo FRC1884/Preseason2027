@@ -13,7 +13,6 @@ import org.wpilib.networktables.NetworkTableInstance;
 import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
 import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.MatchType;
 import org.wpilib.driverstation.DriverStationErrors;
 import org.wpilib.system.Filesystem;
 import org.wpilib.system.RobotController;

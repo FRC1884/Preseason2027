@@ -1,13 +1,8 @@
 package org.Griffins1884.frc2027.mechanisms.arms;
 
-import org.wpilib.math.util.MathUtil;
 import org.wpilib.math.system.DCMotor;
 import org.wpilib.math.util.Units;
-import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.MatchType;
-import org.wpilib.driverstation.DriverStationErrors;
 import org.wpilib.simulation.SingleJointedArmSim;
 
 public class MechanismArmIOSim implements MechanismArmIO {
