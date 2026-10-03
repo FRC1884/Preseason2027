@@ -92,6 +92,8 @@ public class DriveCommands {
             linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
             linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
             omega * drive.getMaxAngularSpeedRadPerSec());
+
+    @SuppressWarnings("unused")
     boolean isFlipped = AllianceFlipUtil.shouldFlip(drive.getPose());
     
     drive.runVelocity(speeds.toRobotRelative(drive.getRotation()));

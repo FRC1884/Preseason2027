@@ -5,15 +5,10 @@ import static org.wpilib.units.Units.RadiansPerSecond;
 import static org.wpilib.units.Units.Seconds;
 import static org.wpilib.units.Units.Volts;
 
-import org.wpilib.math.util.MathUtil;
 import org.wpilib.math.controller.ArmFeedforward;
 import org.wpilib.math.controller.PIDController;
 import org.wpilib.util.Alert;
-import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.MatchType;
-import org.wpilib.driverstation.DriverStationErrors;
 import org.wpilib.system.Timer;
 import org.wpilib.sysid.SysIdRoutineLog;
 import org.wpilib.command2.Command;

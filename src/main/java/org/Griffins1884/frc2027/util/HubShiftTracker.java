@@ -3,8 +3,6 @@ package org.Griffins1884.frc2027.util;
 import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
 import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.MatchType;
-import org.wpilib.driverstation.DriverStationErrors;
 import java.util.Locale;
 import java.util.Optional;
 

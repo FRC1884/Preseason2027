@@ -149,6 +149,8 @@ class StaticAssetAccessTest {
     long before = unix.getOpenFileDescriptorCount();
     for (int index = 0; index < 100; index++) {
       try (var asset = access.inspect(request);
+
+        @SuppressWarnings("unused")
           var body = asset.openBody()) {
         // Only the final directory and the body may remain open, regardless of depth.
         assertTrue(unix.getOpenFileDescriptorCount() <= before + 3);

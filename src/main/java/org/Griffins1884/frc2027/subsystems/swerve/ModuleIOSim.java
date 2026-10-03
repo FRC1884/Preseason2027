@@ -8,11 +8,11 @@ import org.wpilib.math.geometry.Rotation2d;
 import java.util.Arrays;
 import org.Griffins1884.frc2027.util.LoggedTunableNumber;
 import org.Griffins1884.frc2027.util.SparkUtil;
-import org.griffins1884.sim3d.SwerveCorner;
-import org.griffins1884.sim3d.TerrainAwareSwerveSimulation;
-import org.griffins1884.sim3d.TerrainDriveLaws;
-import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
-import org.ironmaple.simulation.motorsims.SimulatedMotorController;
+import org.Griffins1884.frc2027.simV2.sim3d.SwerveCorner;
+import org.Griffins1884.frc2027.simV2.sim3d.TerrainAwareSwerveSimulation;
+import org.Griffins1884.frc2027.simV2.sim3d.TerrainDriveLaws;
+import org.Griffins1884.frc2027.simV2.simulation.drivesims.SwerveModuleSimulation;
+import org.Griffins1884.frc2027.simV2.simulation.motorsims.SimulatedMotorController;
 
 /** Physics sim implementation of module IO. */
 public class ModuleIOSim implements ModuleIO {
@@ -76,7 +76,7 @@ public class ModuleIOSim implements ModuleIO {
       driveAppliedVolts =
           driveFFVolts
               + driveController.calculate(
-                  moduleSimulation.getDriveWheelFinalSpeed().in(RadiansPerSecond));
+                  moduleSimulation.getDriveWheelFinalVelocity().in(RadiansPerSecond));
       driveAppliedVolts *= tractionDriveScale();
     } else {
       driveController.reset();
@@ -96,7 +96,7 @@ public class ModuleIOSim implements ModuleIO {
     // Update drive inputs
     inputs.driveConnected = true;
     inputs.drivePositionRad = moduleSimulation.getDriveWheelFinalPosition().in(Radians);
-    inputs.driveVelocityRadPerSec = moduleSimulation.getDriveWheelFinalSpeed().in(RadiansPerSecond);
+    inputs.driveVelocityRadPerSec = moduleSimulation.getDriveWheelFinalVelocity().in(RadiansPerSecond);
     inputs.driveAppliedVolts = driveAppliedVolts;
     inputs.driveCurrentAmps = Math.abs(moduleSimulation.getDriveMotorStatorCurrent().in(Amps));
 
@@ -104,7 +104,7 @@ public class ModuleIOSim implements ModuleIO {
     inputs.turnConnected = true;
     inputs.turnPosition = moduleSimulation.getSteerAbsoluteFacing();
     inputs.turnVelocityRadPerSec =
-        moduleSimulation.getSteerAbsoluteEncoderSpeed().in(RadiansPerSecond);
+        moduleSimulation.getSteerAbsoluteEncoderVelocity().in(RadiansPerSecond);
     inputs.turnAppliedVolts = turnAppliedVolts;
     inputs.turnCurrentAmps = Math.abs(moduleSimulation.getSteerMotorStatorCurrent().in(Amps));
 

@@ -8,9 +8,6 @@ import static org.wpilib.units.Units.Seconds;
 import static org.wpilib.units.Units.Volts;
 import static org.Griffins1884.frc2027.GlobalConstants.RobotMode.SIM;
 
-import org.wpilib.hardware.bus.CANPort;
-import org.wpilib.hardware.hal.HAL;
-import org.wpilib.math.util.MathUtil;
 import org.wpilib.math.linalg.Matrix;
 import org.wpilib.math.estimator.SwerveDrivePoseEstimator;
 import org.wpilib.math.filter.LinearFilter;
@@ -27,12 +24,7 @@ import org.wpilib.math.numbers.N3;
 import org.wpilib.util.Alert;
 import org.wpilib.util.UsageReporting;
 import org.wpilib.util.Alert.Level;
-import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.DriverStation;
-import org.wpilib.driverstation.MatchType;
-import org.wpilib.driverstation.DriverStationErrors;
 import org.wpilib.driverstation.Alliance;
 import org.wpilib.system.RobotController;
 import org.wpilib.system.Timer;
@@ -88,7 +80,10 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   private int observerLatchedModule = -1;
   private double observerHoldUntilSec = 0.0;
 
+  @SuppressWarnings("unused")
   private DoubleSupplier controlClock;
+
+  @SuppressWarnings("unused")
   private DoubleSupplier radiusSupplier;
 
   private long invalidSnapshotCount;

@@ -1,9 +1,5 @@
 package org.Griffins1884.frc2027.subsystems.objectivetracker;
 
-import org.wpilib.driverstation.MatchState;
-import org.wpilib.driverstation.RobotState;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.MatchType;
 import org.wpilib.driverstation.DriverStationErrors;
 import java.io.IOException;
 import java.io.UncheckedIOException;

@@ -1,6 +1,5 @@
 package org.Griffins1884.frc2027.commands;
 
-import org.wpilib.math.util.MathUtil;
 import org.wpilib.math.controller.ProfiledPIDController;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Translation2d;

@@ -5,13 +5,13 @@ import org.wpilib.math.geometry.Pose3d;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Translation2d;
 import java.util.Arrays;
-import org.griffins1884.sim3d.ChassisFootprint;
-import org.griffins1884.sim3d.ChassisMassProperties;
-import org.griffins1884.sim3d.TerrainModel;
-import org.griffins1884.sim3d.TerrainSample;
-import org.griffins1884.sim3d.integration.FieldMarkerSample;
-import org.griffins1884.sim3d.seasonspecific.rebuilt2026.Rebuilt2026FieldContactModel;
-import org.griffins1884.sim3d.seasonspecific.rebuilt2026.Rebuilt2026RobotProfile;
+import org.Griffins1884.frc2027.simV2.sim3d.ChassisFootprint;
+import org.Griffins1884.frc2027.simV2.sim3d.ChassisMassProperties;
+import org.Griffins1884.frc2027.simV2.sim3d.TerrainModel;
+import org.Griffins1884.frc2027.simV2.sim3d.TerrainSample;
+import org.Griffins1884.frc2027.simV2.sim3d.integration.FieldMarkerSample;
+import org.Griffins1884.frc2027.simV2.sim3d.seasonspecific.rebuilt2026.Rebuilt2026FieldContactModel;
+import org.Griffins1884.frc2027.simV2.sim3d.seasonspecific.rebuilt2026.Rebuilt2026RobotProfile;
 
 /** Terrain/marker helpers for the local 2026 field model used in simulation and AdvantageScope. */
 public final class Rebuilt2026FieldModel implements TerrainModel {

@@ -4,7 +4,6 @@ import static org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.*;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import org.wpilib.math.util.MathUtil;
-import org.wpilib.driverstation.DriverStation;
 import org.wpilib.driverstation.internal.DriverStationBackend;
 import org.wpilib.math.controller.SimpleMotorFeedforward;
 import org.wpilib.math.geometry.Rotation2d;
@@ -12,7 +11,6 @@ import org.wpilib.math.kinematics.SwerveModulePosition;
 import org.wpilib.math.kinematics.SwerveModuleVelocity;
 import org.wpilib.math.system.DCMotor;
 import org.wpilib.util.Alert;
-import org.wpilib.util.Alert.Level;
 import java.util.List;
 import lombok.Getter;
 
@@ -56,32 +54,85 @@ public class Module {
   private SimpleMotorFeedforward krakenFfModel =
       new SimpleMotorFeedforward(krakenDrivekS.get(), krakenDrivekV.get());
 
+  @SuppressWarnings("unused")
   private final String keyInputsDriveConnected;
+
+  @SuppressWarnings("unused")
   private final String keyInputsDrivePositionRad;
+
+  @SuppressWarnings("unused")
   private final String keyInputsDriveVelocityRadPerSec;
+
+  @SuppressWarnings("unused")
   private final String keyInputsDriveAppliedVolts;
+
+  @SuppressWarnings("unused")
   private final String keyInputsDriveCurrentAmps;
+
+  @SuppressWarnings("unused")
   private final String keyInputsTurnConnected;
+
+  @SuppressWarnings("unused")
   private final String keyInputsTurnPosition;
+
+  @SuppressWarnings("unused")
   private final String keyInputsTurnVelocityRadPerSec;
+
+  @SuppressWarnings("unused")
   private final String keyInputsTurnAppliedVolts;
+
+  @SuppressWarnings("unused")
   private final String keyInputsTurnCurrentAmps;
+
+  @SuppressWarnings("unused")
   private final String keyAngleJumpDetected;
+
+  @SuppressWarnings("unused")
   private final String keyAngleJumpCount;
+
+  @SuppressWarnings("unused")
   private final String keyZeroTrimRotations;
+
+  @SuppressWarnings("unused")
   private final String keyInputsOdometryTimestamps;
+  
+  @SuppressWarnings("unused")
   private final String keyInputsOdometryDrivePositionsRad;
+
+  @SuppressWarnings("unused")
   private final String keyInputsOdometryTurnPositions;
+
+  @SuppressWarnings("unused")
   private final String keyInputsOdometryTurnPositionsRotations;
+
+  @SuppressWarnings("unused")
   private final String keyDesiredSpeedMps;
+
+  @SuppressWarnings("unused")
   private final String keyActualSpeedMps;
+
+  @SuppressWarnings("unused")
   private final String keySpeedErrorMps;
+
+  @SuppressWarnings("unused")
   private final String keySpeedRatio;
+
+  @SuppressWarnings("unused")
   private final String keyDesiredAngleRad;
+
+  @SuppressWarnings("unused")
   private final String keyActualAngleRad;
+
+  @SuppressWarnings("unused")
   private final String keyAbsoluteAngleRad;
+
+  @SuppressWarnings("unused")
   private final String keyAngleErrorRad;
+
+  @SuppressWarnings("unused")
   private final String keyLastAngleDeltaRad;
+
+  @SuppressWarnings("unused")
   private final String keyInvalidOdometryBatches;
 
   private final Alert driveDisconnectedAlert;
@@ -100,26 +151,67 @@ public class Module {
   private double appliedKs = desiredKs;
   private double appliedKv = desiredKv;
 
+  @SuppressWarnings("unused")
   private double lastLoggedTrim = Double.NaN;
+
+  @SuppressWarnings("unused")
   private int invalidOdometryBatches;
+
+  @SuppressWarnings("unused")
   private ModuleConfigurationWorker.Status lastConfigurationStatus;
+
+  @SuppressWarnings("unused")
   private final String configurationDesiredRevisionKey;
+
+  @SuppressWarnings("unused")
   private final String configurationAppliedRevisionKey;
+
+  @SuppressWarnings("unused")
   private final String configurationInFlightKey;
+
+  @SuppressWarnings("unused")
   private final String configurationFailedKey;
+
+  @SuppressWarnings("unused")
   private final String configurationInhibitedKey;
+
+  @SuppressWarnings("unused")
   private final String configurationAttemptsKey;
+
+  @SuppressWarnings("unused")
   private final String configurationCompletionsKey;
+
+  @SuppressWarnings("unused")
   private final String configurationDurationKey;
+
+  @SuppressWarnings("unused")
   private final String configurationErrorKey;
+  
+  @SuppressWarnings("unused")
   private final String configurationDesiredGainsKey;
+
+  @SuppressWarnings("unused")
   private final String appliedFeedforwardKey;
+
+  @SuppressWarnings("unused")
   private double loggedAppliedKs = Double.NaN;
+
+  @SuppressWarnings("unused")
   private double loggedAppliedKv = Double.NaN;
+
+  @SuppressWarnings("unused")
   private final String configurationFailureCountKey;
+
+  @SuppressWarnings("unused")
   private final String configurationLastFailedRevisionKey;
+
+  @SuppressWarnings("unused")
   private final String configurationLastFailureErrorKey;
+
+  @SuppressWarnings("unused")
   private final String telemetryTimingKey;
+
+  @SuppressWarnings("unused")
   private final String odometryTimingKey;
 
   /** -- GETTER -- Returns the module positions received this cycle. */

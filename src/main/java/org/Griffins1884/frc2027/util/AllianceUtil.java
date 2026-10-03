@@ -1,6 +1,5 @@
 package org.Griffins1884.frc2027.util;
 
-import org.wpilib.driverstation.DriverStation;
 import org.wpilib.driverstation.internal.DriverStationBackend;
 import org.wpilib.driverstation.Alliance;
 import java.util.Optional;
