@@ -4,7 +4,6 @@ import static org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.*;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import org.wpilib.math.util.MathUtil;
-import org.wpilib.driverstation.DriverStation;
 import org.wpilib.driverstation.internal.DriverStationBackend;
 import org.wpilib.math.controller.SimpleMotorFeedforward;
 import org.wpilib.math.geometry.Rotation2d;
@@ -12,7 +11,6 @@ import org.wpilib.math.kinematics.SwerveModulePosition;
 import org.wpilib.math.kinematics.SwerveModuleVelocity;
 import org.wpilib.math.system.DCMotor;
 import org.wpilib.util.Alert;
-import org.wpilib.util.Alert.Level;
 import java.util.List;
 import lombok.Getter;
 

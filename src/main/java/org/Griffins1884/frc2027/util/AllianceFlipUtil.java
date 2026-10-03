@@ -2,10 +2,6 @@ package org.Griffins1884.frc2027.util;
 
 import org.wpilib.math.geometry.*;
 import org.wpilib.driverstation.MatchState;
-import org.wpilib.driverstation.RobotState;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.MatchType;
-import org.wpilib.driverstation.DriverStationErrors;
 import org.wpilib.driverstation.Alliance;
 import java.util.Optional;
 import org.Griffins1884.frc2027.GlobalConstants.FieldConstants;

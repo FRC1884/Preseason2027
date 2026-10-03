@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.wpilib.hardware.hal.HAL;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.kinematics.ChassisVelocities;
-import org.wpilib.driverstation.DriverStation;
 import org.wpilib.driverstation.internal.DriverStationBackend;
 import org.wpilib.simulation.DriverStationSim;
 import java.lang.reflect.Field;
