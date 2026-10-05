@@ -12,7 +12,7 @@ public final class Config {
 
   public static final class Subsystems {
     public static final boolean DRIVETRAIN_ENABLED = true;
-    public static final boolean LEDS_ENABLED = false;
+    public static final boolean LEDS_ENABLED = true;
     public static final boolean AUTONOMOUS_ENABLED = true;
     public static final boolean VISION_ENABLED = true;
     public static final boolean WEBUI_ENABLED = true;
@@ -22,7 +22,7 @@ public final class Config {
     public static final boolean INTAKE_PIVOT_ENABLED = true;
     public static final boolean INTAKE_ENABLED = true;
     public static final boolean INDEXER_ENABLED = true;
-    public static final boolean TOOTH_ROLLOUT_ENABLED = false;
+    public static final boolean TOOTH_ROLLOUT_ENABLED = true;
     public static final boolean SPINDEXER_ENABLED = true;
   }
 

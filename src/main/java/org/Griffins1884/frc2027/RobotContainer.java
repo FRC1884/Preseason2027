@@ -16,6 +16,7 @@ import static org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.GYRO_TY
 import static org.Griffins1884.frc2027.subsystems.vision.AprilTagVisionConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -28,16 +29,13 @@ import org.wpilib.math.kinematics.ChassisVelocities;
 import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
 import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.MatchType;
 import org.wpilib.driverstation.DriverStationErrors;
-import org.wpilib.driverstation.Alliance;
 import org.wpilib.driverstation.GenericHID;
 import org.wpilib.driverstation.XboxController;
 import org.wpilib.telemetry.Telemetry;
 import org.wpilib.command2.Command;
+import org.wpilib.command2.CommandScheduler;
 import org.wpilib.command2.Commands;
-import org.wpilib.command2.button.CommandXboxController;
-import org.wpilib.command2.button.JoystickButton;
 import org.wpilib.command2.button.Trigger;
 import org.wpilib.command2.sysid.SysIdRoutine;
 import java.io.IOException;
@@ -67,24 +65,27 @@ import org.Griffins1884.frc2027.subsystems.turret.TurretIOKraken;
 import org.Griffins1884.frc2027.subsystems.turret.TurretIOSim;
 import org.Griffins1884.frc2027.subsystems.turret.TurretSubsystem;
 import org.Griffins1884.frc2027.subsystems.vision.*;
-import org.griffins1884.sim3d.CommandableDriveSimulationAdapter;
-import org.griffins1884.sim3d.DriveSimulationAdapter;
-import org.griffins1884.sim3d.SwerveCorner;
-import org.griffins1884.sim3d.TerrainAwareSwerveSimulation;
-import org.griffins1884.sim3d.integration.DriveSimulationFactories;
-import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.Griffins1884.frc2027.simV2.sim3d.CommandableDriveSimulationAdapter;
+import org.Griffins1884.frc2027.simV2.sim3d.DriveSimulationAdapter;
+import org.Griffins1884.frc2027.simV2.sim3d.SwerveCorner;
+import org.Griffins1884.frc2027.simV2.sim3d.TerrainAwareSwerveSimulation;
+import org.Griffins1884.frc2027.simV2.sim3d.integration.DriveSimulationFactories;
+import org.Griffins1884.frc2027.simV2.simulation.SimulatedArena;
+import org.Griffins1884.frc2027.simV2.simulation.drivesims.SwerveDriveSimulation;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedNetworkChooser;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in
+ * the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of
+ * the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
-public class RobotContainer {
+public class RobotContainer implements AutoCloseable {
   private static final double ODOMETRY_RESET_VISION_SUPPRESS_SECONDS = 0.35;
 
   // Subsystems
@@ -100,7 +101,7 @@ public class RobotContainer {
   private final DriverMap driver = getDriverController();
 
   // Dashboard inputs
-  private final LoggedDashboardChooser<Command> characterizationChooser;
+  private final LoggedNetworkChooser<Command> characterizationChooser;
   private final Command characterizationIdleCommand;
 
   private final Superstructure superstructure;
@@ -108,74 +109,79 @@ public class RobotContainer {
   private final RobotStateVisualizer robotStateVisualizer;
   private boolean autoAllianceZeroed = false;
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   */
   public RobotContainer() {
     // Validate the declarative mechanism catalog up front so config errors fail
     // early.
     RobotMechanismDefinitions.all();
-    characterizationChooser = new LoggedDashboardChooser<>("Characterization/Diagnostics");
+    characterizationChooser = new LoggedNetworkChooser<>("Characterization/Diagnostics");
     characterizationIdleCommand = Commands.none();
-    characterizationChooser.addDefaultOption("None", characterizationIdleCommand);
+    characterizationChooser.addDefault("None", characterizationIdleCommand);
 
     if (DRIVETRAIN_ENABLED) {
-      drive =
-          switch (MODE) {
-            case REAL:
-              // Real robot, instantiate hardware IO implementations
-              yield new SwerveSubsystem(
-                  switch (GYRO_TYPE) {
-                    case PIGEON -> new GyroIOPigeon2();
-                    case NAVX -> new GyroIONavX();
-                    case ADIS -> new GyroIO() {};
-                  },
-                  new ModuleIOFullKraken(FRONT_LEFT),
-                  new ModuleIOFullKraken(FRONT_RIGHT),
-                  new ModuleIOFullKraken(BACK_LEFT),
-                  new ModuleIOFullKraken(BACK_RIGHT));
-            case SIM:
-              MapleArenaSetup.ensure2026RebuiltArena();
-              this.driveSimulation =
-                  requireCommandableDriveSimulation(
-                      DriveSimulationFactories.mapleTerrainAware(
-                          new SwerveDriveSimulation(
-                              SwerveConstants.MAPLE_SIM_CONFIG, new Pose2d(3, 3, new Rotation2d())),
-                          Rebuilt2026FieldModel.contactModel(),
-                          Rebuilt2026FieldModel.CHASSIS_FOOTPRINT,
-                          Rebuilt2026FieldModel.CHASSIS_MASS_PROPERTIES));
-              this.mapleDriveSimulation = requireMapleTerrainAwareSimulation(driveSimulation);
-              // Add the simulated drivetrain to the simulation field
-              SimulatedArena.getInstance()
-                  .addDriveTrainSimulation(mapleDriveSimulation.mapleSimulation());
+      drive = switch (MODE) {
+        case REAL:
+          // Real robot, instantiate hardware IO implementations
+          yield new SwerveSubsystem(
+              switch (GYRO_TYPE) {
+                case PIGEON -> new GyroIOPigeon2();
+                case ADIS -> new GyroIO() {
+                };
+              },
+              new ModuleIOFullKraken(FRONT_LEFT),
+              new ModuleIOFullKraken(FRONT_RIGHT),
+              new ModuleIOFullKraken(BACK_LEFT),
+              new ModuleIOFullKraken(BACK_RIGHT));
+        case SIM:
+          MapleArenaSetup.ensure2026RebuiltArena();
+          this.driveSimulation = requireCommandableDriveSimulation(
+              DriveSimulationFactories.mapleTerrainAware(
+                  new SwerveDriveSimulation(
+                      SwerveConstants.MAPLE_SIM_CONFIG, new Pose2d(3, 3, new Rotation2d())),
+                  Rebuilt2026FieldModel.contactModel(),
+                  Rebuilt2026FieldModel.CHASSIS_FOOTPRINT,
+                  Rebuilt2026FieldModel.CHASSIS_MASS_PROPERTIES));
+          this.mapleDriveSimulation = requireMapleTerrainAwareSimulation(driveSimulation);
+          // Add the simulated drivetrain to the simulation field
+          SimulatedArena.getInstance()
+              .addDriveTrainSimulation(mapleDriveSimulation.mapleSimulation());
 
-              // Sim robot, instantiate physics sim IO implementations
-              yield new SwerveSubsystem(
-                  new GyroIOSim(mapleDriveSimulation),
-                  new ModuleIOSim(
-                      mapleDriveSimulation,
-                      SwerveCorner.FRONT_LEFT,
-                      mapleDriveSimulation.getModules()[0]),
-                  new ModuleIOSim(
-                      mapleDriveSimulation,
-                      SwerveCorner.FRONT_RIGHT,
-                      mapleDriveSimulation.getModules()[1]),
-                  new ModuleIOSim(
-                      mapleDriveSimulation,
-                      SwerveCorner.REAR_LEFT,
-                      mapleDriveSimulation.getModules()[2]),
-                  new ModuleIOSim(
-                      mapleDriveSimulation,
-                      SwerveCorner.REAR_RIGHT,
-                      mapleDriveSimulation.getModules()[3]));
+          // Sim robot, instantiate physics sim IO implementations
+          yield new SwerveSubsystem(
+              new GyroIOSim(mapleDriveSimulation),
+              new ModuleIOSim(
+                  mapleDriveSimulation,
+                  SwerveCorner.FRONT_LEFT,
+                  mapleDriveSimulation.getModules()[0]),
+              new ModuleIOSim(
+                  mapleDriveSimulation,
+                  SwerveCorner.FRONT_RIGHT,
+                  mapleDriveSimulation.getModules()[1]),
+              new ModuleIOSim(
+                  mapleDriveSimulation,
+                  SwerveCorner.REAR_LEFT,
+                  mapleDriveSimulation.getModules()[2]),
+              new ModuleIOSim(
+                  mapleDriveSimulation,
+                  SwerveCorner.REAR_RIGHT,
+                  mapleDriveSimulation.getModules()[3]));
 
-            default:
-              // Replayed robot, disable IO implementations
-              yield new SwerveSubsystem(
-                  new GyroIO() {},
-                  new ModuleIO() {},
-                  new ModuleIO() {},
-                  new ModuleIO() {},
-                  new ModuleIO() {});
-          };
+        default:
+          // Replayed robot, disable IO implementations
+          yield new SwerveSubsystem(
+              new GyroIO() {
+              },
+              new ModuleIO() {
+              },
+              new ModuleIO() {
+              },
+              new ModuleIO() {
+              },
+              new ModuleIO() {
+              });
+      };
       superstructure = new Superstructure(drive);
 
     } else {
@@ -184,23 +190,23 @@ public class RobotContainer {
     }
 
     if (SHOOTER_PIVOT_ENABLED) {
-      shooterPivot =
-          switch (MODE) {
-            case REAL -> new ShooterPivotSubsystem("ShooterPivot", new ShooterPivotIOKraken());
-            case SIM -> new ShooterPivotSubsystem("ShooterPivot", new ShooterPivotIOSim());
-            default -> new ShooterPivotSubsystem("ShooterPivot", new ShooterPivotIO() {});
-          };
+      shooterPivot = switch (MODE) {
+        case REAL -> new ShooterPivotSubsystem("ShooterPivotReal", new ShooterPivotIOKraken());
+        case SIM -> new ShooterPivotSubsystem("ShooterPivotSim", new ShooterPivotIOSim());
+        default -> new ShooterPivotSubsystem("ShooterPivot", new ShooterPivotIO() {
+        });
+      };
     } else {
       shooterPivot = null;
     }
 
     if (TURRET_ENABLED) {
-      turret =
-          switch (MODE) {
-            case REAL -> new TurretSubsystem(new TurretIOKraken());
-            case SIM -> new TurretSubsystem(new TurretIOSim());
-            default -> new TurretSubsystem(new TurretIO() {});
-          };
+      turret = switch (MODE) {
+        case REAL -> new TurretSubsystem(new TurretIOKraken());
+        case SIM -> new TurretSubsystem(new TurretIOSim());
+        default -> new TurretSubsystem(new TurretIO() {
+        });
+      };
 
       superstructure.setTurret(turret);
     } else {
@@ -219,47 +225,51 @@ public class RobotContainer {
     }
 
     if (VISION_ENABLED && drive != null) {
-      vision =
-          switch (MODE) {
-            case REAL, SIM ->
-                new Vision(
-                    drive,
-                    drive::getPose,
-                    () -> Math.toRadians(drive.getYawRateDegreesPerSec()),
-                    () -> {
-                      var speeds = drive.getRobotRelativeSpeeds();
-                      return Math.hypot(speeds.vx, speeds.vy);
-                    },
-                    LEFT_CAM_ENABLED
-                        ? (IS_LIMELIGHT
-                            ? new AprilTagVisionIOLimelight(LEFT_CAM_CONSTANTS, drive)
-                            : new AprilTagVisionIONorthstar(
-                                LEFT_CAM_CONSTANTS, LEFT_CAM_NORTHSTAR_CONFIG, drive))
-                        : new VisionIO() {},
-                    RIGHT_CAM_ENABLED
-                        ? (IS_LIMELIGHT
-                            ? new AprilTagVisionIOLimelight(RIGHT_CAM_CONSTANTS, drive)
-                            : new AprilTagVisionIONorthstar(
-                                RIGHT_CAM_CONSTANTS, RIGHT_CAM_NORTHSTAR_CONFIG, drive))
-                        : new VisionIO() {},
-                    MIDDLE_RIGHT_CAM_ENABLED
-                        ? (IS_LIMELIGHT
-                            ? new AprilTagVisionIOLimelight(MIDDLE_RIGHT_CAM_CONSTANTS, drive)
-                            : new AprilTagVisionIONorthstar(
-                                MIDDLE_RIGHT_CAM_CONSTANTS,
-                                MIDDLE_RIGHT_CAM_NORTHSTAR_CONFIG,
-                                drive))
-                        : new VisionIO() {});
-            default -> new Vision(drive, new VisionIO() {}, new VisionIO() {});
-          };
-    } else vision = null;
+      vision = switch (MODE) {
+        case REAL, SIM ->
+          new Vision(
+              drive,
+              drive::getPose,
+              () -> Math.toRadians(drive.getYawRateDegreesPerSec()),
+              () -> {
+                var speeds = drive.getRobotRelativeSpeeds();
+                return Math.hypot(speeds.vx, speeds.vy);
+              },
+              LEFT_CAM_ENABLED
+                  ? (IS_LIMELIGHT
+                      ? new AprilTagVisionIOLimelight(LEFT_CAM_CONSTANTS, drive)
+                      : new AprilTagVisionIONorthstar(
+                          LEFT_CAM_CONSTANTS, LEFT_CAM_NORTHSTAR_CONFIG, drive))
+                  : new VisionIO() {
+                  },
+              RIGHT_CAM_ENABLED
+                  ? (IS_LIMELIGHT
+                      ? new AprilTagVisionIOLimelight(RIGHT_CAM_CONSTANTS, drive)
+                      : new AprilTagVisionIONorthstar(
+                          RIGHT_CAM_CONSTANTS, RIGHT_CAM_NORTHSTAR_CONFIG, drive))
+                  : new VisionIO() {
+                  },
+              MIDDLE_RIGHT_CAM_ENABLED
+                  ? (IS_LIMELIGHT
+                      ? new AprilTagVisionIOLimelight(MIDDLE_RIGHT_CAM_CONSTANTS, drive)
+                      : new AprilTagVisionIONorthstar(
+                          MIDDLE_RIGHT_CAM_CONSTANTS,
+                          MIDDLE_RIGHT_CAM_NORTHSTAR_CONFIG,
+                          drive))
+                  : new VisionIO() {
+                  });
+        default -> new Vision(drive, new VisionIO() {
+        }, new VisionIO() {
+        });
+      };
+    } else
+      vision = null;
 
     leds = LEDS_ENABLED ? new LEDSubsystem() : null;
 
     if (Config.Subsystems.WEBUI_ENABLED) {
-      operatorBoard =
-          new OperatorBoardTracker(
-              new OperatorBoardIOServer(), superstructure, drive, turret, vision);
+      operatorBoard = new OperatorBoardTracker(
+          new OperatorBoardIOServer(), superstructure, drive, turret, vision);
     } else {
       operatorBoard = null;
     }
@@ -271,111 +281,111 @@ public class RobotContainer {
     }
 
     if (DRIVETRAIN_ENABLED && drive != null) {
-      characterizationChooser.addOption(
+      characterizationChooser.add(
           "Drive | SysId (Full Routine)", drive.sysIdRoutine().ignoringDisable(true));
-      characterizationChooser.addOption(
+      characterizationChooser.add(
           "Drive | Wheel Radius Characterization",
           DriveCommands.wheelRadiusCharacterization(drive).ignoringDisable(true));
-      characterizationChooser.addOption(
+      characterizationChooser.add(
           "Drive | Wheel Radius Characterization + Save",
           DriveCommands.wheelRadiusCharacterization(drive, true).ignoringDisable(true));
-      characterizationChooser.addOption(
+      characterizationChooser.add(
           "Drive | Clear Saved Wheel Radius",
           DriveCommands.clearSavedWheelRadius().ignoringDisable(true));
-      characterizationChooser.addOption(
+      characterizationChooser.add(
           "Drive | Capture Module Zero Offsets",
           DriveCommands.captureModuleZeroOffsets(drive).ignoringDisable(true));
-      characterizationChooser.addOption(
+      characterizationChooser.add(
           "Drive | Capture FL Zero Offset",
           DriveCommands.captureModuleZeroOffset(drive, 0, "FL").ignoringDisable(true));
-      characterizationChooser.addOption(
+      characterizationChooser.add(
           "Drive | Capture FR Zero Offset",
           DriveCommands.captureModuleZeroOffset(drive, 1, "FR").ignoringDisable(true));
-      characterizationChooser.addOption(
+      characterizationChooser.add(
           "Drive | Capture BL Zero Offset",
           DriveCommands.captureModuleZeroOffset(drive, 2, "BL").ignoringDisable(true));
-      characterizationChooser.addOption(
+      characterizationChooser.add(
           "Drive | Capture BR Zero Offset",
           DriveCommands.captureModuleZeroOffset(drive, 3, "BR").ignoringDisable(true));
-      characterizationChooser.addOption(
+      characterizationChooser.add(
           "Drive | Clear Module Zero Offsets",
           DriveCommands.clearModuleZeroOffsets(drive).ignoringDisable(true));
-      characterizationChooser.addOption(
+      characterizationChooser.add(
           "Drive | Clear FL Zero Offset",
           DriveCommands.clearModuleZeroOffset(drive, 0, "FL").ignoringDisable(true));
-      characterizationChooser.addOption(
+      characterizationChooser.add(
           "Drive | Clear FR Zero Offset",
           DriveCommands.clearModuleZeroOffset(drive, 1, "FR").ignoringDisable(true));
-      characterizationChooser.addOption(
+      characterizationChooser.add(
           "Drive | Clear BL Zero Offset",
           DriveCommands.clearModuleZeroOffset(drive, 2, "BL").ignoringDisable(true));
-      characterizationChooser.addOption(
+      characterizationChooser.add(
           "Drive | Clear BR Zero Offset",
           DriveCommands.clearModuleZeroOffset(drive, 3, "BR").ignoringDisable(true));
-      characterizationChooser.addOption(
+      characterizationChooser.add(
           "Drive | Feedforward Characterization",
           DriveCommands.feedforwardCharacterization(drive).ignoringDisable(true));
-      characterizationChooser.addOption(
+      characterizationChooser.add(
           "Drive | SysId (Quasistatic Forward)",
-          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward).ignoringDisable(true));
-      characterizationChooser.addOption(
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.FORWARD).ignoringDisable(true));
+      characterizationChooser.add(
           "Drive | SysId (Quasistatic Reverse)",
-          drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse).ignoringDisable(true));
-      characterizationChooser.addOption(
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.REVERSE).ignoringDisable(true));
+      characterizationChooser.add(
           "Drive | SysId (Dynamic Forward)",
-          drive.sysIdDynamic(SysIdRoutine.Direction.kForward).ignoringDisable(true));
-      characterizationChooser.addOption(
+          drive.sysIdDynamic(SysIdRoutine.Direction.FORWARD).ignoringDisable(true));
+      characterizationChooser.add(
           "Drive | SysId (Dynamic Reverse)",
-          drive.sysIdDynamic(SysIdRoutine.Direction.kReverse).ignoringDisable(true));
-      characterizationChooser.addOption(
+          drive.sysIdDynamic(SysIdRoutine.Direction.REVERSE).ignoringDisable(true));
+      characterizationChooser.add(
           "Turn | SysId (Full Routine)", drive.sysIdTurnRoutine().ignoringDisable(true));
-      characterizationChooser.addOption(
+      characterizationChooser.add(
           "Turn | SysId (Quasistatic Forward)",
-          drive.sysIdTurnQuasistatic(SysIdRoutine.Direction.kForward).ignoringDisable(true));
-      characterizationChooser.addOption(
+          drive.sysIdTurnQuasistatic(SysIdRoutine.Direction.FORWARD).ignoringDisable(true));
+      characterizationChooser.add(
           "Turn | SysId (Quasistatic Reverse)",
-          drive.sysIdTurnQuasistatic(SysIdRoutine.Direction.kReverse).ignoringDisable(true));
-      characterizationChooser.addOption(
+          drive.sysIdTurnQuasistatic(SysIdRoutine.Direction.REVERSE).ignoringDisable(true));
+      characterizationChooser.add(
           "Turn | SysId (Dynamic Forward)",
-          drive.sysIdTurnDynamic(SysIdRoutine.Direction.kForward).ignoringDisable(true));
-      characterizationChooser.addOption(
+          drive.sysIdTurnDynamic(SysIdRoutine.Direction.FORWARD).ignoringDisable(true));
+      characterizationChooser.add(
           "Turn | SysId (Dynamic Reverse)",
-          drive.sysIdTurnDynamic(SysIdRoutine.Direction.kReverse).ignoringDisable(true));
+          drive.sysIdTurnDynamic(SysIdRoutine.Direction.REVERSE).ignoringDisable(true));
     }
-    
+
     Telemetry.log("drive/test", DriveCommands.getTest().get());
 
     superstructure.registerSuperstructureCharacterization(() -> characterizationChooser);
     if (turret != null) {
-      Command turretSysIdFull =
-          Commands.sequence(
-                  turret.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
-                  Commands.waitSeconds(0.5),
-                  turret.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
-                  Commands.waitSeconds(0.5),
-                  turret.sysIdDynamic(SysIdRoutine.Direction.kForward),
-                  Commands.waitSeconds(0.5),
-                  turret.sysIdDynamic(SysIdRoutine.Direction.kReverse))
-              .ignoringDisable(true);
-      characterizationChooser.addOption("Turret | SysId (Full Routine)", turretSysIdFull);
-      characterizationChooser.addOption(
+      Command turretSysIdFull = Commands.sequence(
+          turret.sysIdQuasistatic(SysIdRoutine.Direction.FORWARD),
+          Commands.waitSeconds(0.5),
+          turret.sysIdQuasistatic(SysIdRoutine.Direction.REVERSE),
+          Commands.waitSeconds(0.5),
+          turret.sysIdDynamic(SysIdRoutine.Direction.FORWARD),
+          Commands.waitSeconds(0.5),
+          turret.sysIdDynamic(SysIdRoutine.Direction.REVERSE))
+          .ignoringDisable(true);
+      characterizationChooser.add("Turret | SysId (Full Routine)", turretSysIdFull);
+      characterizationChooser.add(
           "Turret | SysId (Quasistatic Forward)",
-          turret.sysIdQuasistatic(SysIdRoutine.Direction.kForward).ignoringDisable(true));
-      characterizationChooser.addOption(
+          turret.sysIdQuasistatic(SysIdRoutine.Direction.FORWARD).ignoringDisable(true));
+      characterizationChooser.add(
           "Turret | SysId (Quasistatic Reverse)",
-          turret.sysIdQuasistatic(SysIdRoutine.Direction.kReverse).ignoringDisable(true));
-      characterizationChooser.addOption(
+          turret.sysIdQuasistatic(SysIdRoutine.Direction.REVERSE).ignoringDisable(true));
+      characterizationChooser.add(
           "Turret | SysId (Dynamic Forward)",
-          turret.sysIdDynamic(SysIdRoutine.Direction.kForward).ignoringDisable(true));
-      characterizationChooser.addOption(
+          turret.sysIdDynamic(SysIdRoutine.Direction.FORWARD).ignoringDisable(true));
+      characterizationChooser.add(
           "Turret | SysId (Dynamic Reverse)",
-          turret.sysIdDynamic(SysIdRoutine.Direction.kReverse).ignoringDisable(true));
+          turret.sysIdDynamic(SysIdRoutine.Direction.REVERSE).ignoringDisable(true));
     }
 
     // Configure the button bindings
     configureDriverButtonBindings();
     configurePathPlannerAutonomous();
     configurePathPlannerTelemetry();
+    createPathPlannerRobotConfig();
 
     superstructure.setTurretExternalControl(true);
 
@@ -384,12 +394,14 @@ public class RobotContainer {
   }
 
   /**
-   * Use this method to define your button->command mappings. Buttons can be created by
+   * Use this method to define your button->command mappings. Buttons can be
+   * created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * org.wpilib.driverstation.Joystick} or {@link XboxController}), and then passing it to a {@link
+   * org.wpilib.driverstation.Joystick} or {@link XboxController}), and then
+   * passing it to a {@link
    * org.wpilib.command2.button.JoystickButton}.
    */
-  @SuppressWarnings("unused")
+
   private void configureDriverButtonBindings() {
     if (DRIVETRAIN_ENABLED && drive != null) {
       // Default command, normal field-relative drive
@@ -406,8 +418,8 @@ public class RobotContainer {
                   drive, driver.getYAxis(), driver.getXAxis(), driver.getRotAxis()));
 
       driver.shootToggle()
-      .onTrue(superstructure.runIndexer(true))
-      .onFalse(superstructure.runIndexer(false));
+          .onTrue(superstructure.runIndexer(true))
+          .onFalse(superstructure.runIndexer(false));
 
       driver
           .intakeDeployToggle()
@@ -434,24 +446,22 @@ public class RobotContainer {
           .turretRight()
           .whileTrue(TurretCommands.turretOpenLoop(turret, -0.5));
 
-      Command resetOdometryCmd =
-          Commands.runOnce(
-              () -> {
-                if (drive == null) {
-                  return;
-                }
-                var alliance = MatchState.getAlliance();
-                if (alliance.isEmpty()) {
-                  Logger.recordOutput("Odometry/AllianceZero/Failed", true);
-                  Logger.recordOutput("Odometry/AllianceZero/Reason", "ALLIANCE_UNKNOWN");
-                  return;
-                }
-                drive.zeroGyroAndOdometryToAllianceWall(alliance.get());
-              },
-              drive);
+      Command resetOdometryCmd = Commands.runOnce(
+          () -> {
+            if (drive == null) {
+              return;
+            }
+            var alliance = MatchState.getAlliance();
+            if (alliance.isEmpty()) {
+              Logger.recordOutput("Odometry/AllianceZero/Failed", true);
+              Logger.recordOutput("Odometry/AllianceZero/Reason", "ALLIANCE_UNKNOWN");
+              return;
+            }
+            drive.zeroGyroAndOdometryToAllianceWall(alliance.get());
+          },
+          drive);
       if (LEDS_ENABLED && leds != null) {
-        resetOdometryCmd =
-            resetOdometryCmd.andThen(leds.whiteFlash().repeatedly().withTimeout(2.0));
+        resetOdometryCmd = resetOdometryCmd.andThen(leds.whiteFlash().repeatedly().withTimeout(2.0));
       }
       driver.resetOdometry().onTrue(resetOdometryCmd.ignoringDisable(true));
     }
@@ -459,7 +469,7 @@ public class RobotContainer {
     if (LEDS_ENABLED && leds != null) {
       leds.setDefaultCommand(
           leds.allianceColor(
-                  () -> MatchState.getAlliance().orElse(Alliance.RED).equals(Alliance.RED))
+              () -> MatchState.getAlliance().orElse(Alliance.RED).equals(Alliance.RED))
               .repeatedly());
 
       new Trigger(() -> RobotState.isTeleop() && MatchState.getMatchTime() < 25)
@@ -502,13 +512,30 @@ public class RobotContainer {
         poses -> Logger.recordOutput("PathPlanner/ActivePath", poses.toArray(Pose2d[]::new)));
   }
 
+  static RobotConfig createPathPlannerRobotConfig() {
+    ModuleConfig moduleConfig = new ModuleConfig(
+        SwerveConstants.getWheelRadiusMeters(),
+        SwerveConstants.MAX_LINEAR_SPEED,
+        SwerveConstants.WHEEL_FRICTION_COEFF,
+        SwerveConstants.DRIVE_GEARBOX.withReduction(SwerveConstants.KRAKEN_DRIVE_GEAR_RATIO),
+        SwerveConstants.KRAKEN_DRIVE_CURRENT_LIMIT,
+        1);
+    return new RobotConfig(
+        SwerveConstants.ROBOT_MASS,
+        SwerveConstants.ROBOT_INERTIA,
+        moduleConfig,
+        SwerveConstants.MODULE_TRANSLATIONS);
+  }
+
   /**
    * Use this to pass the autonomwous command to the main {@link Robot} class.
    *
-   * @return the command to run in autonomous, or null if the auto chooser is not initialized.
+   * @return the command to run in autonomous, or null if the auto chooser is not
+   *         initialized.
    */
   public Command getAutonomousCommand() {
-    if (!AUTONOMOUS_ENABLED) return null;
+    if (!AUTONOMOUS_ENABLED)
+      return null;
     Command selected = operatorBoard != null ? operatorBoard.getAutonomousCommand() : null;
     superstructure.setAutonomousHoldEnabled(selected == null);
     return selected;
@@ -540,7 +567,8 @@ public class RobotContainer {
   }
 
   public void resetSimulationField() {
-    if (MODE != RobotMode.SIM || driveSimulation == null || drive == null) return;
+    if (MODE != RobotMode.SIM || driveSimulation == null || drive == null)
+      return;
 
     resetRobotToPose(new Pose2d(3, 3, new Rotation2d()), true);
   }
@@ -572,12 +600,11 @@ public class RobotContainer {
 
   public void displaySimFieldToAdvantageScope() {
     if (drive != null && turret != null && MODE == RobotMode.SIM) {
-      Translation2d turretTarget =
-          TurretCommands.predictShootingWhileMoving(
-              drive::getPose,
-              TurretConstants::getSimTarget,
-              drive::getFieldVelocity,
-              drive::getFieldAcceleration);
+      Translation2d turretTarget = TurretCommands.predictShootingWhileMoving(
+          drive::getPose,
+          TurretConstants::getSimTarget,
+          drive::getFieldVelocity,
+          drive::getFieldAcceleration);
       Logger.recordOutput(
           "FieldSimulation/TurretTarget", new Pose2d(turretTarget, new Rotation2d()));
     }
@@ -628,5 +655,10 @@ public class RobotContainer {
     }
     throw new IllegalStateException(
         "Current SIM IO wiring still requires the Maple-backed TerrainAwareSwerveSimulation.");
+  }
+
+  @Override
+  public void close(){
+    CommandScheduler.getInstance().cancelAll();
   }
 }

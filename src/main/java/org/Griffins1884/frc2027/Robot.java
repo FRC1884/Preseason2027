@@ -4,13 +4,15 @@ import static org.Griffins1884.frc2027.Config.Subsystems.AUTONOMOUS_ENABLED;
 import static org.Griffins1884.frc2027.GlobalConstants.MODE;
 
 import org.wpilib.system.DataLogManager;
-import org.wpilib.driverstation.MatchState;
-import org.wpilib.driverstation.RobotState;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.MatchType;
-import org.wpilib.driverstation.DriverStationErrors;
+// import org.wpilib.driverstation.MatchState;
+// import org.wpilib.driverstation.RobotState;
+import org.wpilib.hardware.hal.ThreadsJNI;
+// import org.wpilib.driverstation.Alliance;
+// import org.wpilib.driverstation.MatchType;
+// import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.driverstation.DriverStation;
 import org.wpilib.system.Filesystem;
-import org.wpilib.system.Threads;
+// import org.wpilib.system.Threads;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
 import java.io.IOException;
@@ -21,14 +23,14 @@ import java.time.format.DateTimeFormatter;
 import org.Griffins1884.frc2027.util.LogRollover;
 import org.Griffins1884.frc2027.util.RobotLogging;
 import org.Griffins1884.frc2027.util.RollingWPILOGWriter;
-import org.ironmaple.simulation.SimulatedArena;
+import org.Griffins1884.frc2027.simV2.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-import org.littletonrobotics.urcl.URCL;
+// import org.littletonrobotics.urcl.URCL;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -96,7 +98,7 @@ public class Robot extends LoggedRobot {
     }
 
     // Initialize URCL
-    Logger.registerURCL(URCL.startExternal());
+    // Logger.registerURCL(URCL.startExternal());
 
     // Start AdvantageKit logger
     Logger.start();
@@ -113,7 +115,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotPeriodic() {
     // Switch thread to high priority to improve loop timing
-    Threads.setCurrentThreadPriority(true, 99);
+    ThreadsJNI.setCurrentThreadPriority(99);
 
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled commands, running already-scheduled commands, removing
@@ -124,7 +126,7 @@ public class Robot extends LoggedRobot {
     robotContainer.periodic();
 
     // Return to normal thread priority
-    Threads.setCurrentThreadPriority(false, 10);
+    ThreadsJNI.setCurrentThreadPriority(10);
   }
 
   /** This function is called once when the robot is disabled. */

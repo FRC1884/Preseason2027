@@ -1,6 +1,5 @@
 package org.Griffins1884.frc2027.subsystems.shooter;
 
-import org.wpilib.math.util.MathUtil;
 import java.util.function.DoubleSupplier;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

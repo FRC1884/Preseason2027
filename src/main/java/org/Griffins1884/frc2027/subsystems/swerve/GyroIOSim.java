@@ -4,8 +4,8 @@ import static org.wpilib.units.Units.RadiansPerSecond;
 
 import org.wpilib.math.util.Units;
 import org.Griffins1884.frc2027.util.SparkUtil;
-import org.griffins1884.sim3d.TerrainAwareSwerveSimulation;
-import org.griffins1884.sim3d.TerrainSample;
+import org.Griffins1884.frc2027.simV2.sim3d.TerrainAwareSwerveSimulation;
+import org.Griffins1884.frc2027.simV2.sim3d.TerrainSample;
 
 public class GyroIOSim implements GyroIO {
   private final TerrainAwareSwerveSimulation simulation;

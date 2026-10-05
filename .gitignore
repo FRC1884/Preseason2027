@@ -3,6 +3,9 @@
 build/
 bin/
 
+#SimV2
+simV2
+
 # WPILib / IDE
 .vscode/
 .idea/

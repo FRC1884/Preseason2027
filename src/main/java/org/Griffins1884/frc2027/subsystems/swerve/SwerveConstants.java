@@ -25,7 +25,6 @@ public final class SwerveConstants {
   // Gyro
   public static enum GyroType {
     PIGEON,
-    NAVX,
     ADIS,
   }
 
@@ -308,7 +307,6 @@ public final class SwerveConstants {
           Meters.of(TRACK_WIDTH),
           switch (GYRO_TYPE) {
             case PIGEON -> COTS.ofPigeon2();
-            case NAVX -> COTS.ofNav2X();
             case ADIS -> COTS.ofGenericGyro();
           },
           () ->
