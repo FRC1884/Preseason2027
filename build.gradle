@@ -82,13 +82,30 @@ dependencies {
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
 
-    compileOnly 'org.projectlombok:lombok:1.18.36'
-    annotationProcessor 'org.projectlombok:lombok:1.18.36'
+    compileOnly 'org.projectlombok:lombok:1.18.38'
+    annotationProcessor 'org.projectlombok:lombok:1.18.38'
 
-    testCompileOnly 'org.projectlombok:lombok:1.18.36'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
+    testCompileOnly 'org.projectlombok:lombok:1.18.38'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.38'
+    
+    implementation 'org.dyn4j:dyn4j:5.0.2'
 
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+    implementation "org.ejml:ejml-simple:0.44.0"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:2.19.2"
+    implementation "com.fasterxml.jackson.core:jackson-core:2.19.2"
+    implementation "com.fasterxml.jackson.core:jackson-databind:2.19.2"
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://frcmaven.wpi.edu/artifactory/development"
+    }
+    maven {
+        url "https://frcmaven.wpi.edu/artifactory/release"
+    }
 }
 
 test {

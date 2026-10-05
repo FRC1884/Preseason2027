@@ -1,0 +1,11 @@
+{
+  "NTProvider": {"types": {
+    "\/AdvantageKit\/RealOutputs\/Alerts": "Alerts",
+    "\/AdvantageKit\/RealOutputs\/DriverStation": "Alerts",
+    "\/AdvantageKit\/RealOutputs\/PathPlanner": "Alerts",
+    "\/Characterization\/Diagnostics": "Selectable",
+    "\/DriverStation": "DriverStation",
+    "\/Superstructure State": "Selectable"
+  }},
+  "NetworkTables Info": {"visible": true}
+}

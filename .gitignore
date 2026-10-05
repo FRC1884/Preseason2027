@@ -3,7 +3,10 @@
 build/
 bin/
 
-#SimV2
+#Other
+ctre_sim
+logs
+operatorboard-data
 simV2
 
 # WPILib / IDE
