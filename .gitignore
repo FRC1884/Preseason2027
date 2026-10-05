@@ -7,7 +7,6 @@ bin/
 ctre_sim
 logs
 operatorboard-data
-simV2
 
 # WPILib / IDE
 .vscode/
