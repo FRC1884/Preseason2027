@@ -1,9 +1,20 @@
 package org.Griffins1884.frc2027;
 
 import org.Griffins1884.frc2027.GlobalConstants.RobotType;
+import org.wpilib.hardware.bus.CANPort;
 
 public class CanIDConstants {
   public static RobotType ROBOT = GlobalConstants.ROBOT;
+
+  //CANPorts
+  public static final CANPort MECHANISM_ARM_SPARK_FLEX = CANPort.CAN_S0;
+  public static final CANPort INTAKE_PIVOT_IO_FLEX = CANPort.CAN_S0;
+  public static final CANPort INTAKE_PIVOT_IO_MAX = CANPort.CAN_S0;
+  public static final CANPort SHOOTER_PIVOT_IO_FLEX = CANPort.CAN_S0;
+  public static final CANPort SHOOTER_PIVOT_IO_MAX = CANPort.CAN_S0;
+  public static final CANPort SWERVE = CANPort.CAN_S0;
+
+  public static final String MODULE_IO_FULL_KRAKEN = "can_s0";
 
   // Intake
   public static final int[] INTAKE_PIVOT_IDS = {19, 20};

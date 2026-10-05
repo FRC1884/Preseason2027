@@ -3,14 +3,14 @@ package org.Griffins1884.frc2027;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import org.wpilib.hal.HAL;
+import org.wpilib.hardware.hal.HAL;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class RobotContainerConstructionTest {
   @BeforeAll
   static void initializeHal() {
-    assertTrue(HAL.initialize(500, 0));
+    assertTrue(HAL.initialize());
   }
 
   @Test
