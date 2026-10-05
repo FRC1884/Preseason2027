@@ -2,24 +2,27 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.wpilib.hal.HAL;
+import org.wpilib.hardware.hal.HAL;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.networktables.NetworkTableInstance;
-import org.wpilib.wpilibj.simulation.DriverStationSim;
+import org.wpilib.simulation.DriverStationSim;
 import java.util.Set;
 import org.Griffins1884.frc2027.GlobalConstants;
 import org.Griffins1884.frc2027.runtime.RuntimeModeManager;
 import org.Griffins1884.frc2027.runtime.RuntimeModeProfile;
 import org.Griffins1884.frc2027.simulation.GenericSimArena;
-import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.Griffins1884.frc2027.simV2.sim3d.TerrainAwareSwerveSimulation;
+import org.Griffins1884.frc2027.simV2.sim3d.TerrainModel;
+import org.Griffins1884.frc2027.simV2.simulation.SimulatedArena;
+import org.Griffins1884.frc2027.simV2.simulation.drivesims.SwerveDriveSimulation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.Griffins1884.frc2027.simulation.maple.Rebuilt2026FieldModel;
 
 class SwerveSimulationSnapshotTest {
   @BeforeAll
   static void initializeHal() {
-    assertTrue(HAL.initialize(500, 0));
+    assertTrue(HAL.initialize());
   }
 
   @Test
@@ -27,14 +30,14 @@ class SwerveSimulationSnapshotTest {
     GenericSimArena.install();
     SimulatedArena previousArena = SimulatedArena.getInstance();
     SimulatedArena.overrideInstance(new TestArena());
-    var simulation = new SwerveDriveSimulation(SwerveConstants.MAPLE_SIM_CONFIG, Pose2d.kZero);
+    var simulation = new SwerveDriveSimulation(SwerveConstants.MAPLE_SIM_CONFIG, Pose2d.ZERO);
     SimulatedArena.getInstance().addDriveTrainSimulation(simulation);
     ModuleIOSim[] modules = new ModuleIOSim[4];
     for (int i = 0; i < 4; i++) modules[i] = new ModuleIOSim(simulation.getModules()[i]);
     final double[] now = {0.02};
     var drive =
         new SwerveSubsystem(
-            new GyroIOSim(simulation.getGyroSimulation()),
+            new GyroIOSim(new TerrainAwareSwerveSimulation(simulation, (TerrainModel) Rebuilt2026FieldModel.INSTANCE)),
             modules[0],
             modules[1],
             modules[2],
@@ -48,7 +51,7 @@ class SwerveSimulationSnapshotTest {
         drive.periodic();
         assertEquals(0, drive.invalidSnapshotCount());
         assertTrue(Double.isFinite(drive.getPose().getX()));
-        assertTrue(Double.isFinite(drive.getRobotRelativeSpeeds().vxMetersPerSecond));
+        assertTrue(Double.isFinite(drive.getRobotRelativeSpeeds().vx));
       }
     } finally {
       drive.close();
@@ -60,7 +63,7 @@ class SwerveSimulationSnapshotTest {
   @Test
   void simulatedFeedforwardChangesWaitUntilDisabledTuning() {
     GenericSimArena.install();
-    var simulation = new SwerveDriveSimulation(SwerveConstants.MAPLE_SIM_CONFIG, Pose2d.kZero);
+    var simulation = new SwerveDriveSimulation(SwerveConstants.MAPLE_SIM_CONFIG, Pose2d.ZERO);
     var previous = RuntimeModeManager.getActiveProfile();
     String key = "/Telemetry/TunableNumbers/Swerve/DriveMotor/Simbot/kV";
     var entry = NetworkTableInstance.getDefault().getEntry(key);
