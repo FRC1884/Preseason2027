@@ -10,11 +10,7 @@ import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.math.numbers.N1;
 import org.wpilib.math.numbers.N3;
 import org.wpilib.util.Alert;
-import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.MatchType;
-import org.wpilib.driverstation.DriverStationErrors;
 import org.wpilib.system.Timer;
 import org.wpilib.telemetry.Telemetry;
 import org.wpilib.command2.SubsystemBase;
@@ -103,14 +99,14 @@ public class Vision extends SubsystemBase implements VisionTargetProvider {
     this.disconnectedAlerts = new Alert[io.length];
     for (int i = 0; i < inputs.length; i++) {
       disconnectedAlerts[i] =
-          new Alert(
+          new Alert("Camera Disconnect" + io[i].getCameraConstants().cameraName(),
               "Vision camera \"" + io[i].getCameraConstants().cameraName() + "\" is disconnected.",
               Alert.Level.MEDIUM);
     }
     this.outlierAlerts = new Alert[io.length];
     for (int i = 0; i < io.length; i++) {
       outlierAlerts[i] =
-          new Alert(
+          new Alert("Outlier Detected" + io[i].getCameraConstants().cameraName(),
               "Vision Outlier detected on camera \""
                   + io[i].getCameraConstants().cameraName()
                   + "\".",
@@ -119,7 +115,7 @@ public class Vision extends SubsystemBase implements VisionTargetProvider {
     this.noAcceptedMeasurementAlerts = new Alert[io.length];
     for (int i = 0; i < io.length; i++) {
       noAcceptedMeasurementAlerts[i] =
-          new Alert(
+          new Alert("No accepted measurements" + io[i].getCameraConstants().cameraName() ,
               "Vision camera \""
                   + io[i].getCameraConstants().cameraName()
                   + "\" is connected but has no accepted measurements.",

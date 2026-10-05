@@ -27,8 +27,8 @@ import org.Griffins1884.frc2027.util.LoggedTunableNumber;
  * constants are needed, to reduce verbosity.
  */
 public final class GlobalConstants {
-  public static final RobotMode MODE = RobotMode.REAL;
-  public static final RobotType ROBOT = RobotType.COMPBOT;
+  public static final RobotMode MODE = RobotMode.SIM;
+  public static final RobotType ROBOT = RobotType.SIMBOT;
   public static final LoggingMode LOGGING_MODE = LoggingMode.COMP;
   public static final double ODOMETRY_FREQUENCY = 250.0;
 
@@ -387,7 +387,7 @@ public final class GlobalConstants {
         if (layout == null) {
           synchronized (this) {
             if (layout == null) {
-              try {
+              @SuppressWarnings("unused")
                 Path p =
                     Path.of(
                         Filesystem.getDeployDirectory().getPath(),
@@ -397,10 +397,7 @@ public final class GlobalConstants {
                 // layout = new AprilTagFieldLayout(p);
                 Fields fieldInfo = fieldType == FieldType.ANDYMARK ? Fields.FRC_2026_REBUILT_ANDY_MARK : Fields.FRC_2026_REBUILT_WELDED;
                 layout  = fieldInfo.loadField();
-                layoutString = new ObjectMapper().writeValueAsString(layout);
-              } catch (IOException e) {
-                throw new RuntimeException(e);
-              }
+                layoutString = layout.getJson();
             }
           }
         }
