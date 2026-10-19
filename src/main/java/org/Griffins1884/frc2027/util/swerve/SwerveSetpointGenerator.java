@@ -27,11 +27,17 @@ import org.Griffins1884.frc2027.util.GeomUtil;
  * kinematically infeasible (and can result in wheel slip or robot heading drift as a result).
  */
 @Builder
-@RequiredArgsConstructor
 @ExtensionMethod({GeomUtil.class, EqualsUtil.GeomExtensions.class})
 public class SwerveSetpointGenerator {
   private final SwerveDriveKinematics kinematics;
   private final Translation2d[] moduleLocations;
+
+  public SwerveSetpointGenerator(
+      SwerveDriveKinematics kinematics, Translation2d[] moduleLocations) {
+    super();
+    this.kinematics = kinematics;
+    this.moduleLocations = moduleLocations;
+  }
 
   /**
    * Check if it would be faster to go to the opposite of the goal heading (and reverse drive
