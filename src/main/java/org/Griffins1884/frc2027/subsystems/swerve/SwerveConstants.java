@@ -16,9 +16,9 @@ import org.wpilib.math.util.Units;
 import org.Griffins1884.frc2027.CanIDConstants;
 import org.Griffins1884.frc2027.GlobalConstants.Gains;
 import org.Griffins1884.frc2027.util.swerve.ModuleLimits;
-import org.ironmaple.simulation.drivesims.COTS;
-import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
-import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
+import org.Griffins1884.frc2027.simV2.simulation.drivesims.COTS;
+import org.Griffins1884.frc2027.simV2.simulation.drivesims.configs.DriveTrainSimulationConfig;
+import org.Griffins1884.frc2027.simV2.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 
 @SuppressWarnings("unused")
 public final class SwerveConstants {
@@ -216,7 +216,7 @@ public final class SwerveConstants {
   /** Amps */
   static final int DRIVE_MOTOR_CURRENT_LIMIT = 40;
 
-  static final int KRAKEN_DRIVE_CURRENT_LIMIT = 40;
+  public static final int KRAKEN_DRIVE_CURRENT_LIMIT = 40;
 
   /** Amps */
   static final double DRIVE_MOTOR_MAX_TORQUE = DRIVE_GEARBOX.getTorque(DRIVE_MOTOR_CURRENT_LIMIT);
