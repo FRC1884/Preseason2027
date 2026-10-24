@@ -1,5 +1,6 @@
 package org.Griffins1884.frc2027.subsystems.shooter;
 
+import org.Griffins1884.frc2027.CanIDConstants;
 import org.Griffins1884.frc2027.mechanisms.arms.MechanismArmIOSparkMax;
 
 public class ShooterPivotIOMax extends MechanismArmIOSparkMax implements ShooterPivotIO {
@@ -10,7 +11,8 @@ public class ShooterPivotIOMax extends MechanismArmIOSparkMax implements Shooter
         ShooterPivotConstants.BRAKE_MODE,
         ShooterPivotConstants.FORWARD_LIMIT,
         ShooterPivotConstants.REVERSE_LIMIT,
-        ShooterPivotConstants.POSITION_COEFFICIENT);
+        ShooterPivotConstants.POSITION_COEFFICIENT,
+        CanIDConstants.SHOOTER_PIVOT_IO_MAX);
     boolean[] inverted = ShooterPivotConstants.INVERTED;
     for (int i = 0; i < inverted.length; i++) {
       if (inverted[i]) {
