@@ -56,34 +56,6 @@ public class Module {
   private SimpleMotorFeedforward krakenFfModel =
       new SimpleMotorFeedforward(krakenDrivekS.get(), krakenDrivekV.get());
 
-  private final String keyInputsDriveConnected;
-  private final String keyInputsDrivePositionRad;
-  private final String keyInputsDriveVelocityRadPerSec;
-  private final String keyInputsDriveAppliedVolts;
-  private final String keyInputsDriveCurrentAmps;
-  private final String keyInputsTurnConnected;
-  private final String keyInputsTurnPosition;
-  private final String keyInputsTurnVelocityRadPerSec;
-  private final String keyInputsTurnAppliedVolts;
-  private final String keyInputsTurnCurrentAmps;
-  private final String keyAngleJumpDetected;
-  private final String keyAngleJumpCount;
-  private final String keyZeroTrimRotations;
-  private final String keyInputsOdometryTimestamps;
-  private final String keyInputsOdometryDrivePositionsRad;
-  private final String keyInputsOdometryTurnPositions;
-  private final String keyInputsOdometryTurnPositionsRotations;
-  private final String keyDesiredSpeedMps;
-  private final String keyActualSpeedMps;
-  private final String keySpeedErrorMps;
-  private final String keySpeedRatio;
-  private final String keyDesiredAngleRad;
-  private final String keyActualAngleRad;
-  private final String keyAbsoluteAngleRad;
-  private final String keyAngleErrorRad;
-  private final String keyLastAngleDeltaRad;
-  private final String keyInvalidOdometryBatches;
-
   private final Alert driveDisconnectedAlert;
   private final Alert turnDisconnectedAlert;
   private double desiredSpeedMetersPerSec = 0.0;
@@ -100,80 +72,12 @@ public class Module {
   private double appliedKs = desiredKs;
   private double appliedKv = desiredKv;
 
-  private double lastLoggedTrim = Double.NaN;
-  private int invalidOdometryBatches;
-  private ModuleConfigurationWorker.Status lastConfigurationStatus;
-  private final String configurationDesiredRevisionKey;
-  private final String configurationAppliedRevisionKey;
-  private final String configurationInFlightKey;
-  private final String configurationFailedKey;
-  private final String configurationInhibitedKey;
-  private final String configurationAttemptsKey;
-  private final String configurationCompletionsKey;
-  private final String configurationDurationKey;
-  private final String configurationErrorKey;
-  private final String configurationDesiredGainsKey;
-  private final String appliedFeedforwardKey;
-  private double loggedAppliedKs = Double.NaN;
-  private double loggedAppliedKv = Double.NaN;
-  private final String configurationFailureCountKey;
-  private final String configurationLastFailedRevisionKey;
-  private final String configurationLastFailureErrorKey;
-  private final String telemetryTimingKey;
-  private final String odometryTimingKey;
-
   /** -- GETTER -- Returns the module positions received this cycle. */
   @Getter private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
 
   public Module(ModuleIO io, int index) {
     this.io = io;
     this.index = index;
-    telemetryTimingKey = "Swerve/Module" + index + "/Performance/TelemetryAndFaultEvaluationMS";
-    odometryTimingKey = "Swerve/Module" + index + "/Performance/OdometryConversionMS";
-    String configurationKey = "Swerve/Module" + index + "/Configuration";
-    configurationDesiredRevisionKey = configurationKey + "/DesiredRevision";
-    configurationAppliedRevisionKey = configurationKey + "/AppliedRevision";
-    configurationInFlightKey = configurationKey + "/InFlight";
-    configurationFailedKey = configurationKey + "/Failed";
-    configurationInhibitedKey = configurationKey + "/Inhibited";
-    configurationAttemptsKey = configurationKey + "/Attempts";
-    configurationCompletionsKey = configurationKey + "/Completions";
-    configurationDurationKey = configurationKey + "/LastDurationMS";
-    configurationErrorKey = configurationKey + "/Error";
-    configurationDesiredGainsKey = configurationKey + "/DesiredGains";
-    appliedFeedforwardKey = configurationKey + "/AppliedFeedforward";
-    configurationFailureCountKey = configurationKey + "/FailureCount";
-    configurationLastFailedRevisionKey = configurationKey + "/LastFailedRevision";
-    configurationLastFailureErrorKey = configurationKey + "/LastFailureError";
-    keyInputsDriveConnected = "Swerve/Module" + index + "/Inputs/DriveConnected";
-    keyInputsDrivePositionRad = "Swerve/Module" + index + "/Inputs/DrivePositionRad";
-    keyInputsDriveVelocityRadPerSec = "Swerve/Module" + index + "/Inputs/DriveVelocityRadPerSec";
-    keyInputsDriveAppliedVolts = "Swerve/Module" + index + "/Inputs/DriveAppliedVolts";
-    keyInputsDriveCurrentAmps = "Swerve/Module" + index + "/Inputs/DriveCurrentAmps";
-    keyInputsTurnConnected = "Swerve/Module" + index + "/Inputs/TurnConnected";
-    keyInputsTurnPosition = "Swerve/Module" + index + "/Inputs/TurnPosition";
-    keyInputsTurnVelocityRadPerSec = "Swerve/Module" + index + "/Inputs/TurnVelocityRadPerSec";
-    keyInputsTurnAppliedVolts = "Swerve/Module" + index + "/Inputs/TurnAppliedVolts";
-    keyInputsTurnCurrentAmps = "Swerve/Module" + index + "/Inputs/TurnCurrentAmps";
-    keyAngleJumpDetected = "Swerve/Module" + index + "/AngleJumpDetected";
-    keyAngleJumpCount = "Swerve/Module" + index + "/AngleJumpCount";
-    keyZeroTrimRotations = "Swerve/Module" + index + "/ZeroTrimRotations";
-    keyInputsOdometryTimestamps = "Swerve/Module" + index + "/Inputs/OdometryTimestamps";
-    keyInputsOdometryDrivePositionsRad =
-        "Swerve/Module" + index + "/Inputs/OdometryDrivePositionsRad";
-    keyInputsOdometryTurnPositions = "Swerve/Module" + index + "/Inputs/OdometryTurnPositions";
-    keyInputsOdometryTurnPositionsRotations =
-        "Swerve/Module" + index + "/Inputs/OdometryTurnPositionsRotations";
-    keyDesiredSpeedMps = "Swerve/Module" + index + "/DesiredSpeedMps";
-    keyActualSpeedMps = "Swerve/Module" + index + "/ActualSpeedMps";
-    keySpeedErrorMps = "Swerve/Module" + index + "/SpeedErrorMps";
-    keySpeedRatio = "Swerve/Module" + index + "/SpeedRatio";
-    keyDesiredAngleRad = "Swerve/Module" + index + "/DesiredAngleRad";
-    keyActualAngleRad = "Swerve/Module" + index + "/ActualAngleRad";
-    keyAbsoluteAngleRad = "Swerve/Module" + index + "/AbsoluteAngleRad";
-    keyAngleErrorRad = "Swerve/Module" + index + "/AngleErrorRad";
-    keyLastAngleDeltaRad = "Swerve/Module" + index + "/LastAngleDeltaRad";
-    keyInvalidOdometryBatches = "Swerve/Module" + index + "/InvalidOdometryBatches";
 
     desiredConfiguration = readConfiguration();
     requestedConfiguration = desiredConfiguration;
