@@ -94,8 +94,8 @@ public class AprilTagVisionIONorthstar implements VisionIO {
             .getDoubleArrayTopic("observations")
             .subscribe(
                 new double[] {},
-                PubSubOption.keepDuplicates(true),
-                PubSubOption.sendAll(true),
+                PubSubOption.KEEP_DUPLICATES,
+                PubSubOption.SEND_ALL,
                 PubSubOption.pollStorage(5),
                 PubSubOption.periodic(0.01));
     fpsAprilTagsSubscriber = outputTable.getIntegerTopic("fps_apriltags").subscribe(0);
@@ -158,7 +158,7 @@ public class AprilTagVisionIONorthstar implements VisionIO {
 
   private boolean isNtConnected() {
     for (var connection : ntInstance.getConnections()) {
-      if (connection.remote_id.startsWith(deviceId)) {
+      if (connection.remoteId.startsWith(deviceId)) {
         return true;
       }
     }
