@@ -272,9 +272,9 @@ public class Module {
     advanceGainChecks();
     io.initializeConfiguration(desiredConfiguration);
     driveDisconnectedAlert =
-        new Alert("Module Disconnect", "Disconnected drive motor on module " + index + ".", Alert.Level.HIGH);
+        new Alert("Drive Module Disconnect" + index, "Disconnected drive motor on module " + index + ".", Alert.Level.HIGH);
     turnDisconnectedAlert =
-        new Alert("Module Disconnect", "Disconnected turn motor on module " + index + ".", Alert.Level.HIGH);
+        new Alert("Turn Module Disconnect" + index, "Disconnected turn motor on module " + index + ".", Alert.Level.HIGH);
   }
 
   private boolean advanceGainChecks() {
