@@ -4,15 +4,19 @@ import static org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.*;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import org.wpilib.math.util.MathUtil;
+import org.wpilib.driverstation.DriverStation;
+import org.wpilib.driverstation.internal.DriverStationBackend;
 import org.wpilib.math.controller.SimpleMotorFeedforward;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.kinematics.SwerveModulePosition;
-import org.wpilib.math.kinematics.SwerveModuleState;
+import org.wpilib.math.kinematics.SwerveModuleVelocity;
 import org.wpilib.math.system.DCMotor;
 import org.wpilib.util.Alert;
 import org.wpilib.util.Alert.Level;
 import java.util.List;
 import lombok.Getter;
+
+import org.Griffins1884.frc2027.runtime.RuntimeModeManager;
 import org.Griffins1884.frc2027.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
@@ -39,7 +43,7 @@ public class Module {
     krakenDrivekS.initDefault(KRAKEN_DRIVE_TORQUE_GAINS.kS().get());
     krakenDrivekV.initDefault(KRAKEN_DRIVE_TORQUE_GAINS.kV().get());
     krakenDrivekT.initDefault(
-        SwerveConstants.KRAKEN_DRIVE_GEAR_RATIO / DCMotor.getKrakenX60Foc(1).KtNMPerAmp);
+        SwerveConstants.KRAKEN_DRIVE_GEAR_RATIO / DCMotor.getKrakenX60Foc(1).Kt);
     krakenDrivekP.initDefault(KRAKEN_DRIVE_TORQUE_GAINS.kP().get());
     krakenDrivekD.initDefault(KRAKEN_DRIVE_TORQUE_GAINS.kD().get());
     krakenTurnkP.initDefault(KRAKEN_TURN_TORQUE_GAINS.kP().get());
@@ -61,16 +65,44 @@ public class Module {
   private int angleJumpCount = 0;
   private double lastAngleDeltaRad = 0.0;
 
+  private ModuleConfiguration desiredConfiguration;
+  private ModuleConfiguration requestedConfiguration;
+  private double desiredKs = krakenDrivekS.get();
+  private double desiredKv = krakenDrivekV.get();
+  private double appliedKs = desiredKs;
+  private double appliedKv = desiredKv;
+
   /** -- GETTER -- Returns the module positions received this cycle. */
   @Getter private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
 
   public Module(ModuleIO io, int index) {
     this.io = io;
     this.index = index;
+
+    desiredConfiguration = readConfiguration();
+    requestedConfiguration = desiredConfiguration;
+    advanceGainChecks();
+    io.initializeConfiguration(desiredConfiguration);
     driveDisconnectedAlert =
-        new Alert("Disconnected drive motor on module " + index + ".", Level.HIGH);
+        new Alert("Module Disconnect", "Disconnected drive motor on module " + index + ".", Alert.Level.HIGH);
     turnDisconnectedAlert =
-        new Alert("Disconnected turn motor on module " + index + ".", Level.HIGH);
+        new Alert("Module Disconnect", "Disconnected turn motor on module " + index + ".", Alert.Level.HIGH);
+  }
+
+  private boolean advanceGainChecks() {
+    // Every stateful check must run, including on the first call.
+    boolean changed = krakenDrivekS.hasChanged(hashCode());
+    changed |= krakenDrivekV.hasChanged(hashCode());
+    changed |= krakenDrivekP.hasChanged(hashCode());
+    changed |= krakenDrivekD.hasChanged(hashCode());
+    changed |= krakenTurnkP.hasChanged(hashCode());
+    changed |= krakenTurnkD.hasChanged(hashCode());
+    return changed;
+  }
+
+  private ModuleConfiguration readConfiguration() {
+    return new ModuleConfiguration(
+        krakenDrivekP.get(), 0.0, krakenDrivekD.get(), krakenTurnkP.get(), 0.0, krakenTurnkD.get());
   }
 
   public void addOrchestraInstruments(List<TalonFX> instruments) {
@@ -143,7 +175,7 @@ public class Module {
   }
 
   /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */
-  public void runSetpoint(SwerveModuleState state) {
+  public void runSetpoint(SwerveModuleVelocity state) {
     desiredSpeedMetersPerSec = state.velocity;
     desiredAngle = state.angle;
     // Mechanical Advantage-style control for full Kraken modules
@@ -202,8 +234,8 @@ public class Module {
   }
 
   /** Returns the module state (turn angle and drive velocity). */
-  public SwerveModuleState getState() {
-    return new SwerveModuleState(getVelocityMetersPerSec(), getAngle());
+  public SwerveModuleVelocity getState() {
+    return new SwerveModuleVelocity(getVelocityMetersPerSec(), getAngle());
   }
 
   /** Returns the timestamps of the samples received this cycle. */
@@ -277,6 +309,36 @@ public class Module {
 
   public Rotation2d getAbsoluteAngle() {
     return inputs.turnAbsolutePosition;
+  }
+
+  void close() {
+    io.close();
+  }
+
+  void updateConfiguration(boolean disabled) {
+    io.updateConfigurationState(disabled);
+    if (RuntimeModeManager.allowsTuning(false)) {
+      if (advanceGainChecks()) {
+        desiredConfiguration = readConfiguration();
+        desiredKs = krakenDrivekS.get();
+        desiredKv = krakenDrivekV.get();
+      }
+      if (disabled
+          && DriverStationBackend.isDisabled()
+          && !desiredConfiguration.equals(requestedConfiguration)) {
+        if (io.requestConfiguration(desiredConfiguration))
+          requestedConfiguration = desiredConfiguration;
+      }
+      if (disabled
+          && DriverStationBackend.isDisabled()
+          && io.isConfigurationReady()
+          && desiredConfiguration.equals(requestedConfiguration)
+          && (appliedKs != desiredKs || appliedKv != desiredKv)) {
+        krakenFfModel = new SimpleMotorFeedforward(desiredKs, desiredKv);
+        appliedKs = desiredKs;
+        appliedKv = desiredKv;
+      }
+    }
   }
 
   public void captureZeroTrim() {
