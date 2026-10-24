@@ -40,7 +40,7 @@ import org.Griffins1884.frc2027.util.AllianceFlipUtil;
 import org.Griffins1884.frc2027.util.ShotMath;
 import org.Griffins1884.frc2027.util.TurretUtil;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedNetworkChooser;
 
 public class Superstructure extends SubsystemBase {
   public enum SuperState {
@@ -71,8 +71,8 @@ public class Superstructure extends SubsystemBase {
   @Setter private TurretSubsystem turret;
 
   @Getter
-  private final LoggedDashboardChooser<SuperState> stateChooser =
-      new LoggedDashboardChooser<>("Superstructure State");
+  private final LoggedNetworkChooser<SuperState> stateChooser =
+      new LoggedNetworkChooser<>("Superstructure State");
 
   @Getter private SuperState requestedState = SuperState.IDLING;
   @Getter private SuperState currentState = SuperState.IDLING;
@@ -91,7 +91,7 @@ public class Superstructure extends SubsystemBase {
   private Supplier<Optional<Pose2d>> autoStartPoseSupplier = Optional::empty;
 
   private final Debouncer ballPresentDebouncer =
-      new Debouncer(SuperstructureConstants.BALL_PRESENCE_DEBOUNCE_SEC.get(), DebounceType.kBoth);
+      new Debouncer(SuperstructureConstants.BALL_PRESENCE_DEBOUNCE_SEC.get(), DebounceType.BOTH);
   @Setter private boolean turretExternalControl = false;
   @Setter @Getter private boolean shootEnabled = false;
   @Getter private boolean intakeRollersHeld = false;
@@ -343,8 +343,8 @@ public class Superstructure extends SubsystemBase {
   }
 
   public void registerSuperstructureCharacterization(
-      Supplier<LoggedDashboardChooser<Command>> autoChooser) {
-    LoggedDashboardChooser<Command> chooser = autoChooser.get();
+      Supplier<LoggedNetworkChooser<Command>> autoChooser) {
+    LoggedNetworkChooser<Command> chooser = autoChooser.get();
     if (chooser == null) {
       return;
     }
@@ -352,56 +352,56 @@ public class Superstructure extends SubsystemBase {
       addSysIdOptions(
           chooser,
           "Intake Pivot",
-          arms.intakePivot.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
-          arms.intakePivot.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
-          arms.intakePivot.sysIdDynamic(SysIdRoutine.Direction.kForward),
-          arms.intakePivot.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+          arms.intakePivot.sysIdQuasistatic(SysIdRoutine.Direction.FORWARD),
+          arms.intakePivot.sysIdQuasistatic(SysIdRoutine.Direction.REVERSE),
+          arms.intakePivot.sysIdDynamic(SysIdRoutine.Direction.FORWARD),
+          arms.intakePivot.sysIdDynamic(SysIdRoutine.Direction.REVERSE));
     }
     if (SHOOTER_PIVOT_ENABLED && arms.shooterPivot != null) {
       addSysIdOptions(
           chooser,
           "Shooter Pivot",
-          arms.shooterPivot.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
-          arms.shooterPivot.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
-          arms.shooterPivot.sysIdDynamic(SysIdRoutine.Direction.kForward),
-          arms.shooterPivot.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+          arms.shooterPivot.sysIdQuasistatic(SysIdRoutine.Direction.FORWARD),
+          arms.shooterPivot.sysIdQuasistatic(SysIdRoutine.Direction.REVERSE),
+          arms.shooterPivot.sysIdDynamic(SysIdRoutine.Direction.FORWARD),
+          arms.shooterPivot.sysIdDynamic(SysIdRoutine.Direction.REVERSE));
     }
     if (INTAKE_ENABLED && rollers.intake != null) {
       addSysIdOptions(
           chooser,
           "Intake",
-          rollers.intake.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
-          rollers.intake.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
-          rollers.intake.sysIdDynamic(SysIdRoutine.Direction.kForward),
-          rollers.intake.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+          rollers.intake.sysIdQuasistatic(SysIdRoutine.Direction.FORWARD),
+          rollers.intake.sysIdQuasistatic(SysIdRoutine.Direction.REVERSE),
+          rollers.intake.sysIdDynamic(SysIdRoutine.Direction.FORWARD),
+          rollers.intake.sysIdDynamic(SysIdRoutine.Direction.REVERSE));
     }
     if (INDEXER_ENABLED && rollers.indexer != null) {
       addSysIdOptions(
           chooser,
           "Indexer",
-          rollers.indexer.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
-          rollers.indexer.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
-          rollers.indexer.sysIdDynamic(SysIdRoutine.Direction.kForward),
-          rollers.indexer.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+          rollers.indexer.sysIdQuasistatic(SysIdRoutine.Direction.FORWARD),
+          rollers.indexer.sysIdQuasistatic(SysIdRoutine.Direction.REVERSE),
+          rollers.indexer.sysIdDynamic(SysIdRoutine.Direction.FORWARD),
+          rollers.indexer.sysIdDynamic(SysIdRoutine.Direction.REVERSE));
     }
     if (SHOOTER_ENABLED && rollers.shooter != null) {
       addSysIdOptions(
           chooser,
           "Shooter",
-          rollers.shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
-          rollers.shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
-          rollers.shooter.sysIdDynamic(SysIdRoutine.Direction.kForward),
-          rollers.shooter.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+          rollers.shooter.sysIdQuasistatic(SysIdRoutine.Direction.FORWARD),
+          rollers.shooter.sysIdQuasistatic(SysIdRoutine.Direction.REVERSE),
+          rollers.shooter.sysIdDynamic(SysIdRoutine.Direction.FORWARD),
+          rollers.shooter.sysIdDynamic(SysIdRoutine.Direction.REVERSE));
     }
   }
 
   private void configureStateChooser() {
-    stateChooser.addDefaultOption("Idling", SuperState.IDLING);
-    stateChooser.addOption("Intaking", SuperState.INTAKING);
-    stateChooser.addOption("Shooting", SuperState.SHOOTING);
-    stateChooser.addOption("Shoot+Intake", SuperState.SHOOT_INTAKE);
-    stateChooser.addOption("Ferrying", SuperState.FERRYING);
-    stateChooser.addOption("Testing", SuperState.TESTING);
+    stateChooser.addDefault("Idling", SuperState.IDLING);
+    stateChooser.add("Intaking", SuperState.INTAKING);
+    stateChooser.add("Shooting", SuperState.SHOOTING);
+    stateChooser.add("Shoot+Intake", SuperState.SHOOT_INTAKE);
+    stateChooser.add("Ferrying", SuperState.FERRYING);
+    stateChooser.add("Testing", SuperState.TESTING);
   }
 
   private void updateRequestedStateFromChooser() {
@@ -1006,7 +1006,7 @@ public class Superstructure extends SubsystemBase {
   }
 
   private void addSysIdOptions(
-      LoggedDashboardChooser<Command> chooser,
+      LoggedNetworkChooser<Command> chooser,
       String name,
       Command quasistaticForward,
       Command quasistaticReverse,
@@ -1016,19 +1016,19 @@ public class Superstructure extends SubsystemBase {
     Command qReverseFull = quasistaticReverse.asProxy();
     Command dForwardFull = dynamicForward.asProxy();
     Command dReverseFull = dynamicReverse.asProxy();
-    chooser.addOption(
+    chooser.add(
         name + " | SysId (Full Routine)",
         sysIdRoutine(name, qForwardFull, qReverseFull, dForwardFull, dReverseFull));
-    chooser.addOption(
+    chooser.add(
         name + " | SysId (Quasistatic Forward)",
         sysIdSingle(name, "QuasistaticForward", quasistaticForward.asProxy()));
-    chooser.addOption(
+    chooser.add(
         name + " | SysId (Quasistatic Reverse)",
         sysIdSingle(name, "QuasistaticReverse", quasistaticReverse.asProxy()));
-    chooser.addOption(
+    chooser.add(
         name + " | SysId (Dynamic Forward)",
         sysIdSingle(name, "DynamicForward", dynamicForward.asProxy()));
-    chooser.addOption(
+    chooser.add(
         name + " | SysId (Dynamic Reverse)",
         sysIdSingle(name, "DynamicReverse", dynamicReverse.asProxy()));
   }
