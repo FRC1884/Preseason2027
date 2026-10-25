@@ -545,8 +545,8 @@ public class Vision extends SubsystemBase implements VisionTargetProvider {
     Logger.recordOutput(prefix + "/MegatagCount", cam.megatagCount);
 
     if (RobotState.isDisabled()) {
-      Telemetry.log(prefix + "/SeesTarget", cam.seesTarget);
-      Telemetry.log(prefix + "/MegatagCount", cam.megatagCount);
+      Logger.recordOutput(prefix + "/SeesTarget", cam.seesTarget);
+      Logger.recordOutput(prefix + "/MegatagCount", cam.megatagCount);
     }
 
     if (cam.pose3d != null) {
