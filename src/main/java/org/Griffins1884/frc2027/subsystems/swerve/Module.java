@@ -12,6 +12,8 @@ import org.wpilib.math.kinematics.SwerveModuleVelocity;
 import org.wpilib.math.system.DCMotor;
 import org.wpilib.util.Alert;
 import java.util.List;
+import java.util.UUID;
+
 import lombok.Getter;
 
 import org.Griffins1884.frc2027.runtime.RuntimeModeManager;
@@ -82,9 +84,9 @@ public class Module {
     advanceGainChecks();
     io.initializeConfiguration(desiredConfiguration);
     driveDisconnectedAlert =
-        new Alert("Drive Module Disconnect" + index, "Disconnected drive motor on module " + index + ".", Alert.Level.HIGH);
+        new Alert("Drive Module Disconnect " + index + " "+ UUID.randomUUID(), "Disconnected drive motor on module " + index + ".", Alert.Level.HIGH);
     turnDisconnectedAlert =
-        new Alert("Turn Module Disconnect" + index, "Disconnected turn motor on module " + index + ".", Alert.Level.HIGH);
+        new Alert("Turn Module Disconnect " + index + " " + UUID.randomUUID(), "Disconnected turn motor on module " + index + ".", Alert.Level.HIGH);
   }
 
   private boolean advanceGainChecks() {
