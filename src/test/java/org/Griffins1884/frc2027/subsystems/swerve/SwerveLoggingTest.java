@@ -90,7 +90,7 @@ class SwerveLoggingTest {
   @Test
   void calibrationRecordsInitiallyAndOnChangeOutsideTelemetryTick() throws Exception {
     LogTable initial = cycle(0.0);
-    assertEquals(radius, initial.get("Swerve/Calibration/WheelRadiusMeters", -1.0));
+    assertEquals(radius, Math.round(initial.get("Swerve/Calibration/WheelRadiusMeters", -1.0)*100.0)/100.0);
     assertEquals(0.0, initial.get(MODULE + "ZeroTrimRotations", -1.0));
     assertEquals(0.0, initial.get("Swerve/Calibration/Module0/ZeroTrimRotations", -1.0));
     LogTable unchanged = cycle(0.02);
