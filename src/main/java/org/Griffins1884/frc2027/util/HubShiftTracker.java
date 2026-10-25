@@ -51,7 +51,7 @@ public final class HubShiftTracker {
   private HubShiftTracker() {}
 
   public static Snapshot fromDriverStation() {
-    String gameData = MatchState.getGameData().get();
+    String gameData = MatchState.getGameData().isPresent() ? MatchState.getGameData().get() : null;
     Optional<Alliance> autoWinner = parseAutoWinner(gameData);
     return compute(
         RobotState.isAutonomous(),
