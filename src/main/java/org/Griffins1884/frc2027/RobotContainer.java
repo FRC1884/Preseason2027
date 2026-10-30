@@ -620,6 +620,10 @@ public class RobotContainer implements AutoCloseable {
       PPLibTelemetry.setCurrentPose(drive.getPose());
     }
     robotStateVisualizer.periodic();
+
+    if (drive!=null){
+      superstructure.setupSim();
+    }
   }
 
   private Optional<Pose2d> getQueuedAutonomousStartPose() {
