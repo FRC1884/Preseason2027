@@ -3,6 +3,7 @@ package org.Griffins1884.frc2027;
 import static org.Griffins1884.frc2027.Config.Subsystems.AUTONOMOUS_ENABLED;
 import static org.Griffins1884.frc2027.GlobalConstants.MODE;
 
+import org.Griffins1884.frc2027.subsystems.Superstructure;
 import org.wpilib.system.DataLogManager;
 // import org.wpilib.driverstation.MatchState;
 // import org.wpilib.driverstation.RobotState;
