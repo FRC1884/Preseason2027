@@ -16,3 +16,8 @@ harness-evidence/
 test-evidence/
 **/__pycache__/
 *.pyc
+
+ctre_sim/
+libs/
+logs/
+operatorboard-data
