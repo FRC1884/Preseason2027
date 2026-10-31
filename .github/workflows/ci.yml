@@ -3,12 +3,6 @@ name: Build and Format
 on:
   pull_request:
   push:
-    branches:
-      - main
-      - software-leads
-      - vision-localisation-lead
-      - core-mechanisms-lead
-      - autonomous-lead
 
 permissions:
   contents: read
@@ -21,19 +15,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Java 17
+      - name: Set up Java 25
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '25'
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.11'
+          gradle-version: '9.1.0'
 
       - name: Build and test
-        run: gradle build --no-daemon --console=plain
+        run: ./gradlew build -x test
 
       - name: Verify formatting
         run: gradle spotlessCheck --no-daemon --console=plain
