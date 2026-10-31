@@ -11,10 +11,13 @@ import org.wpilib.math.util.Units;
 import org.wpilib.system.Timer;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
+import org.wpilib.driverstation.Alliance;
+
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.Griffins1884.frc2027.GlobalConstants;
@@ -22,7 +25,9 @@ import org.Griffins1884.frc2027.subsystems.swerve.SwerveCalibration;
 import org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants;
 import org.Griffins1884.frc2027.subsystems.swerve.SwerveSubsystem;
 import org.Griffins1884.frc2027.util.AllianceFlipUtil;
+import org.Griffins1884.frc2027.util.AllianceUtil;
 import org.Griffins1884.frc2027.util.RobotLogging;
+import org.littletonrobotics.junction.Logger;
 
 public class DriveCommands {
   private static final Pose2d DEPOT_ALIGN_POSE = new Pose2d(0.7, 5.94, Rotation2d.fromDegrees(0.0));
@@ -87,6 +92,8 @@ public class DriveCommands {
             linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
             linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
             omega * drive.getMaxAngularSpeedRadPerSec());
+
+    @SuppressWarnings("unused")
     boolean isFlipped = AllianceFlipUtil.shouldFlip(drive.getPose());
     
     drive.runVelocity(speeds.toRobotRelative(drive.getRotation()));
@@ -101,6 +108,27 @@ public class DriveCommands {
       return Commands.none();
     }
     return Commands.run(() -> joystickDrive(drive, xSupplier, ySupplier, omegaSupplier), drive);
+  }
+
+  public static Command resetHeadingToAllianceForwardCommand(SwerveSubsystem drive) {
+    return resetHeadingToAllianceForwardCommand(drive, AllianceUtil::getAlliance);
+  }
+
+  static Command resetHeadingToAllianceForwardCommand(
+      SwerveSubsystem drive, Supplier<Optional<Alliance>> allianceSupplier) {
+    return Commands.runOnce(
+            () -> {
+              Optional<Alliance> alliance = allianceSupplier.get();
+              if (alliance.isEmpty()) {
+                Logger.recordOutput("Odometry/AllianceForwardReset/Failed", true);
+                return;
+              }
+
+              drive.resetHeadingToAllianceForward(alliance.get());
+              Logger.recordOutput("Odometry/AllianceForwardReset/Failed", false);
+            },
+            drive)
+        .ignoringDisable(true);
   }
 
   /**

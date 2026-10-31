@@ -10,11 +10,7 @@ import org.wpilib.math.controller.ProfiledPIDController;
 import org.wpilib.math.trajectory.TrapezoidProfile;
 import org.wpilib.util.Alert;
 import org.wpilib.hardware.discrete.DigitalInput;
-import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.MatchType;
-import org.wpilib.driverstation.DriverStationErrors;
 import org.wpilib.hardware.rotation.DutyCycleEncoder;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.SubsystemBase;
@@ -89,7 +85,7 @@ public class PositionTurretMechanism extends SubsystemBase {
             new TrapezoidProfile.Constraints(
                 config.maxVelocityRadPerSec(), config.maxAccelRadPerSec2()));
     controller.setTolerance(config.positionToleranceRad());
-    disconnected = new Alert(name + " motor disconnected!", Alert.Level.MEDIUM);
+    disconnected = new Alert("Motor Disconnected", name + " motor disconnected!", Alert.Level.MEDIUM);
     sysIdRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
