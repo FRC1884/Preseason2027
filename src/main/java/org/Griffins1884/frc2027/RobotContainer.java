@@ -353,7 +353,7 @@ public class RobotContainer implements AutoCloseable {
           drive.sysIdTurnDynamic(SysIdRoutine.Direction.REVERSE).ignoringDisable(true));
     }
 
-    Telemetry.log("drive/test", DriveCommands.getTest().get());
+    Logger.recordOutput("drive/test", DriveCommands.getTest().get());
 
     superstructure.registerSuperstructureCharacterization(() -> characterizationChooser);
     if (turret != null) {
