@@ -33,6 +33,8 @@ import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.SubsystemBase;
 import org.wpilib.command2.sysid.SysIdRoutine;
+
+import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
@@ -65,8 +67,9 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   private final Module[] modules = new Module[4]; // FL, FR, BL, BR
   private final SysIdRoutine driveSysId;
   private final SysIdRoutine turnSysId;
+  @Getter
   private final Alert gyroDisconnectedAlert =
-      new Alert("Disconnected Gyro", "Disconnected gyro, using kinematics as fallback.", Level.HIGH);
+      new Alert("Disconnected Gyro "+ UUID.randomUUID(), "Disconnected gyro, using kinematics as fallback.", Level.HIGH);
   private final SwerveMusicPlayer musicPlayer;
   private double requestedTranslationalMps = 0.0;
   private double requestedOmegaRadPerSec = 0.0;
