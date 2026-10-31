@@ -47,13 +47,13 @@ public class GamePieceVisionIOLimelight implements VisionIO {
   public void updateInputs(VisionIO.VisionIOInputs inputs) {
     // Update connection status based on whether an update has been seen in the last
     // 250ms
-    inputs.connected = (RobotController.getFPGATime() - latencySubscriber.getLastChange()) < 250;
+    inputs.connected = (RobotController.getTime() - latencySubscriber.getLastChange()) < 250;
     // Update target observation
     inputs.latestTargetObservation =
         new TargetObservation(
             Rotation2d.fromDegrees(txSubscriber.get()), Rotation2d.fromDegrees(tySubscriber.get()));
 
-    long nowMicros = RobotController.getFPGATime();
+    long nowMicros = RobotController.getTime();
     if (nowMicros - lastFlushMicros >= FLUSH_PERIOD_MICROS) {
       NetworkTableInstance.getDefault().flush();
       lastFlushMicros = nowMicros;
