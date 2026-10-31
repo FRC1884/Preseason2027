@@ -17,7 +17,7 @@ test-evidence/
 **/__pycache__/
 *.pyc
 
-ctre_sim/
-operatorboard-data/
 logs/
+operatorboard-data/
+ctre_sim/
 libs/
