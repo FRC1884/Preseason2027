@@ -3,10 +3,10 @@ package org.Griffins1884.frc2027.subsystems;
 import static org.Griffins1884.frc2027.Config.Subsystems.*;
 import static org.Griffins1884.frc2027.GlobalConstants.MODE;
 
+import org.Griffins1884.frc2027.util.LoggedTunableNumber;
 import org.wpilib.math.filter.Debouncer;
 import org.wpilib.math.filter.Debouncer.DebounceType;
-import org.wpilib.math.geometry.Pose2d;
-import org.wpilib.math.geometry.Translation2d;
+import org.wpilib.math.geometry.*;
 import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
 import org.wpilib.driverstation.Alliance;
@@ -112,6 +112,28 @@ public class Superstructure extends SubsystemBase {
   @Getter private final Arms arms = new Arms();
   private static final double SYS_ID_IDLE_WAIT_SECONDS = 0.5;
 
+  private LoggedTunableNumber middleStageHeightMeters = new LoggedTunableNumber("/Elevator/middleStageHeight", 0.0); //Max: 0.75
+  private LoggedTunableNumber innerStageHeightMeters = new LoggedTunableNumber("/Elevator/innerStageHeight", 0.0); // Max 0.6
+
+  private LoggedTunableNumber algaeRotationDegrees = new LoggedTunableNumber("/Intakes/algaeRotation", 0.0);
+  private LoggedTunableNumber coralRotationDegrees = new LoggedTunableNumber("/Intakes/coralRotation",0.0);
+
+  // Coral Intake pivot offsets (meters)
+  private static final LoggedTunableNumber coralPivotX =
+          new LoggedTunableNumber("CoralPivot/X", 0.0);
+  private static final LoggedTunableNumber coralPivotY =
+          new LoggedTunableNumber("CoralPivot/Y", -0.38);
+  private static final LoggedTunableNumber coralPivotZ =
+          new LoggedTunableNumber("CoralPivot/Z", 0.5);
+
+  // Algae Manipulator pivot offsets (meters)
+  private static final LoggedTunableNumber algaePivotX =
+          new LoggedTunableNumber("AlgaePivot/X", 0);
+  private static final LoggedTunableNumber algaePivotY =
+          new LoggedTunableNumber("AlgaePivot/Y", -0.25);
+  private static final LoggedTunableNumber algaePivotZ =
+          new LoggedTunableNumber("AlgaePivot/Z", -.485);
+
   public Superstructure(SwerveSubsystem drive) {
     this.drive = drive;
     configureStateChooser();
@@ -135,6 +157,107 @@ public class Superstructure extends SubsystemBase {
   public void bindManualControlSuppliers(DoubleSupplier turretAxis, DoubleSupplier pivotAxis) {
     manualTurretAxis = turretAxis != null ? turretAxis : () -> 0.0;
     manualPivotAxis = pivotAxis != null ? pivotAxis : () -> 0.0;
+  }
+
+
+  private Pose3d rotateAroundPivot(
+          Pose3d basePose,
+          double pivotX,
+          double pivotY,
+          double pivotZ,
+          double angleDegrees
+  ) {
+    Translation3d pivotOffset = new Translation3d(
+            pivotX,
+            pivotY,
+            pivotZ
+    );
+
+    // Find the pivot position
+    Pose3d pivotPose = basePose.transformBy(
+            new Transform3d(pivotOffset, new Rotation3d())
+    );
+
+    // Rotate around the pivot
+    Pose3d rotatedPivotPose = pivotPose.transformBy(
+            new Transform3d(
+                    new Translation3d(),
+                    new Rotation3d(Math.toRadians(angleDegrees), 0, 0)
+            )
+    );
+
+    // Move the component origin back relative to the pivot
+    return rotatedPivotPose.transformBy(
+            new Transform3d(
+                    new Translation3d(-pivotX, -pivotY, -pivotZ),
+                    new Rotation3d()
+            )
+    );
+  }
+
+
+  public void setupSim() {
+    if (MODE == GlobalConstants.RobotMode.SIM) {
+
+      Logger.recordOutput(
+              "AdvantageScope/RobotPose",
+              new Pose3d(drive.getPose())
+      );
+
+      Pose3d baseStagePose = Pose3d.ZERO;
+
+      Pose3d middleStagePose = baseStagePose.transformBy(
+              new Transform3d(
+                      new Translation3d(
+                              0, 0,
+                              middleStageHeightMeters.getAsDouble()
+                      ),
+                      new Rotation3d()
+              )
+      );
+
+      Pose3d innerStagePose = middleStagePose.transformBy(
+              new Transform3d(
+                      new Translation3d(
+                              0, 0,
+                              innerStageHeightMeters.getAsDouble()
+                      ),
+                      new Rotation3d()
+              )
+      );
+
+      Pose3d pvcMountPose = innerStagePose;
+
+      // Coral Intake rotation around its adjustable pivot
+      Pose3d pvcOshPose = rotateAroundPivot(
+              innerStagePose,
+              coralPivotX.get(),
+              coralPivotY.get(),
+              coralPivotZ.get(),
+              coralRotationDegrees.getAsDouble()
+      );
+
+      // Algae Manipulator rotation around its adjustable pivot
+      Pose3d algaeManipulatorPose = rotateAroundPivot(
+              innerStagePose,
+              algaePivotX.get(),
+              algaePivotY.get(),
+              algaePivotZ.get(),
+              algaeRotationDegrees.getAsDouble()
+      );
+
+      Logger.recordOutput(
+              "AdvantageScope/Robot3D",
+              new Pose3d[]{
+                      baseStagePose,          // 0: Elevator Base Stage
+                      middleStagePose,        // 1: Elevator Middle Stage
+                      innerStagePose,         // 2: Elevator Inner Stage
+                      pvcMountPose,           // 3: PVC Mount
+                      pvcOshPose,             // 4: PVC OSH
+                      algaeManipulatorPose    // 5: Algae Manipulator
+              }
+      );
+    }
   }
 
   public void clearStateOverride() {
