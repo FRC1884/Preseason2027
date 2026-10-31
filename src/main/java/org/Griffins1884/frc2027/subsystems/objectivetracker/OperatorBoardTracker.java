@@ -12,6 +12,7 @@ import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.networktables.NetworkTableInstance;
 import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
+import org.wpilib.hardware.bus.CANPort;
 import org.wpilib.driverstation.Alliance;
 import org.wpilib.driverstation.MatchType;
 import org.wpilib.driverstation.DriverStationErrors;
@@ -729,7 +730,9 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
     ArrayList<CheckItem> items = new ArrayList<>();
     int connectionCount = NetworkTableInstance.getDefault().getConnections().length;
     double batteryVoltage = RobotController.getBatteryVoltage();
-    var canStatus = RobotController.getCANStatus();
+
+    // We need to make one for each of the 5 can loops at some point
+    var canStatus = RobotController.getCANStatus(CANPort.CAN_S0);
 
     items.add(
         checkItem(
@@ -887,7 +890,9 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
     var instance = NetworkTableInstance.getDefault();
     String queueStateJson = autoQueue.getQueueStateJson();
     RuntimeModeProfile profile = RuntimeModeManager.getActiveProfile();
-    var canStatus = RobotController.getCANStatus();
+
+    // We need to make 5 of these (one for each can loop) at some point
+    var canStatus = RobotController.getCANStatus(CANPort.CAN_S0);
     ArrayList<PublishTopicSnapshot> hotTopics = new ArrayList<>();
     sampledPublishTopics.values().stream()
         .filter(
@@ -1346,7 +1351,7 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
               2,
               r -> {
                 Thread t = new Thread(r);
-                t.setName("OperatorBoardWeb-" + t.getId());
+                t.setName("OperatorBoardWeb-" + t.threadId());
                 t.setDaemon(true);
                 return t;
               });
