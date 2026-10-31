@@ -5,6 +5,7 @@ bin/
 
 #SimV2
 simV2
+libs/
 
 # WPILib / IDE
 .vscode/
@@ -19,3 +20,7 @@ harness-evidence/
 test-evidence/
 **/__pycache__/
 *.pyc
+
+ctre_sim/
+logs/
+operatorboard-data/
