@@ -1093,6 +1093,14 @@ body.body--match-alert::before {
   box-shadow: 0 0 0 1px rgba(57, 217, 138, 0.18) inset;
 }
 
+<<<<<<< HEAD
+=======
+.preset.is-selected-for-robot {
+  border-color: rgba(255, 209, 102, 0.92);
+  box-shadow: 0 0 0 1px rgba(255, 209, 102, 0.24) inset;
+}
+
+>>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
 .preset__title {
   font-weight: 800;
 }
@@ -1317,6 +1325,26 @@ body.body--match-alert::before {
   font-weight: 800;
 }
 
+<<<<<<< HEAD
+=======
+.mapping-row__target {
+  font-weight: 800;
+}
+
+.mapping-row__clear {
+  justify-self: start;
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+>>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
 .systems-catalog {
   display: grid;
   gap: 12px;
@@ -1459,10 +1487,13 @@ body.body--match-alert::before {
     grid-template-columns: 340px minmax(0, 1fr) 380px;
   }
 
+<<<<<<< HEAD
   .layout--joystick {
     grid-template-columns: 1fr;
   }
 
+=======
+>>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
   .layout--systems {
     grid-template-columns: 1fr;
   }
@@ -1502,6 +1533,13 @@ body.body--match-alert::before {
   .field {
     min-height: 520px;
   }
+<<<<<<< HEAD
+=======
+
+  .controller-preview {
+    min-height: 500px;
+  }
+>>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
 }
 
 @media (max-width: 820px) {
@@ -1545,4 +1583,25 @@ body.body--match-alert::before {
   .grid {
     grid-template-columns: 1fr;
   }
+<<<<<<< HEAD
+=======
+
+  .controller-preview {
+    min-height: 440px;
+  }
+
+  .controller-slot {
+    width: 92px;
+    min-height: 52px;
+    padding: 7px 8px;
+  }
+
+  .controller-slot--face,
+  .controller-slot--center,
+  .controller-slot--trigger,
+  .controller-slot--shoulder,
+  .controller-slot--paddle {
+    width: 84px;
+  }
+>>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
 }
