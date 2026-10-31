@@ -1,14 +1,15 @@
 package org.Griffins1884.frc2027.commands;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj2.command.Command;
+import org.wpilib.math.util.MathUtil;
+import org.wpilib.math.controller.ProfiledPIDController;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Translation2d;
+import org.wpilib.math.kinematics.ChassisVelocities;
+import org.wpilib.math.trajectory.TrapezoidProfile;
+import org.wpilib.math.util.Units;
+import org.wpilib.command2.Command;
 import org.Griffins1884.frc2027.subsystems.swerve.SwerveSubsystem;
+import org.Griffins1884.frc2027.util.AllianceFlipUtil;
 import org.Griffins1884.frc2027.util.RobotLogging;
 import org.littletonrobotics.junction.Logger;
 
@@ -27,7 +28,7 @@ public class AutoAlignToPoseCommand extends Command {
   private final boolean stopOnEnd;
 
   public AutoAlignToPoseCommand(SwerveSubsystem drive, Pose2d target) {
-    this(drive, target, 1.0, 0.0, 0.1, true);
+    this(drive, target, 1.0, 0.0, 0.1, true, true);
   }
 
   public AutoAlignToPoseCommand(
@@ -36,7 +37,7 @@ public class AutoAlignToPoseCommand extends Command {
       double constraintFactor,
       double endVelocity,
       double tolerance) {
-    this(drive, target, constraintFactor, endVelocity, tolerance, true);
+    this(drive, target, constraintFactor, endVelocity, tolerance, true, true);
   }
 
   public AutoAlignToPoseCommand(
@@ -45,9 +46,21 @@ public class AutoAlignToPoseCommand extends Command {
       double constraintFactor,
       double endVelocity,
       double tolerance,
+      boolean targetInBlueFrame) {
+    this(drive, target, constraintFactor, endVelocity, tolerance, targetInBlueFrame, true);
+  }
+
+  public AutoAlignToPoseCommand(
+      SwerveSubsystem drive,
+      Pose2d target,
+      double constraintFactor,
+      double endVelocity,
+      double tolerance,
+      boolean targetInBlueFrame,
       boolean stopOnEnd) {
     this.drive = drive;
-    this.target = target;
+    this.target =
+        target == null ? null : (targetInBlueFrame ? AllianceFlipUtil.apply(target) : target);
     this.constraintFactor = Math.max(0.0, constraintFactor);
     this.endVelocity = endVelocity;
     this.toleranceOverride = tolerance;
@@ -71,13 +84,15 @@ public class AutoAlignToPoseCommand extends Command {
                 AlignConstants.Auto.MAX_ANGULAR_ACCEL_RAD_PER_SEC2.get()),
             AlignConstants.LOOP_PERIOD_SEC);
     applyTuning();
-    addRequirements(drive);
+    if (drive != null) {
+      addRequirements(drive);
+    }
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
   }
 
   @Override
   public void initialize() {
-    if (target == null) return;
+    if (drive == null || target == null) return;
     updateTuningIfChanged(true);
 
     Pose2d currentPose = drive.getPose();
@@ -87,9 +102,9 @@ public class AutoAlignToPoseCommand extends Command {
     double distance = toTarget.getNorm();
 
     // Get robot-relative speeds and convert to field-relative
-    ChassisSpeeds robotSpeeds = drive.getRobotRelativeSpeeds();
-    ChassisSpeeds fieldSpeeds =
-        ChassisSpeeds.fromRobotRelativeSpeeds(robotSpeeds, currentPose.getRotation());
+    ChassisVelocities robotSpeeds = drive.getRobotRelativeSpeeds();
+    ChassisVelocities fieldSpeeds =
+        ChassisVelocities.fromRobotRelativeSpeeds(robotSpeeds, currentPose.getRotation());
 
     // Unit vector pointing from robot → target
     double ux = (distance > 1e-6) ? toTarget.getX() / distance : 0.0;
@@ -98,7 +113,7 @@ public class AutoAlignToPoseCommand extends Command {
     // Project current velocity onto the robot→target direction
     // Positive = moving toward target
     double velocityTowardTarget =
-        fieldSpeeds.vxMetersPerSecond * ux + fieldSpeeds.vyMetersPerSecond * uy;
+        fieldSpeeds.vx * ux + fieldSpeeds.vy * uy;
 
     // Distance decreases as we move toward target → derivative is negative
     double distanceRate = -velocityTowardTarget;
@@ -112,7 +127,7 @@ public class AutoAlignToPoseCommand extends Command {
     driveController.setTolerance(toleranceMeters);
 
     thetaController.reset(
-        currentPose.getRotation().getRadians(), fieldSpeeds.omegaRadiansPerSecond);
+        currentPose.getRotation().getRadians(), fieldSpeeds.omega);
 
     thetaController.setTolerance(
         Units.degreesToRadians(AlignConstants.Auto.ROTATION_TOLERANCE_DEG.get()));
@@ -120,7 +135,7 @@ public class AutoAlignToPoseCommand extends Command {
 
   @Override
   public void execute() {
-    if (target == null) {
+    if (drive == null || target == null) {
       return;
     }
     updateTuningIfChanged(false);
@@ -135,7 +150,7 @@ public class AutoAlignToPoseCommand extends Command {
 
     double currentDistance = currentPose.getTranslation().getDistance(target.getTranslation());
     double ffScaler =
-        MathUtil.clamp((currentDistance - ffMinRadius) / (ffMaxRadius - ffMinRadius), 0.0, 1.0);
+        Math.clamp((currentDistance - ffMinRadius) / (ffMaxRadius - ffMinRadius), 0.0, 1.0);
     driveErrorAbs = currentDistance;
     if (RobotLogging.isDebugMode()) {
       Logger.recordOutput("DriveToPose/ffScaler", ffScaler);
@@ -175,7 +190,7 @@ public class AutoAlignToPoseCommand extends Command {
       driveVelocity = driveVelocity.times(maxLinearSpeed / driveVelocity.getNorm());
     }
     thetaVelocity =
-        MathUtil.clamp(
+        Math.clamp(
             thetaVelocity,
             -AlignConstants.Auto.MAX_ANGULAR_SPEED_RAD_PER_SEC.get(),
             AlignConstants.Auto.MAX_ANGULAR_SPEED_RAD_PER_SEC.get());
@@ -184,14 +199,14 @@ public class AutoAlignToPoseCommand extends Command {
       Logger.recordOutput("DriveToPose/ThetaVelocitySetpointRadPerSec", thetaVelocity);
     }
     drive.runVelocity(
-        ChassisSpeeds.fromFieldRelativeSpeeds(
+        ChassisVelocities.fromFieldRelativeSpeeds(
             driveVelocity.getX(), driveVelocity.getY(), thetaVelocity, currentPose.getRotation()));
   }
 
   @Override
   public void end(boolean interrupted) {
-    if (stopOnEnd) {
-      drive.runVelocity(new ChassisSpeeds());
+    if (stopOnEnd && drive != null) {
+      drive.runVelocity(new ChassisVelocities());
     }
   }
 
@@ -201,7 +216,8 @@ public class AutoAlignToPoseCommand extends Command {
   }
 
   private void updateTuningIfChanged(boolean force) {
-    // Apply new constants only when tunables change to avoid unnecessary allocations and
+    // Apply new constants only when tunables change to avoid unnecessary
+    // allocations and
     // controller churn on the roboRIO.
     boolean changed =
         AlignConstants.Auto.TRANSLATION_GAINS.kP().hasChanged(tuningId)

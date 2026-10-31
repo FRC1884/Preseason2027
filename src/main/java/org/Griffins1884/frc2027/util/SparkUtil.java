@@ -1,10 +1,10 @@
 package org.Griffins1884.frc2027.util;
 
-import static edu.wpi.first.units.Units.Seconds;
+import static org.wpilib.units.Units.Seconds;
 
 import com.revrobotics.REVLibError;
 import com.revrobotics.spark.SparkBase;
-import edu.wpi.first.wpilibj.Timer;
+import org.wpilib.system.Timer;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
@@ -52,15 +52,10 @@ public class SparkUtil {
   }
 
   public static double[] getSimulationOdometryTimeStamps() {
-    return getSimulationOdometryTimeStamps(Timer.getFPGATimestamp());
-  }
-
-  /** All adapters in one acquisition use the same base time for the same cached substeps. */
-  public static double[] getSimulationOdometryTimeStamps(double acquisitionTimestampSeconds) {
     final double[] odometryTimeStamps = new double[SimulatedArena.getSimulationSubTicksIn1Period()];
     for (int i = 0; i < odometryTimeStamps.length; i++) {
       odometryTimeStamps[i] =
-          acquisitionTimestampSeconds - 0.02 + i * SimulatedArena.getSimulationDt().in(Seconds);
+          Timer.getTimestamp() - 0.02 + i * SimulatedArena.getSimulationDt().in(Seconds);
     }
 
     return odometryTimeStamps;

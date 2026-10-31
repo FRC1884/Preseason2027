@@ -1,8 +1,8 @@
 package org.Griffins1884.frc2027.subsystems.vision;
 
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
+import org.wpilib.math.linalg.Matrix;
+import org.wpilib.math.numbers.N1;
+import org.wpilib.math.numbers.N3;
 import org.Griffins1884.frc2027.subsystems.vision.VisionIO.CameraType;
 import org.Griffins1884.frc2027.subsystems.vision.VisionIO.PoseObservation;
 

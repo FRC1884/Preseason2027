@@ -2,8 +2,12 @@ package org.Griffins1884.frc2027.web;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
+import org.wpilib.driverstation.MatchState;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchType;
+import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.system.Filesystem;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -131,7 +135,7 @@ public final class OperatorBoardServer implements AutoCloseable {
           Config.WebUIConfig.BIND_ADDRESS,
           Config.WebUIConfig.PORT);
     } catch (IOException exception) {
-      DriverStation.reportError(
+      DriverStationErrors.reportError(
           "Failed to start operator board web server", exception.getStackTrace());
       return null;
     }

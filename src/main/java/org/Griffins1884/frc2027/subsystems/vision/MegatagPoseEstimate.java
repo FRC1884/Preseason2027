@@ -1,6 +1,6 @@
 package org.Griffins1884.frc2027.subsystems.vision;
 
-import edu.wpi.first.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Pose2d;
 
 /**
  * Represents a robot pose estimate using multiple AprilTags (Megatag).

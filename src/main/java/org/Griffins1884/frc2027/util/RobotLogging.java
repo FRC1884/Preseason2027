@@ -1,6 +1,10 @@
 package org.Griffins1884.frc2027.util;
 
-import edu.wpi.first.wpilibj.DriverStation;
+import org.wpilib.driverstation.MatchState;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchType;
+import org.wpilib.driverstation.DriverStationErrors;
 import org.Griffins1884.frc2027.runtime.RuntimeModeManager;
 
 /** Shared runtime logging helpers for debug/competition behavior. */
@@ -21,20 +25,20 @@ public final class RobotLogging {
 
   public static void debug(String message) {
     if (isDebugMode()) {
-      DriverStation.reportWarning("[DEBUG] " + message, false);
+      DriverStationErrors.reportWarning("[DEBUG] " + message, false);
     }
   }
 
   public static void info(String message) {
-    DriverStation.reportWarning(message, false);
+    DriverStationErrors.reportWarning(message, false);
   }
 
   public static void warn(String message) {
-    DriverStation.reportWarning("[WARN] " + message, false);
+    DriverStationErrors.reportWarning("[WARN] " + message, false);
   }
 
   public static void error(String message) {
-    DriverStation.reportError(message, false);
+    DriverStationErrors.reportError(message, false);
   }
 
   public static void error(String message, Throwable throwable) {
@@ -42,6 +46,6 @@ public final class RobotLogging {
       error(message);
       return;
     }
-    DriverStation.reportError(message + ": " + throwable.getMessage(), throwable.getStackTrace());
+    DriverStationErrors.reportError(message + ": " + throwable.getMessage(), throwable.getStackTrace());
   }
 }

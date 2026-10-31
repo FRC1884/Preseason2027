@@ -1,7 +1,7 @@
 package org.Griffins1884.frc2027.util;
 
-import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.Timer;
+import org.wpilib.system.Filesystem;
+import org.wpilib.system.Timer;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -66,7 +66,7 @@ public final class LogRollover {
       if (rolled) {
         status = STATUS_ROLLED;
         rollCount++;
-        lastRollTimestampSec = Timer.getFPGATimestamp();
+        lastRollTimestampSec = Timer.getTimestamp();
       } else {
         status = STATUS_FAILED;
       }
@@ -108,7 +108,7 @@ public final class LogRollover {
       deleted += cleanUsbLogsDir(Path.of("/U/logs"));
 
       cleanStatus = CLEAN_STATUS_CLEANED;
-      lastCleanTimestampSec = Timer.getFPGATimestamp();
+      lastCleanTimestampSec = Timer.getTimestamp();
       lastCleanDeletedEntries = deleted;
       cleanCount++;
       publishStatus();
@@ -173,7 +173,7 @@ public final class LogRollover {
 
     Files.writeString(
         logsDir.resolve(".cleanup-marker"),
-        "cleaned@" + Timer.getFPGATimestamp(),
+        "cleaned@" + Timer.getTimestamp(),
         StandardOpenOption.CREATE,
         StandardOpenOption.TRUNCATE_EXISTING);
     return deletedEntries;
