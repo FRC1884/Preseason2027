@@ -167,6 +167,62 @@ def check_repo(repo: Path | None) -> list[Check]:
     return checks
 
 
+def check_supervision() -> list[Check]:
+    """Protected-account install: managed settings, admin-owned harness, shipper service."""
+    if os.name == "nt":
+        claude_managed = Path("C:/Program Files/ClaudeCode/managed-settings.json")
+        codex_req = Path(os.environ.get("ProgramData", "C:/ProgramData")) / "OpenAI/Codex/requirements.toml"
+        prefix = Path("C:/Program Files/FRC1884")
+        shipper_cfg = Path(os.environ.get("ProgramData", "C:/ProgramData")) / "FRC1884/shipper.json"
+    else:
+        claude_managed = Path("/Library/Application Support/ClaudeCode/managed-settings.json")
+        codex_req = Path("/etc/codex/requirements.toml")
+        prefix = Path("/opt/frc1884")
+        shipper_cfg = Path("/etc/frc1884/shipper.json")
+    checks: list[Check] = []
+    for label, path in (("Claude Code managed settings", claude_managed), ("Codex managed requirements", codex_req),
+                        ("Admin-owned harness copy", prefix / "tools/robotics_harness/entry.py"),
+                        ("Admin-owned hook wrapper", prefix / "bin/frc1884_hook.py")):
+        exists = path.exists()
+        checks.append(Check(label, exists, str(path) if exists else f"missing: {path}",
+                            "" if exists else "Run the admin install (tools/supervision/admin) from the protected account."))
+    if claude_managed.exists():
+        try:
+            data = json.loads(claude_managed.read_text(encoding="utf-8-sig"))
+            ok = bool(data.get("allowManagedHooksOnly")) and bool(data.get("hooks", {}).get("PreToolUse"))
+            checks.append(Check("Managed hooks locked", ok, "allowManagedHooksOnly + PreToolUse hook" if ok else "managed settings lack the lock or the hook",
+                                "" if ok else "Reinstall managed settings from the template."))
+        except (OSError, json.JSONDecodeError):
+            checks.append(Check("Managed hooks locked", False, "managed-settings.json unreadable", "Reinstall managed settings."))
+    try:
+        if os.name == "nt":
+            code, out = run("schtasks", "/Query", "/TN", "FRC1884 Shipper", "/FO", "LIST")
+            running = code == 0 and "Running" in out
+        else:
+            code, out = run("launchctl", "print", "system/org.frc1884.shipper")
+            running = code == 0 and "state = running" in out
+    except Exception:  # noqa: BLE001 - diagnostic only
+        running = False
+    checks.append(Check("Shipper service running", running, "running" if running else "not running",
+                        "" if running else "Start it from the admin account (launchctl / Task Scheduler) or rerun the admin install."))
+    try:
+        readable = shipper_cfg.exists() and os.access(shipper_cfg, os.R_OK)
+    except OSError:
+        readable = False
+    checks.append(Check("Shipper token hidden from this user", not readable,
+                        "config not readable by this account" if not readable else f"{shipper_cfg} is readable",
+                        "" if not readable else "Tighten permissions: the collector token must be admin-only."))
+    if os.name == "nt":
+        code, out = run("net", "session")
+        is_admin = code == 0
+    else:
+        code, out = run("id", "-Gn")
+        is_admin = "admin" in out.split()
+    checks.append(Check("This account is a standard user", not is_admin, "not an administrator" if not is_admin else "ADMINISTRATOR",
+                        "" if not is_admin else "Students must use a Standard account; this one can edit the protected files."))
+    return checks
+
+
 def find_repo(explicit: str | None) -> Path | None:
     if explicit:
         return Path(explicit).expanduser().resolve()
@@ -181,6 +237,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--json", action="store_true", help="print a JSON report instead of a table")
     parser.add_argument("--repo", help="path to the Season2027 checkout (default: the one containing this script)")
+    parser.add_argument("--supervised", action="store_true",
+                        help="also check the protected-account install (managed settings, shipper service, standard user)")
     args = parser.parse_args()
 
     repo = find_repo(args.repo)
@@ -195,6 +253,7 @@ def main() -> int:
         check_tool("claude", "Claude Code", "Install Claude Code, then run: claude   (log in)"),
         check_tool("codex", "Codex CLI", "Install Codex CLI, then run: codex login"),
         *check_repo(repo),
+        *(check_supervision() if args.supervised else []),
     ]
 
     report = {

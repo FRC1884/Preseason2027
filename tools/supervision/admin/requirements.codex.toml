@@ -1,0 +1,54 @@
+# FRC 1884 managed requirements for Codex CLI.
+# Installed by the protected admin account at /etc/codex/requirements.toml
+# (macOS/Linux) or %ProgramData%\OpenAI\Codex\requirements.toml (Windows).
+# Students cannot override anything in this file.
+# __PYTHON__, __HOOK__ and __MANAGED_DIR__ are filled in by the install script.
+
+# Ignore hooks from user, project, session and plugin sources; only these run.
+allow_managed_hooks_only = true
+
+# No "never ask" approvals and no full-access sandbox on a school laptop.
+allowed_approval_policies = ["untrusted", "on-request"]
+allowed_sandbox_modes = ["read-only", "workspace-write"]
+
+[features]
+# Keep hooks on even if a student turns them off locally.
+hooks = true
+
+[rules]
+prefix_rules = [
+  { pattern = [{ token = "sudo" }], decision = "forbidden", justification = "Students do not run commands as administrator." },
+  { pattern = [{ token = "git" }, { token = "push" }, { any_of = ["--force", "-f", "--force-with-lease"] }], decision = "forbidden", justification = "Force pushes are not allowed." },
+]
+
+[permissions.filesystem]
+deny_read = ["/etc/frc1884", "~/.config/gh/hosts.yml"]
+
+[hooks]
+managed_dir = "__MANAGED_DIR__"
+windows_managed_dir = '__WINDOWS_MANAGED_DIR__'
+
+[[hooks.SessionStart]]
+matcher = "startup|resume|clear|compact|fork"
+[[hooks.SessionStart.hooks]]
+type = "command"
+command = '"__PYTHON__" "__HOOK__" --provider codex --hook-event SessionStart'
+command_windows = '"__WINDOWS_PYTHON__" "__WINDOWS_HOOK__" --provider codex --hook-event SessionStart'
+timeout = 15
+statusMessage = "FRC 1884 harness"
+
+[[hooks.UserPromptSubmit]]
+[[hooks.UserPromptSubmit.hooks]]
+type = "command"
+command = '"__PYTHON__" "__HOOK__" --provider codex --hook-event UserPromptSubmit'
+command_windows = '"__WINDOWS_PYTHON__" "__WINDOWS_HOOK__" --provider codex --hook-event UserPromptSubmit'
+timeout = 15
+
+[[hooks.PreToolUse]]
+matcher = ".*"
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = '"__PYTHON__" "__HOOK__" --provider codex --hook-event PreToolUse'
+command_windows = '"__WINDOWS_PYTHON__" "__WINDOWS_HOOK__" --provider codex --hook-event PreToolUse'
+timeout = 30
+statusMessage = "FRC 1884 harness check"

@@ -1,0 +1,52 @@
+{
+  "_comment": "FRC 1884 managed settings for Claude Code. Installed by the protected admin account; students cannot change it. __PYTHON__ and __HOOK__ are filled in by the install script.",
+  "allowManagedHooksOnly": true,
+  "cleanupPeriodDays": 30,
+  "permissions": {
+    "disableBypassPermissionsMode": "disable",
+    "deny": [
+      "Bash(sudo:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Read(//etc/frc1884/**)",
+      "Read(//Library/Application Support/ClaudeCode/**)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"__PYTHON__\" \"__HOOK__\" --provider claude --hook-event SessionStart",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"__PYTHON__\" \"__HOOK__\" --provider claude --hook-event UserPromptSubmit",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"__PYTHON__\" \"__HOOK__\" --provider claude --hook-event PreToolUse",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
