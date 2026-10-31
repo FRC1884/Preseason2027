@@ -1,22 +1,22 @@
 {
   "instruction_hashes": {
-    "AGENTS.md": "3b564c4f9b666bff16519655c5721051a73a597641c1e68d57d24573be323da4",
-    "CLAUDE.md": "d25a46d521a594aa55059ea647df5cf6a96889b76822fdb5be1dff3aefc90877"
+    "AGENTS.md": "bbf6e2155c5cf3811702808096d438e65939f6b2d4ad40d36e56319606312868",
+    "CLAUDE.md": "a10f529b7a9b5d3fd16796c83769d0b51a96528dba3e8d4faa7c810ea977b269"
   },
   "instruction_scopes": [
     "AGENTS.md",
     "CLAUDE.md"
   ],
   "outputs": {
-    ".agents/skills/agentic-review/SKILL.md": "a5539e40bf8ddcbe9dfb16562cdcc5c42074e2a705e46c2015ad18ba9ad30bd3",
+    ".agents/skills/agentic-review/SKILL.md": "77b7c82fa837689d07e68da559569093c6e4132a679b1966cb29859cdc4e039f",
     ".claude/settings.json": "352004cf4514d1c92c18dde92f583a0075709fc69d4ca3fab2af43f251f6b662",
-    ".claude/skills/agentic-review/SKILL.md": "a5539e40bf8ddcbe9dfb16562cdcc5c42074e2a705e46c2015ad18ba9ad30bd3",
+    ".claude/skills/agentic-review/SKILL.md": "77b7c82fa837689d07e68da559569093c6e4132a679b1966cb29859cdc4e039f",
     ".codex/hooks.json": "1a6168ebd861b8b632afef73e171f3f211255c8556aee820ee0f1331cac18c08",
     ".codex/skills/agentic-review/SKILL.md": "55327bef64c125ed9c357af5f240f530574dab15ff637028716b771f663a604f",
     ".codex/skills/agentic-review/agents/openai.yaml": "a1499d95abd8447558c535fe5554adcc3c9b988a0a39264a6283d430effe1e94",
-    "CLAUDE.md": "d25a46d521a594aa55059ea647df5cf6a96889b76822fdb5be1dff3aefc90877",
+    "CLAUDE.md": "a10f529b7a9b5d3fd16796c83769d0b51a96528dba3e8d4faa7c810ea977b269",
     "tools/robotics_harness/entry.py": "298ccd3625a3fcfb1b114aa834cef5f0e1167b6b858c0a249d8806cb4cc28b7a",
-    "tools/robotics_harness/runtime/config/agent_targets.json": "0d758e265056e8a97f0376fd819aece7273389942ad7c7685c5a001d59991170",
+    "tools/robotics_harness/runtime/config/agent_targets.json": "4d4fb452fb4b6c9ffa40bca4e9370fab7c9c65b1465159fedcf8158bfdc926ed",
     "tools/robotics_harness/runtime/config/risk_rules.yaml": "f1d8c952727fbd7b44d76db0d9fa4ce241810695867ea4c58b7309bc41b8244f",
     "tools/robotics_harness/runtime/harness/__init__.py": "83cb46a08016c2b75d8865439c64b828766152c10b68e2e921251736da6a4cf5",
     "tools/robotics_harness/runtime/harness/ai_review/__init__.py": "89f575af077f6276012c69e63e96b151aec3495f4c131016f8b00de2ac82f7a7",
@@ -35,8 +35,8 @@
     "tools/robotics_harness/runtime/harness/monitoring/models.py": "8caad3f4d66adf9d1b9ab0ae2dbdb2940ed7096d3fa2bfc3bbe54b6f88cf1d17",
     "tools/robotics_harness/runtime/harness/monitoring/store.py": "9879d6119b5a0170d9f1e91b5d896ac930f99aef1020558298267e0c6a39a001",
     "tools/robotics_harness/runtime/harness/policy/__init__.py": "4dc568a05b5e9a7bcdd3cc421d8f208f66dd5397d308e63dec28750465dafbfd",
-    "tools/robotics_harness/runtime/harness/policy/session_cli.py": "37b79482814b74073d866946239dfad213f85a559df218a98b75d1a93fc66f3b",
-    "tools/robotics_harness/runtime/harness/policy/session_hooks.py": "c31d6bc8013af3191e2d7c72e43a1ade2bb76fe487240ced9b1479b25f8ce94a",
+    "tools/robotics_harness/runtime/harness/policy/session_cli.py": "54ce1a8c3ede9ebf3116a633162f5d77e20441bcb5f148e5d15bab6a14435076",
+    "tools/robotics_harness/runtime/harness/policy/session_hooks.py": "0a8aa48d476f08b35bbf840e1a0d8b773de7d821fefb82e8a6fe4bbccd93ca65",
     "tools/robotics_harness/runtime/harness/policy/validator.py": "a230f26a5c4974d502677cf0d43c238149c455db3effefc56cdac3d9b11c4cac",
     "tools/robotics_harness/runtime/harness/private_io.py": "0db405a2fb2f16e989b461cff1ad87b520663beabe7c22bc7f4dd4c2d64bf1d9",
     "tools/robotics_harness/runtime/harness/repositories/__init__.py": "fc26f87b96201fe12bcd101b481eab40dc71ff97f0ad85963dcc851e580f7248",
@@ -54,20 +54,13 @@
     "tools/robotics_harness/runtime/harness/tasks/service.py": "f261feb0a871249eadbc7ccc3e3d536bd62e8d97314f9b4c4cf1bc927271b305",
     "tools/robotics_harness/runtime/harness/tasks/snapshot.py": "38552de217c75c724865ffb09c9e8adda436e80f7cab61629ebd07f41c0a210e",
     "tools/robotics_harness/runtime/harness/tasks/store.py": "20d169f0ad2b0eb7dc647fff8d33721536d668f936f8fd079d80287646b426ca",
-    "tools/robotics_harness/tests/test_smoke.py": "058a24b614b7a1faa6ec24d568d0d3d7bd6932623f596a542f2bc8e8adae704b"
+    "tools/robotics_harness/tests/test_smoke.py": "bd206ce2740c87df80a381ec53f347c8eab885f49f84e966f8b6e34da2da83c4"
   },
   "profile": "season2027",
   "repository": "FRC1884/Season2027",
   "required_references": [
-    ".github/robotics-harness/APPROVALS.md",
-    ".github/robotics-harness/LEARNING_LOOP.md",
-    ".github/robotics-harness/MONITORING.md",
-    ".github/robotics-harness/README.md",
-    ".github/robotics-harness/REVIEW_POLICY.md",
-    ".github/robotics-harness/REVIEW_TEMPLATE.md",
-    ".github/robotics-harness/RISK_POLICY.md",
-    ".github/robotics-harness/TASK_LIFECYCLE.md",
-    "AGENTS.md"
+    "AGENTS.md",
+    ".github/robotics-harness/REVIEW_TEMPLATE.md"
   ],
   "schema_version": 1,
   "source_approval": null,
