@@ -87,22 +87,48 @@ def author_identity(human: str) -> dict[str, Any] | None:
     return {"id": actor["id"], "login": actor["login"]}
 
 
+RECENT_INTERACTIONS = 10
+
+
+def _recent_captured(context: dict[str, Any]) -> dict[str, str]:
+    """digest -> reference for the student's most recent messages (hook-captured)."""
+    items = list(context.get("interactions", []))[-RECENT_INTERACTIONS:]
+    latest = context.get("last_interaction")
+    if latest:
+        items.append(latest)
+    return {str(item["digest"]): str(item["reference"]) for item in items if item.get("digest")}
+
+
 def _assert_human_input(data: dict[str, Any], context: dict[str, Any]) -> str:
-    latest = context.get("last_interaction", {})
-    supplied = str(data.get("interaction_text", ""))
-    if not supplied or latest.get("digest") != hashlib.sha256(supplied.encode()).hexdigest():
-        raise ValueError("learning requires the actual latest provider-captured human response")
+    """Answers may span the student's last few messages; each must be their verbatim text."""
+    captured = _recent_captured(context)
+    texts = data.get("interaction_texts")
+    if texts is None:
+        texts = [data.get("interaction_text", "")]
+    if not isinstance(texts, list) or not texts or not all(isinstance(t, str) and t for t in texts):
+        raise ValueError("learning requires the student's actual recent chat messages")
+    references = []
+    for text in texts:
+        reference = captured.get(hashlib.sha256(text.encode()).hexdigest())
+        if reference is None:
+            raise ValueError(
+                "a supplied message does not match any of the student's recent captured messages"
+            )
+        references.append(reference)
+    supplied = "\n".join(texts)
     answers = data.get("answers", [])
     if (
         not isinstance(answers, list)
         or not answers
         or any(not isinstance(a, str) or a not in supplied for a in answers)
     ):
-        raise ValueError("learning answers must be verbatim excerpts of that human response")
+        raise ValueError("learning answers must be verbatim excerpts of the student's messages")
     verification = str(data.get("verification_response", ""))
     if not verification or verification not in supplied:
-        raise ValueError("practical verification must be recorded in the actual human response")
-    return str(latest["reference"])
+        raise ValueError("practical verification must appear in the student's own messages")
+    if len(references) == 1:
+        return references[0]
+    return "human-interactions:" + hashlib.sha256(json.dumps(references).encode()).hexdigest()
 
 
 def _human_sources(data: dict[str, Any], context: dict[str, Any]) -> tuple[str, list[str], str]:
@@ -113,11 +139,14 @@ def _human_sources(data: dict[str, Any], context: dict[str, Any]) -> tuple[str, 
         return reference, [reference] * len(data["answers"]), reference
     if not isinstance(supplied, list) or not supplied:
         raise ValueError("human source interactions are required")
-    captured = {item["reference"]: item["digest"] for item in context.get("interactions", [])}
+    by_digest = _recent_captured(context)
+    by_digest.update({item["digest"]: item["reference"] for item in context.get("interactions", [])})
     verified: list[tuple[str, str]] = []
     for item in supplied:
-        text, reference = str(item.get("text", "")), str(item.get("reference", ""))
-        if not text or captured.get(reference) != hashlib.sha256(text.encode()).hexdigest():
+        text = str(item.get("text", ""))
+        # The reference is optional: the agent never sees it, so match on the text itself.
+        reference = by_digest.get(hashlib.sha256(text.encode()).hexdigest())
+        if not text or reference is None:
             raise ValueError("answer source does not match a captured human interaction")
         verified.append((text, reference))
 
@@ -401,13 +430,50 @@ def main(argv: Sequence[str] | None = None) -> int:
             }
         elif args.command == "checkpoint":
             record = service.show(task)
-            latest = context.get("last_interaction", {})
             answer = str(data.get("interaction_text", ""))
-            if not answer or hashlib.sha256(answer.encode()).hexdigest() != latest.get("digest"):
-                raise ValueError("clarification must match the captured human response")
+            if hashlib.sha256(answer.encode()).hexdigest() not in _recent_captured(context):
+                raise ValueError("clarification must match one of the student's recent messages")
             output = service.answer(
                 task, answer, student_identifier=record.student_identifier
             ).to_dict()
+        elif args.command == "confirm":
+            # The agent read agreement in the conversation. Record which student message it
+            # took as the yes; the message must be one the hook actually captured.
+            pending = context.get("pending_plan")
+            if not pending:
+                raise ValueError("no plan is waiting for confirmation; run propose first")
+            response = str(data.get("interaction_text", ""))
+            reference = _recent_captured(context).get(hashlib.sha256(response.encode()).hexdigest())
+            if not response or reference is None:
+                raise ValueError("interaction_text must be one of the student's recent messages")
+            record = service.show(task)
+            missing = set(record.required_approval_groups) - {
+                approval["reviewer_group"]
+                for approval in record.approvals
+                if approval.get("plan_digest") == record.plan_digest()
+            }
+            if missing:
+                context["student_plan_agreement"] = {
+                    "digest": str(pending),
+                    "response": response,
+                    "reference": reference,
+                }
+                _write_context(directory, context)
+                output = {
+                    "task_id": task,
+                    "status": "agreed; implementation stays locked until the protected-path "
+                    f"owner approval from {sorted(missing)} is recorded",
+                }
+            else:
+                output = service.confirm_plan_response(
+                    task,
+                    response=response,
+                    interaction_reference=reference,
+                    plan_digest=str(pending),
+                    student_identifier=record.student_identifier,
+                ).to_dict()
+                context.pop("pending_plan", None)
+                _write_context(directory, context)
         elif args.command == "branch":
             service.require_implementation_unlock(task)
             if not args.branch or not re.fullmatch(

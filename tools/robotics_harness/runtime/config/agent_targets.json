@@ -26,15 +26,9 @@
       "repository": "FRC1884/Season2027",
       "runtime_bundle": true,
       "required_reading": [
-        "AGENTS.md",
-        ".github/robotics-harness/README.md",
-        ".github/robotics-harness/TASK_LIFECYCLE.md",
-        ".github/robotics-harness/RISK_POLICY.md",
-        ".github/robotics-harness/LEARNING_LOOP.md",
-        ".github/robotics-harness/APPROVALS.md",
-        ".github/robotics-harness/MONITORING.md"
+        "AGENTS.md"
       ],
-      "review_policy": ".github/robotics-harness/REVIEW_POLICY.md",
+      "review_policy": "AGENTS.md",
       "review_template": ".github/robotics-harness/REVIEW_TEMPLATE.md",
       "author_task_bases": [
         "software-leads",

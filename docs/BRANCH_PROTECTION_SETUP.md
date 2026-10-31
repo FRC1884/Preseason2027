@@ -18,17 +18,15 @@ Apply to all five long-lived branches:
 
 The AI review is manual/on-demand (`review PR #<number>` in the user's Codex session), so there is **no Agentic Review status check requirement**.
 
-## Code Owner self-acceptance
+## Mentors merging their own PRs
 
-[GitHub does not allow pull-request authors to approve their own PRs](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/approving-a-pull-request-with-required-reviews). Do not fabricate an approval review or lower the approval count for everyone.
+GitHub does not let a PR author approve their own PR. The team's answer is a
+ruleset, not a procedure: on the protected branches, `@FRC1884/mentors` is a
+bypass actor with pull-request-only bypass mode. A mentor can therefore merge
+their own PR once required checks pass. Students cannot. The agent never merges.
 
-To support the audited `CODEOWNER SELF-ACCEPT` path in `.github/robotics-harness/APPROVALS.md`, configure only explicitly trusted Code Owner actors as ruleset bypass actors with pull-request-only bypass mode. Keep the PR, required status checks, conversation resolution, force-push prohibition, and deletion prohibition rules enabled for everyone else. The verified author must still satisfy the Harness prerequisites before using the bypass.
-
-GitHub ruleset bypass actors are not dynamically restricted to the paths a team owns. In the current shared long-lived-branch ruleset, adding a CODEOWNERS team would technically allow that team to bypass the whole ruleset on every included branch. The Markdown Harness can audit path ownership but cannot hard-enforce it. Use a custom GitHub App/required check or split rulesets when deterministic path-scoped self-acceptance is required; until then, grant hosted bypass only to teams whose authority genuinely covers every branch/path in that ruleset.
-
-Before relying on self-acceptance, verify the live ruleset reports the intended bypass actor and mode. If no safe hosted bypass exists, the PR requires a different approver. Never use an ad hoc administrator bypass to work around this gap.
-
-Resolve path ownership from the base revision's effective CODEOWNERS entries. A PR that changes CODEOWNERS, self-acceptance policy, rulesets, branch protection, or bypass actors must not bootstrap its own authority; it requires a different human authorized by the base revision.
+Keep the pull-request, required-status-check, conversation-resolution,
+force-push and deletion rules enabled for everyone else.
 
 ## `main`
 
