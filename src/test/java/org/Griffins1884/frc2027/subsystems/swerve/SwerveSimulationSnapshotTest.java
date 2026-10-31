@@ -62,7 +62,7 @@ class SwerveSimulationSnapshotTest {
     GenericSimArena.install();
     var simulation = new SwerveDriveSimulation(SwerveConstants.MAPLE_SIM_CONFIG, Pose2d.kZero);
     var previous = RuntimeModeManager.getActiveProfile();
-    String key = "/SmartDashboard/TunableNumbers/Swerve/DriveMotor/Simbot/kV";
+    String key = "/Telemetry/TunableNumbers/Swerve/DriveMotor/Simbot/kV";
     var entry = NetworkTableInstance.getDefault().getEntry(key);
     double original = SwerveConstants.DRIVE_MOTOR_GAINS.kV().get();
     try {
