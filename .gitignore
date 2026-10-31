@@ -3,6 +3,9 @@
 build/
 bin/
 
+#SimV2
+libs/
+
 # WPILib / IDE
 .vscode/
 .idea/
@@ -17,7 +20,6 @@ test-evidence/
 **/__pycache__/
 *.pyc
 
+ctre_sim/
 logs/
 operatorboard-data/
-ctre_sim/
-libs/
