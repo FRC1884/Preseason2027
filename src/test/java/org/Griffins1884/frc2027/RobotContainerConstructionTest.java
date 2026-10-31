@@ -3,7 +3,7 @@ package org.Griffins1884.frc2027;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.hal.HAL;
+import org.wpilib.hal.HAL;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

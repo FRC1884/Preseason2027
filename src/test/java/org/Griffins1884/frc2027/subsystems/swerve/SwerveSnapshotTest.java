@@ -2,9 +2,9 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.wpi.first.hal.HAL;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import org.wpilib.hal.HAL;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeAll;
@@ -218,7 +218,7 @@ class SwerveSnapshotTest {
       ios[2].ready = false;
       drive.runCharacterization(3.0);
       drive.runTurnCharacterization(3.0);
-      drive.runVelocity(new edu.wpi.first.math.kinematics.ChassisSpeeds(1, 0, 0));
+      drive.runVelocity(new org.wpilib.math.kinematics.ChassisSpeeds(1, 0, 0));
       drive.stopWithX();
       for (var io : ios) {
         assertEquals(0.0, io.lastDriveOutput);
