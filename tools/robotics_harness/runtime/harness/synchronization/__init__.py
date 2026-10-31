@@ -1,1 +1,0 @@
-"""Managed-file synchronization helpers."""

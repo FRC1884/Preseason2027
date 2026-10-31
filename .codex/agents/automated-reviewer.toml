@@ -1,3 +1,0 @@
-name = "automated-reviewer"
-description = "Independent read-only reviewer for governed robotics pull requests"
-sandbox_mode = "read-only"

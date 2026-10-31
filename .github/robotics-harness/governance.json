@@ -76,7 +76,6 @@
     ".github/workflows/**",
     ".github/CODEOWNERS",
     ".github/robotics-harness/**",
-    ".codex/**",
     "AGENTS.md",
     "build.gradle",
     "settings.gradle",
@@ -89,13 +88,12 @@
     "**/AGENTS.override.md",
     "**/CLAUDE.md",
     ".claude/**",
-    ".agents/**",
-    "tools/robotics_harness/**"
+    ".agents/**"
   ],
   "codex_review": {
     "automatic_github_ai_workflow": false,
     "user_invocation": "review PR #<number>",
-    "policy_file": ".github/robotics-harness/REVIEW_POLICY.md",
+    "policy_file": "AGENTS.md",
     "output_template": ".github/robotics-harness/REVIEW_TEMPLATE.md",
     "reviewer_role": "Automated Reviewer",
     "require_fresh_context": true,
@@ -111,22 +109,11 @@
     "require_posted_review_readback": true,
     "comment_counts_as_human_approval": false
   },
-  "code_owner_self_acceptance": {
+  "automated_deploy_allowed": false,
+  "mentor_self_merge": {
     "allowed": true,
-    "decision": "CODEOWNER SELF-ACCEPT",
-    "github_author_review_counts_as_approval": false,
-    "require_authenticated_author_match": true,
-    "resolve_codeowners_from_base_revision": true,
-    "require_owner_for_every_changed_path": true,
-    "deny_when_authorization_surface_changes": true,
-    "require_all_additional_risk_roles": true,
-    "require_current_head": true,
-    "require_required_checks": true,
-    "require_conversation_resolution": true,
-    "require_fresh_independent_codex_review": true,
-    "require_explicit_exact_head_merge_instruction": true,
-    "require_pull_request_ruleset_bypass": true,
-    "allow_ad_hoc_admin_bypass": false
+    "how": "GitHub ruleset: @FRC1884/mentors bypass pull-request review on protected branches once required checks pass",
+    "agent_may_merge": false
   },
-  "automated_deploy_allowed": false
+  "harness_repository": "FRC1884/robotics-agentic-development-harness"
 }
