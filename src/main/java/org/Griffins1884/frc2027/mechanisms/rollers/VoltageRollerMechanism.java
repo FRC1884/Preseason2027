@@ -90,7 +90,7 @@ public abstract class VoltageRollerMechanism<G extends VoltageRollerMechanism.Vo
                         .angularPosition(Radian.of(inputs.positionRads)),
                 this));
 
-    disconnected = new Alert("Motor Disconnected",name + " motor disconnected!", Level.MEDIUM);
+    disconnected = new Alert("Voltage Roller Motor Disconnected" + name ,name + " motor disconnected!", Level.MEDIUM);
     stateTimer.start();
     recordConfigSnapshot();
   }
