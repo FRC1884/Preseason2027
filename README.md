@@ -80,3 +80,5 @@ execution/authentication is NOT RUN/BLOCKED. Local guards and editable state are
 not tamper-proof; direct shell/API operations remain outside their enforcement.
 
 The native SessionStart message provides the actual session ID and reserved input/report directory. Follow the shared WORKFLOW command section: author commands take `--root --session --provider`; review commands take `--root --session-id --provider`. The legacy `.codex` skill is `agentic-review-compat` with implicit invocation disabled. A hook firing is not evidence of model instruction loading.
+
+test change
