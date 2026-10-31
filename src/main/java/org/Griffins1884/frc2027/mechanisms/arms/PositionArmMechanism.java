@@ -146,7 +146,7 @@ public abstract class PositionArmMechanism<G extends PositionArmMechanism.PivotG
             new SysIdRoutine.Mechanism(
                 voltage -> io.setVoltage(voltage.in(Volts)), sysIdLog, this));
 
-    disconnected = new Alert("Motor(s) disconnected on arm: " + name + "!", Alert.Level.HIGH);
+    disconnected = new Alert("Motor Disconnect", "Motor(s) disconnected on arm: " + name + "!", Alert.Level.HIGH);
     stateTimer.start();
     recordConfigSnapshot();
   }

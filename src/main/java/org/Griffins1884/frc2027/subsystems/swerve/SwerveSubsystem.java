@@ -261,6 +261,17 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
     return discardedSnapshotCount;
   }
 
+  public void resetHeadingToAllianceForward(Alliance alliance) {
+    Rotation2d heading = getAllianceForwardRotation(alliance);
+    resetOdometry(new Pose2d(getPose().getTranslation(), heading), true);
+    Logger.recordOutput("Odometry/AllianceForwardReset/HeadingDeg", heading.getDegrees());
+    Logger.recordOutput("Odometry/AllianceForwardReset/Alliance", alliance.name());
+  }
+
+  public static Rotation2d getAllianceForwardRotation(Alliance alliance) {
+    return alliance == Alliance.RED ? Rotation2d.fromDegrees(180.0) : new Rotation2d();
+  }
+
   @Override
   public void periodic() {
     odometryLock.lock(); // Prevents odometry updates while reading data
