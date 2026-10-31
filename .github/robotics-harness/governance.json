@@ -76,7 +76,6 @@
     ".github/workflows/**",
     ".github/CODEOWNERS",
     ".github/robotics-harness/**",
-    ".codex/**",
     "AGENTS.md",
     "build.gradle",
     "settings.gradle",
@@ -89,8 +88,7 @@
     "**/AGENTS.override.md",
     "**/CLAUDE.md",
     ".claude/**",
-    ".agents/**",
-    "tools/robotics_harness/**"
+    ".agents/**"
   ],
   "codex_review": {
     "automatic_github_ai_workflow": false,
@@ -116,5 +114,6 @@
     "allowed": true,
     "how": "GitHub ruleset: @FRC1884/mentors bypass pull-request review on protected branches once required checks pass",
     "agent_may_merge": false
-  }
+  },
+  "harness_repository": "FRC1884/robotics-agentic-development-harness"
 }

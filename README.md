@@ -11,15 +11,13 @@ The reusable project/tooling structure has been carried forward and renamed to `
 - mechanism-free `Robot` / `RobotContainer` shell
 - reusable Season2026 OI and generic utility patterns under `org.Griffins1884.frc2027`
 - Team 1884 WPILib / Gradle tooling baseline
-- in-repository Robotics Agentic Development Harness under `.github/robotics-harness/`
+- harness policy files under `.github/robotics-harness/`; the harness code lives in `FRC1884/robotics-agentic-development-harness`
 - shared `AGENTS.md` with thin Codex and Claude Code entry points
 - one-page `AGENTS.md` with the six-step loop, risk levels and hard lines
-- supervision stack under `tools/supervision/` (collector, shipper, protected-account install)
 - PR template with risk, safety, learning, testing, and rollback evidence
 - CODEOWNERS for mentors, Software Lead, three sub-leads, and approved alumni
 - CI job `build-and-format`
 - safety-critical constants isolated under protected paths
-- student laptop kit under `tools/laptop/`
 
 See [`docs/SEASON_ROLLOVER.md`](docs/SEASON_ROLLOVER.md) for the season rollover.
 
@@ -57,5 +55,5 @@ report, and posts it as a COMMENT review only after you approve the exact text.
 Mentors may merge their own PR once CI is green. Nobody else merges their own
 work, and the agent never merges.
 
-Laptop setup: [`tools/laptop/README.md`](tools/laptop/README.md). Mentor
-supervision: [`tools/supervision/README.md`](tools/supervision/README.md).
+Laptop setup and mentor supervision: see the harness repository
+`FRC1884/robotics-agentic-development-harness`.

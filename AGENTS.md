@@ -24,9 +24,11 @@ If it could be robotics-related but you cannot tell, ask one question first.
 
 ## The loop
 
-Every change goes through the same six steps. The helper is
-`python3 tools/robotics_harness/entry.py author <step> --root . --session <id> --provider <codex|claude>`;
-the session id comes from the SessionStart message.
+Every change goes through the same six steps. The helper is the installed `frc1884` command:
+`frc1884 author <step> --root . --session <id> --provider <codex|claude>`;
+the session id comes from the SessionStart message. The harness itself lives in
+the `FRC1884/robotics-agentic-development-harness` repository and is installed on
+every laptop by a mentor; this repository holds only the policy files.
 
 | Step | What happens | Helper |
 |---|---|---|
@@ -49,12 +51,12 @@ by local git config) may skip step 5 for their own session with
 - **MEDIUM** ordinary feature code. Sub-lead or software-lead review.
 - **HIGH** safety constants, motor and current limits, physical limits, protected
   robot-control paths, anything that can damage the robot. Mentor review before merge.
-- **CRITICAL** anything touching this file, the hooks, `.github/**`, `tools/robotics_harness/**`,
-  CI or branch rules. Mentor review, and never to weaken the robotics-only rule.
+- **CRITICAL** anything touching this file, `.github/**`, CI or branch rules, or the
+  harness repository. Mentor review, and never to weaken the robotics-only rule.
 
 Protected paths (they push risk up): `src/main/java/**/safety/**`, `*Constants.java`,
 `src/main/deploy/**`, `build.gradle`, `settings.gradle`, `.github/**`, `.claude/**`,
-`.agents/**`, `.codex/**`, `tools/robotics_harness/**`, this file.
+`.agents/**`, this file.
 
 ## Branches and merging
 
@@ -70,7 +72,7 @@ permission in the ruleset. Nobody else merges their own work. The agent never me
 ## Reviewing a PR
 
 A reviewer opens a fresh session and says `review PR #123`. The review helper
-(`entry.py review …`) checks the reviewer's `gh` identity, agrees a short plan,
+(`frc1884 review …`) checks the reviewer's `gh` identity, agrees a short plan,
 reads the full diff without executing it, fills `.github/robotics-harness/REVIEW_TEMPLATE.md`,
 shows the exact report, and posts it as a COMMENT review on the reviewed commit
 only after the human approves that exact text. A COMMENT is advice, never approval.
