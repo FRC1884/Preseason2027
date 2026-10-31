@@ -109,6 +109,30 @@ repositories {
     }
 }
 
+tasks.register("downloadVendorJars") {
+    doLast {
+        def libsDir = file("$projectDir/libs")
+        libsDir.mkdirs()
+
+        def jars = ["simV2.jar", "sim3d.jar", "dyn4j-6.0.0.jar"]
+        jars.each { jarName ->
+            def targetFile = file("$libsDir/$jarName")
+            if (!targetFile.exists()) {
+                println "Downloading $jarName from GitHub..."
+                def url = "https://github.com/aaravarora155/Season2027-VendorDeps/releases/download/v1.0.0/$jarName"
+                def urlObj = java.net.URI.create(url).toURL()
+
+                // Fixed: Use Groovy's bytes property assignment
+                targetFile.bytes = urlObj.bytes
+            }
+        }
+    }
+}
+
+tasks.named("build") {
+    dependsOn("downloadVendorJars")
+}
+
 test {
     useJUnitPlatform()
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
