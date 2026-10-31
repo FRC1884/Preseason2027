@@ -1,13 +1,13 @@
 package org.Griffins1884.frc2027;
 
-import org.wpilib.util.sendable.Sendable;
 import org.wpilib.system.Timer;
+import org.wpilib.tunable.Selectable;
 import org.wpilib.command2.*;
 import java.util.*;
 import org.Griffins1884.frc2027.util.StateGraph;
 import org.Griffins1884.frc2027.util.Transition;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedNetworkChooser;
 
 public abstract class StateMachine<E extends Enum<E>> extends SubsystemBase {
   private final StateGraph<E, Transition<E>> transitionGraph;
@@ -25,7 +25,7 @@ public abstract class StateMachine<E extends Enum<E>> extends SubsystemBase {
   private final Class<E> enumType;
   private final List<StateMachine<?>> subsystems;
 
-  private final LoggedDashboardChooser<E> stateChooser;
+  private final LoggedNetworkChooser<E> stateChooser;
   private E lastChooserRequest;
 
   /**
@@ -45,7 +45,7 @@ public abstract class StateMachine<E extends Enum<E>> extends SubsystemBase {
     currentFlags = new HashSet<>();
     stateCommands = new HashMap<>();
     subsystems = new ArrayList<>();
-    stateChooser = new LoggedDashboardChooser<>(name + "State Chooser");
+    stateChooser = new LoggedNetworkChooser<>(name + "State Chooser");
     lastChooserRequest = undeterminedState;
 
     initStateChooser();
@@ -57,11 +57,11 @@ public abstract class StateMachine<E extends Enum<E>> extends SubsystemBase {
   }
 
   private void initStateChooser() {
-    stateChooser.addDefaultOption(undeterminedState.name(), undeterminedState);
+    stateChooser.addDefault(undeterminedState.name(), undeterminedState);
 
     for (E state : enumType.getEnumConstants()) {
       if (state != undeterminedState) {
-        stateChooser.addOption(state.name(), state);
+        stateChooser.add(state.name(), state);
       }
     }
   }
@@ -579,7 +579,7 @@ public abstract class StateMachine<E extends Enum<E>> extends SubsystemBase {
   // Override this to any extra logged values to the logger in this method
   protected void logAdditionalOutputs() {}
 
-  public Map<String, Sendable> additionalSendables() {
+  public Map<String, Selectable<Command>> additionalSendables() {
     return new HashMap<>();
   }
 }
