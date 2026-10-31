@@ -1,7 +1,9 @@
 package org.Griffins1884.frc2027;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.wpilib.vision.apriltag.AprilTagFieldLayout;
+
+import org.wpilib.fields.Field;
+import org.wpilib.fields.Fields;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.math.geometry.Translation3d;
@@ -14,6 +16,7 @@ import java.nio.file.Path;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.Griffins1884.frc2027.util.LoggedTunableNumber;
+
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -65,7 +68,7 @@ public final class GlobalConstants {
   public static void main(String... args) {
     if (ROBOT == RobotType.SIMBOT) {
       Alert realModeAlert =
-          new Alert("SIM robot loaded in REAL mode, gains likely breaking!", Level.MEDIUM);
+          new Alert("Mode Check","SIM robot loaded in REAL mode, gains likely breaking!", Level.MEDIUM);
       realModeAlert.set(true);
       realModeAlert.close();
     }
@@ -373,14 +376,14 @@ public final class GlobalConstants {
       NONE("2026-none");
 
       private final String name;
-      private volatile AprilTagFieldLayout layout;
+      private volatile Field layout;
       private volatile String layoutString;
 
       AprilTagLayoutType(String name) {
         this.name = name;
       }
 
-      public AprilTagFieldLayout getLayout() {
+      public Field getLayout() {
         if (layout == null) {
           synchronized (this) {
             if (layout == null) {
@@ -391,7 +394,9 @@ public final class GlobalConstants {
                         "apriltags",
                         fieldType.getJsonFolder(),
                         name + ".json");
-                layout = new AprilTagFieldLayout(p);
+                // layout = new AprilTagFieldLayout(p);
+                Fields fieldInfo = fieldType == FieldType.ANDYMARK ? Fields.FRC_2026_REBUILT_ANDY_MARK : Fields.FRC_2026_REBUILT_WELDED;
+                layout  = fieldInfo.loadField();
                 layoutString = new ObjectMapper().writeValueAsString(layout);
               } catch (IOException e) {
                 throw new RuntimeException(e);
