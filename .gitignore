@@ -4,7 +4,6 @@ build/
 bin/
 
 #SimV2
-simV2
 libs/
 
 # WPILib / IDE

@@ -8,7 +8,6 @@
 /.github/CODEOWNERS @FRC1884/mentors
 /.github/pull_request_template.md @FRC1884/mentors @FRC1884/student-reviewers
 /.github/robotics-harness/ @FRC1884/mentors
-/.codex/ @FRC1884/mentors
 /AGENTS.md @FRC1884/mentors
 /build.gradle @FRC1884/mentors @FRC1884/student-reviewers
 /settings.gradle @FRC1884/mentors @FRC1884/student-reviewers
@@ -25,5 +24,3 @@
 /**/CLAUDE.md @FRC1884/mentors
 /.claude/** @FRC1884/mentors
 /.agents/** @FRC1884/mentors
-/.codex/** @FRC1884/mentors
-/tools/robotics_harness/** @FRC1884/mentors
