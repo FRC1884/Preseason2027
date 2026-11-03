@@ -2,13 +2,9 @@ package org.Griffins1884.frc2027.mechanisms.rollers;
 
 import static org.wpilib.math.system.Models.singleJointedArmFromPhysicalConstants;
 
-import org.wpilib.math.util.MathUtil;
 import org.wpilib.math.system.DCMotor;
-import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.MatchType;
-import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.math.util.Units;
 import org.wpilib.simulation.DCMotorSim;
 
 public class MechanismRollerIOSim implements MechanismRollerIO {
@@ -33,7 +29,7 @@ public class MechanismRollerIOSim implements MechanismRollerIO {
     }
     inputs.positionRads = sim.getAngularPosition();
     inputs.velocityRadsPerSec = sim.getAngularVelocity();
-    inputs.velocity = sim.getAngularVelocity();
+    inputs.velocity = Units.radiansPerSecondToRotationsPerMinute(inputs.velocityRadsPerSec);
     inputs.appliedVoltage = appliedVoltage;
     inputs.supplyCurrentAmps = sim.getCurrentDraw();
     inputs.torqueCurrentAmps = inputs.supplyCurrentAmps;
