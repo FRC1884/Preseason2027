@@ -27,7 +27,7 @@ jobs:
           gradle-version: '9.1.0'
 
       - name: Build and test
-        run: ./gradlew build -x test
+        run: ./gradlew build
 
       - name: Verify formatting
         run: gradle spotlessCheck --no-daemon --console=plain
