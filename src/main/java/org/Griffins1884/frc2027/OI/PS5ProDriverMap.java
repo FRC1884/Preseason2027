@@ -14,8 +14,6 @@ import java.util.function.DoubleSupplier;
 public class PS5ProDriverMap extends CommandNiDsPS5Controller implements DriverMap {
   // WPILib doesn't define DualSense Edge rear buttons; these rely on DS exposing
   // raw buttons.
-  private static final int LEFT_BACK_BUTTON = 15;
-  private static final int RIGHT_BACK_BUTTON = 16;
 
   /**
    * Construct an instance of a controller.
@@ -96,6 +94,7 @@ public class PS5ProDriverMap extends CommandNiDsPS5Controller implements DriverM
     return new InternalButton();
   }
 
+  //Unused Intentionally
   public ParallelCommandGroup generateParallelGroup(double value){
     Command leftRumble = Commands.runOnce(()-> getHID().setRumble(LEFT_RUMBLE, value));
     Command leftTriggerRumble = Commands.runOnce(() -> getHID().setRumble(LEFT_TRIGGER_RUMBLE, value));

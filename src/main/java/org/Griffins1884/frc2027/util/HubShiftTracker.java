@@ -3,8 +3,6 @@ package org.Griffins1884.frc2027.util;
 import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
 import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.MatchType;
-import org.wpilib.driverstation.DriverStationErrors;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -53,7 +51,7 @@ public final class HubShiftTracker {
   private HubShiftTracker() {}
 
   public static Snapshot fromDriverStation() {
-    String gameData = MatchState.getGameData();
+    String gameData = MatchState.getGameData().isPresent() ? MatchState.getGameData().get() : null;
     Optional<Alliance> autoWinner = parseAutoWinner(gameData);
     return compute(
         RobotState.isAutonomous(),

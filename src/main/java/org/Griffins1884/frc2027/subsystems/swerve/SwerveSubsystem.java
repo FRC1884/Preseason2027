@@ -8,10 +8,6 @@ import static org.wpilib.units.Units.Seconds;
 import static org.wpilib.units.Units.Volts;
 import static org.Griffins1884.frc2027.GlobalConstants.RobotMode.SIM;
 
-import org.wpilib.hardware.hal.FRCNetComm.tInstances;
-import org.wpilib.hardware.hal.FRCNetComm.tResourceType;
-import org.wpilib.hardware.hal.HAL;
-import org.wpilib.math.util.MathUtil;
 import org.wpilib.math.linalg.Matrix;
 import org.wpilib.math.estimator.SwerveDrivePoseEstimator;
 import org.wpilib.math.filter.LinearFilter;
@@ -22,16 +18,13 @@ import org.wpilib.math.geometry.Twist2d;
 import org.wpilib.math.kinematics.ChassisVelocities;
 import org.wpilib.math.kinematics.SwerveDriveKinematics;
 import org.wpilib.math.kinematics.SwerveModulePosition;
-import org.wpilib.math.kinematics.SwerveModuleState;
+import org.wpilib.math.kinematics.SwerveModuleVelocity;
 import org.wpilib.math.numbers.N1;
 import org.wpilib.math.numbers.N3;
 import org.wpilib.util.Alert;
+import org.wpilib.util.UsageReporting;
 import org.wpilib.util.Alert.Level;
-import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.MatchType;
-import org.wpilib.driverstation.DriverStationErrors;
 import org.wpilib.driverstation.Alliance;
 import org.wpilib.system.RobotController;
 import org.wpilib.system.Timer;
@@ -40,10 +33,16 @@ import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.SubsystemBase;
 import org.wpilib.command2.sysid.SysIdRoutine;
+
+import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
+import java.util.function.DoubleSupplier;
+
 import lombok.Getter;
+
+import org.Griffins1884.frc2027.CanIDConstants;
 import org.Griffins1884.frc2027.GlobalConstants;
 import org.Griffins1884.frc2027.commands.AlignConstants;
 import org.Griffins1884.frc2027.subsystems.vision.Vision;
@@ -59,14 +58,18 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   private static final double TURN_SYS_ID_MAX_VOLTAGE = 12.0;
   private static final double SYS_ID_IDLE_WAIT_SECONDS = 0.5;
 
+  private long measuredKinematicsCount;
+
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
+  private final Object measurementLock = new Object();
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
   private final Module[] modules = new Module[4]; // FL, FR, BL, BR
   private final SysIdRoutine driveSysId;
   private final SysIdRoutine turnSysId;
+  @Getter
   private final Alert gyroDisconnectedAlert =
-      new Alert("Disconnected gyro, using kinematics as fallback.", Level.HIGH);
+      new Alert("Disconnected Gyro "+ UUID.randomUUID(), "Disconnected gyro, using kinematics as fallback.", Level.HIGH);
   private final SwerveMusicPlayer musicPlayer;
   private double requestedTranslationalMps = 0.0;
   private double requestedOmegaRadPerSec = 0.0;
@@ -79,6 +82,14 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   private String observerLatchedIssue = "OK";
   private int observerLatchedModule = -1;
   private double observerHoldUntilSec = 0.0;
+
+  @SuppressWarnings("unused")
+  private DoubleSupplier controlClock;
+
+  @SuppressWarnings("unused")
+  private DoubleSupplier radiusSupplier;
+
+  private long invalidSnapshotCount;
 
   private SwerveDriveKinematics kinematics =
       new SwerveDriveKinematics(SwerveConstants.MODULE_TRANSLATIONS);
@@ -98,11 +109,11 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   private SwerveSetpoint krakenCurrentSetpoint =
       new SwerveSetpoint(
           new ChassisVelocities(),
-          new SwerveModuleState[] {
-            new SwerveModuleState(),
-            new SwerveModuleState(),
-            new SwerveModuleState(),
-            new SwerveModuleState()
+          new SwerveModuleVelocity[] {
+            new SwerveModuleVelocity(),
+            new SwerveModuleVelocity(),
+            new SwerveModuleVelocity(),
+            new SwerveModuleVelocity()
           });
   private boolean krakenVelocityMode = false;
   private String driveSysIdPhase = "IDLE";
@@ -121,9 +132,14 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   private boolean fieldMotionSampleValid = false;
   private double fieldMotionSampleDtSec = Double.NaN;
 
+  private long discardedSnapshotCount;
+
   private static final double LOOP_DT_SEC = 0.02;
   private final LinearFilter axFilter = LinearFilter.singlePoleIIR(0.2, LOOP_DT_SEC);
   private final LinearFilter ayFilter = LinearFilter.singlePoleIIR(0.2, LOOP_DT_SEC);
+
+  private final String[] calibrationAngleKeys = new String[4];
+  private final String[] calibrationTrimKeys = new String[4];
 
   public SwerveSubsystem(
       GyroIO gyroIO,
@@ -131,19 +147,39 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
       ModuleIO frModuleIO,
       ModuleIO blModuleIO,
       ModuleIO brModuleIO) {
+    this(gyroIO,flModuleIO,frModuleIO,blModuleIO,brModuleIO,Timer::getTimestamp,SwerveConstants::getWheelRadiusMeters);
+  }
+
+  SwerveSubsystem(
+      GyroIO gyroIO,
+      ModuleIO flModuleIO,
+      ModuleIO frModuleIO,
+      ModuleIO blModuleIO,
+      ModuleIO brModuleIO,
+      DoubleSupplier controlClock,
+      DoubleSupplier radiusSupplier) {
+    this.controlClock = controlClock;
+    this.radiusSupplier = radiusSupplier;
     this.gyroIO = gyroIO;
     modules[0] = new Module(flModuleIO, 0);
     modules[1] = new Module(frModuleIO, 1);
     modules[2] = new Module(blModuleIO, 2);
     modules[3] = new Module(brModuleIO, 3);
+
+    
     if (GlobalConstants.MODE != SIM) {
       musicPlayer = new SwerveMusicPlayer(modules, SwerveConstants.SWERVE_MUSIC_FILE);
     } else {
       musicPlayer = null;
     }
 
+    for (int i = 0; i < modules.length; i++) {
+      calibrationAngleKeys[i] = "Swerve/Calibration/Module" + i + "/AbsoluteAngleDeg";
+      calibrationTrimKeys[i] = "Swerve/Calibration/Module" + i + "/ZeroTrimRotations";
+    }
+
     // Usage reporting for swerve template
-    HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
+    UsageReporting.reportUsage("RobotDrive", "Swerve_AdvantageKit");
 
     // Start odometry thread
     PhoenixOdometryThread.getInstance().start();
@@ -180,9 +216,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
                 null,
                 Seconds.of(2.5),
                 (state) -> {
-                  if (GlobalConstants.isDebugMode()) {
-                    Logger.recordOutput("Drive/SysIdState", state.toString());
-                  }
+                  Logger.recordOutput("Drive/SysIdState", state.toString());
                 }),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runDriveSysIdVoltage(voltage.in(Volts)), sysIdLogCallbackDrive, this));
@@ -195,12 +229,45 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
                 null,
                 Seconds.of(2.5),
                 (state) -> {
-                  if (GlobalConstants.isDebugMode()) {
-                    Logger.recordOutput("Drive/TurnSysIdState", state.toString());
-                  }
+                  Logger.recordOutput("Drive/TurnSysIdState", state.toString());
                 }),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runTurnSysIdVoltage(voltage.in(Volts)), sysIdLogCallbackTurn, this));
+  }
+
+  public void close() {
+    synchronized (measurementLock) {
+      PhoenixOdometryThread.getInstance().shutdown();
+      for (Module module : modules) {
+        module.stop();
+        module.close();
+      }
+      gyroIO.close();
+      org.wpilib.command2.CommandScheduler.getInstance().unregisterSubsystem(this);
+    }
+  }
+
+  long measuredKinematicsCount() {
+    return measuredKinematicsCount;
+  }
+
+  long invalidSnapshotCount() {
+    return invalidSnapshotCount;
+  }
+
+  long discardedSnapshotCount() {
+    return discardedSnapshotCount;
+  }
+
+  public void resetHeadingToAllianceForward(Alliance alliance) {
+    Rotation2d heading = getAllianceForwardRotation(alliance);
+    resetOdometry(new Pose2d(getPose().getTranslation(), heading), true);
+    Logger.recordOutput("Odometry/AllianceForwardReset/HeadingDeg", heading.getDegrees());
+    Logger.recordOutput("Odometry/AllianceForwardReset/Alliance", alliance.name());
+  }
+
+  public static Rotation2d getAllianceForwardRotation(Alliance alliance) {
+    return alliance == Alliance.RED ? Rotation2d.fromDegrees(180.0) : new Rotation2d();
   }
 
   @Override
@@ -235,8 +302,8 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
     // Log empty setpoint states when disabled
     if (RobotState.isDisabled()) {
-      Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[] {});
-      Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[] {});
+      Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleVelocity[] {});
+      Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleVelocity[] {});
     }
 
     // Update odometry
@@ -252,8 +319,8 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
         modulePositions[moduleIndex] = modules[moduleIndex].getOdometryPositions()[i];
         moduleDeltas[moduleIndex] =
             new SwerveModulePosition(
-                modulePositions[moduleIndex].distanceMeters
-                    - lastModulePositions[moduleIndex].distanceMeters,
+                modulePositions[moduleIndex].distance
+                    - lastModulePositions[moduleIndex].distance,
                 modulePositions[moduleIndex].angle);
         lastModulePositions[moduleIndex] = modulePositions[moduleIndex];
       }
@@ -390,7 +457,9 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
         badReason = reason;
       }
     }
-    var canStatus = RobotController.getCANStatus();
+
+    //Adjust based on actual CanPort
+    var canStatus = RobotController.getCANStatus(CanIDConstants.SWERVE);
     Logger.recordOutput("Swerve/Debug/CommandedSpeedMps", commandedTranslationalMps);
     Logger.recordOutput("Swerve/Debug/MeasuredSpeedMps", measuredTranslationalMps);
     Logger.recordOutput("Swerve/Debug/OverallSpeedRatio", overallSpeedRatio);
@@ -437,7 +506,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
       String badReason,
       double commandedOmega,
       double measuredOmega) {
-    var canStatus = RobotController.getCANStatus();
+    var canStatus = RobotController.getCANStatus(CanIDConstants.SWERVE);
     int canErrorDelta =
         (canStatus.txFullCount - lastCanTxFullCount)
             + (canStatus.receiveErrorCount - lastCanReceiveErrorCount)
@@ -527,12 +596,12 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
     krakenVelocityMode = true;
     requestedTranslationalMps = Math.hypot(speeds.vx, speeds.vy);
     requestedOmegaRadPerSec = speeds.omega;
-    ChassisVelocities discreteSpeeds = ChassisVelocities.discretize(speeds, 0.02);
-    SwerveModuleState[] setpointStatesUnoptimized = kinematics.toSwerveModuleStates(discreteSpeeds);
+    ChassisVelocities discreteSpeeds = speeds.discretize(0.02);
+    SwerveModuleVelocity[] setpointStatesUnoptimized = kinematics.toSwerveModuleVelocities(discreteSpeeds);
     krakenCurrentSetpoint =
         krakenSetpointGenerator.generateSetpoint(
             SwerveConstants.KRAKEN_MODULE_LIMITS_FREE, krakenCurrentSetpoint, discreteSpeeds, 0.02);
-    SwerveModuleState[] setpointStates = krakenCurrentSetpoint.moduleStates();
+    SwerveModuleVelocity[] setpointStates = krakenCurrentSetpoint.moduleStates();
 
     Logger.recordOutput("SwerveStates/SetpointsUnoptimized", setpointStatesUnoptimized);
     Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
@@ -653,10 +722,10 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   public void stopWithX() {
     Rotation2d[] headings = new Rotation2d[4];
     for (int i = 0; i < 4; i++) {
-      headings[i] = SwerveConstants.MODULE_TRANSLATIONS[i].getAngle();
+      headings[i] = SwerveConstants.MODULE_TRANSLATIONS[i].getAngle().get();
     }
     kinematics.resetHeadings(headings);
-    SwerveModuleState[] states = kinematics.toSwerveModuleStates(new ChassisVelocities());
+    SwerveModuleVelocity[] states = kinematics.toSwerveModuleVelocities(new ChassisVelocities());
     for (int i = 0; i < 4; i++) {
       modules[i].runSetpoint(states[i]);
     }
@@ -664,7 +733,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
   /** Returns a command to run a quasistatic test in the specified direction. */
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    String phase = direction == SysIdRoutine.Direction.kForward ? "SINGLE_QS_FWD" : "SINGLE_QS_REV";
+    String phase = direction == SysIdRoutine.Direction.FORWARD ? "SINGLE_QS_FWD" : "SINGLE_QS_REV";
     Command run =
         Commands.sequence(
             Commands.runOnce(
@@ -686,7 +755,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   /** Returns a command to run a dynamic test in the specified direction. */
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     String phase =
-        direction == SysIdRoutine.Direction.kForward ? "SINGLE_DYN_FWD" : "SINGLE_DYN_REV";
+        direction == SysIdRoutine.Direction.FORWARD ? "SINGLE_DYN_FWD" : "SINGLE_DYN_REV";
     Command run =
         Commands.sequence(
             Commands.runOnce(
@@ -715,7 +784,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
                   setDriveSysIdPhase("QS_FWD", true);
                 },
                 this),
-            driveSysIdQuasistaticRaw(SysIdRoutine.Direction.kForward),
+            driveSysIdQuasistaticRaw(SysIdRoutine.Direction.FORWARD),
             Commands.waitSeconds(SYS_ID_IDLE_WAIT_SECONDS),
             Commands.runOnce(
                 () -> {
@@ -723,7 +792,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
                   setDriveSysIdPhase("QS_REV", true);
                 },
                 this),
-            driveSysIdQuasistaticRaw(SysIdRoutine.Direction.kReverse),
+            driveSysIdQuasistaticRaw(SysIdRoutine.Direction.REVERSE),
             Commands.waitSeconds(SYS_ID_IDLE_WAIT_SECONDS),
             Commands.runOnce(
                 () -> {
@@ -731,7 +800,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
                   setDriveSysIdPhase("DYN_FWD", true);
                 },
                 this),
-            driveSysIdDynamicRaw(SysIdRoutine.Direction.kForward),
+            driveSysIdDynamicRaw(SysIdRoutine.Direction.FORWARD),
             Commands.waitSeconds(SYS_ID_IDLE_WAIT_SECONDS),
             Commands.runOnce(
                 () -> {
@@ -739,7 +808,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
                   setDriveSysIdPhase("DYN_REV", true);
                 },
                 this),
-            driveSysIdDynamicRaw(SysIdRoutine.Direction.kReverse),
+            driveSysIdDynamicRaw(SysIdRoutine.Direction.REVERSE),
             Commands.runOnce(
                 () -> {
                   runCharacterization(0.0);
@@ -751,7 +820,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
   /** Returns a command to run a steer-motor quasistatic test. */
   public Command sysIdTurnQuasistatic(SysIdRoutine.Direction direction) {
-    String phase = direction == SysIdRoutine.Direction.kForward ? "SINGLE_QS_FWD" : "SINGLE_QS_REV";
+    String phase = direction == SysIdRoutine.Direction.FORWARD ? "SINGLE_QS_FWD" : "SINGLE_QS_REV";
     Command run =
         Commands.sequence(
             Commands.runOnce(
@@ -773,7 +842,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   /** Returns a command to run a steer-motor dynamic test. */
   public Command sysIdTurnDynamic(SysIdRoutine.Direction direction) {
     String phase =
-        direction == SysIdRoutine.Direction.kForward ? "SINGLE_DYN_FWD" : "SINGLE_DYN_REV";
+        direction == SysIdRoutine.Direction.FORWARD ? "SINGLE_DYN_FWD" : "SINGLE_DYN_REV";
     Command run =
         Commands.sequence(
             Commands.runOnce(
@@ -802,7 +871,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
                   setTurnSysIdPhase("QS_FWD", true);
                 },
                 this),
-            turnSysIdQuasistaticRaw(SysIdRoutine.Direction.kForward),
+            turnSysIdQuasistaticRaw(SysIdRoutine.Direction.FORWARD),
             Commands.waitSeconds(SYS_ID_IDLE_WAIT_SECONDS),
             Commands.runOnce(
                 () -> {
@@ -810,7 +879,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
                   setTurnSysIdPhase("QS_REV", true);
                 },
                 this),
-            turnSysIdQuasistaticRaw(SysIdRoutine.Direction.kReverse),
+            turnSysIdQuasistaticRaw(SysIdRoutine.Direction.REVERSE),
             Commands.waitSeconds(SYS_ID_IDLE_WAIT_SECONDS),
             Commands.runOnce(
                 () -> {
@@ -818,7 +887,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
                   setTurnSysIdPhase("DYN_FWD", true);
                 },
                 this),
-            turnSysIdDynamicRaw(SysIdRoutine.Direction.kForward),
+            turnSysIdDynamicRaw(SysIdRoutine.Direction.FORWARD),
             Commands.waitSeconds(SYS_ID_IDLE_WAIT_SECONDS),
             Commands.runOnce(
                 () -> {
@@ -826,7 +895,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
                   setTurnSysIdPhase("DYN_REV", true);
                 },
                 this),
-            turnSysIdDynamicRaw(SysIdRoutine.Direction.kReverse),
+            turnSysIdDynamicRaw(SysIdRoutine.Direction.REVERSE),
             Commands.runOnce(
                 () -> {
                   runTurnCharacterization(0.0);
@@ -873,8 +942,8 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
   /** Returns the module states (turn angles and drive velocities) for all of the modules. */
   @AutoLogOutput(key = "SwerveStates/Measured")
-  private SwerveModuleState[] getModuleStates() {
-    SwerveModuleState[] states = new SwerveModuleState[4];
+  private SwerveModuleVelocity[] getModuleStates() {
+    SwerveModuleVelocity[] states = new SwerveModuleVelocity[4];
     for (int i = 0; i < 4; i++) {
       states[i] = modules[i].getState();
     }

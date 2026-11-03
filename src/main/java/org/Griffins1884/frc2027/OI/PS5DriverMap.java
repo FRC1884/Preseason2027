@@ -2,6 +2,7 @@ package org.Griffins1884.frc2027.OI;
 
 import static org.wpilib.driverstation.GenericHID.RumbleType.*;
 import static org.wpilib.command2.Commands.startEnd;
+import org.wpilib.command2.Commands;
 import static org.wpilib.command2.Commands.startRun;
 import org.wpilib.command2.Commands;
 
@@ -63,23 +64,27 @@ public class PS5DriverMap extends CommandNiDsPS5Controller implements DriverMap 
     return triangle();
   }
 
-  //InternalButton as Placeholder
+  //Placeholder
   public Trigger shooterPivotUp() {
     return new InternalButton();
   }
 
+  //Placeholder
   public Trigger shooterPivotDown() {
     return new InternalButton();
   }
 
+  //Placeholder
   public Trigger turretLeft() {
     return new InternalButton();
   }
 
+  //Placeholder
   public Trigger turretRight() {
     return new InternalButton();
   }
 
+  //Unused Intentionally
   public ParallelCommandGroup generateParallelGroup(double value){
     Command leftRumble = Commands.runOnce(()-> getHID().setRumble(LEFT_RUMBLE, value));
     Command leftTriggerRumble = Commands.runOnce(() -> getHID().setRumble(LEFT_TRIGGER_RUMBLE, value));

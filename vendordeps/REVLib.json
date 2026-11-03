@@ -1,7 +1,7 @@
 {
     "fileName": "REVLib.json",
     "name": "REVLib",
-    "version": "2027.0.0-alpha-7",
+    "version": "2027.0.0-alpha-8",
     "wpilibYear": "2027_alpha7",
     "uuid": "3f48eb8c-50fe-43a6-9cb7-44c86353c4cb",
     "mavenUrls": [
@@ -12,14 +12,14 @@
         {
             "groupId": "com.revrobotics.frc",
             "artifactId": "REVLib-java",
-            "version": "2027.0.0-alpha-7"
+            "version": "2027.0.0-alpha-8"
         }
     ],
     "jniDependencies": [
         {
             "groupId": "com.revrobotics.frc",
             "artifactId": "REVLib-driver",
-            "version": "2027.0.0-alpha-7",
+            "version": "2027.0.0-alpha-8",
             "skipInvalidPlatforms": true,
             "isJar": false,
             "validPlatforms": [
@@ -121,6 +121,7 @@
                 "linuxsystemcore",
                 "osxuniversal"
             ]
+
         }
     ]
 }

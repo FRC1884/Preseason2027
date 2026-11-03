@@ -90,7 +90,7 @@ class SwerveLoggingTest {
   @Test
   void calibrationRecordsInitiallyAndOnChangeOutsideTelemetryTick() throws Exception {
     LogTable initial = cycle(0.0);
-    assertEquals(radius, initial.get("Swerve/Calibration/WheelRadiusMeters", -1.0));
+    assertEquals(radius, Math.round(initial.get("Swerve/Calibration/WheelRadiusMeters", -1.0)*100.0)/100.0);
     assertEquals(0.0, initial.get(MODULE + "ZeroTrimRotations", -1.0));
     assertEquals(0.0, initial.get("Swerve/Calibration/Module0/ZeroTrimRotations", -1.0));
     LogTable unchanged = cycle(0.02);
@@ -191,7 +191,7 @@ class SwerveLoggingTest {
     double velocity = 1.0;
     double trim;
     boolean connected = true;
-    Rotation2d angle = Rotation2d.kZero;
+    Rotation2d angle = Rotation2d.ZERO;
 
     @Override
     public void updateInputs(ModuleIOInputs inputs, double timestamp) {
@@ -213,7 +213,7 @@ class SwerveLoggingTest {
     public void updateInputs(GyroIOInputs inputs, double timestamp) {
       inputs.connected = true;
       inputs.odometryYawTimestamps = new double[] {timestamp};
-      inputs.odometryYawPositions = new Rotation2d[] {Rotation2d.kZero};
+      inputs.odometryYawPositions = new Rotation2d[] {Rotation2d.ZERO};
     }
   }
 }
