@@ -908,7 +908,7 @@ public class LimelightHelpers {
     double residualRotation = extractArrayEntry(poseArray, 12);
 
     // Convert server timestamp from microseconds to seconds and adjust for latency
-    double adjustedTimestamp = (timestamp / 1000000.0) - (latency / 1000.0);
+    double adjustedTimestamp = (timestamp / 1e9) - (latency / 1000.0);
 
     int valsPerFiducial = 7;
     int expectedTotalVals = 11 + valsPerFiducial * tagCount;
