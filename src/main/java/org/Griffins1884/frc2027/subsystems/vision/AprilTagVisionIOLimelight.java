@@ -19,7 +19,7 @@ import org.littletonrobotics.junction.Logger;
 public class AprilTagVisionIOLimelight implements VisionIO {
   // Timeout window for considering the Limelight disconnected, in FPGA
   // microseconds.
-  private static final double DISCONNECT_TIMEOUT_MICROS = 250_000.0;
+  private static final double DISCONNECT_TIMEOUT_NANOS = 250_000_000L;
 
   // MegaTag2 covariance scaling constants.
   private static final double BASE_STD_DEV = 1.0;
@@ -80,7 +80,7 @@ public class AprilTagVisionIOLimelight implements VisionIO {
 
     long lastChange = table.getEntry("tl").getLastChange();
     long now = RobotController.getTime();
-    inputs.connected = lastChange > 0 && (now - lastChange) < DISCONNECT_TIMEOUT_MICROS;
+    inputs.connected = lastChange > 0 && (now - lastChange) < DISCONNECT_TIMEOUT_NANOS;
     inputs.seesTarget = LimelightHelpers.getTV(limelightName);
     if (inputs.seesTarget) {
       inputs.latestTargetObservation =
