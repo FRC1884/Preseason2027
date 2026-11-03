@@ -87,15 +87,15 @@ public class DriveCommands {
     double omega = getAngularVelocityCommand(omegaSupplier.getAsDouble());
 
     // Convert to field relative speeds & send command
-    ChassisVelocities speeds =
-        new ChassisVelocities(
-            linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
-            linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
-            omega * drive.getMaxAngularSpeedRadPerSec());
-
-    @SuppressWarnings("unused")
     boolean isFlipped = AllianceFlipUtil.shouldFlip(drive.getPose());
-    
+    double allianceSign = isFlipped ? -1.0 : 1.0;
+
+    ChassisVelocities speeds =
+            new ChassisVelocities(
+                    allianceSign * linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+                    allianceSign * linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
+                    omega * drive.getMaxAngularSpeedRadPerSec());
+
     drive.runVelocity(speeds.toRobotRelative(drive.getRotation()));
   }
 
