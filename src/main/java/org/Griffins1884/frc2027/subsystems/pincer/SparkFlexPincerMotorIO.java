@@ -24,7 +24,7 @@ public final class SparkFlexPincerMotorIO implements PincerMotorIO {
       return;
     }
 
-    motor.setVoltage(Math.clamp(output, -1.0, 1.0));
+    motor.setThrottle(Math.clamp(output, -1.0, 1.0));
   }
 
   @Override
