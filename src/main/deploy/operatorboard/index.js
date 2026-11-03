@@ -370,7 +370,6 @@ const ui = {
   autoQuickRunList: null,
   mechanismStatusList: null,
   actionTraceList: null,
-<<<<<<< HEAD
   joystickProfileSelect: null,
   joystickProfileStatus: null,
   joystickControllerStatus: null,
@@ -383,8 +382,6 @@ const ui = {
   joystickReloadButton: null,
   joystickResetButton: null,
   joystickExportButton: null,
-=======
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
   systemsCatalog: null,
   systemsStorageInventory: null,
   systemsDiagnosticSummary: null,
@@ -605,7 +602,6 @@ function cacheUi() {
   ui.autoQuickRunList = document.getElementById("auto-quick-run-list");
   ui.mechanismStatusList = document.getElementById("mechanism-status-list");
   ui.actionTraceList = document.getElementById("action-trace-list");
-<<<<<<< HEAD
   ui.joystickProfileSelect = document.getElementById("joystick-profile-select");
   ui.joystickProfileStatus = document.getElementById("joystick-profile-status");
   ui.joystickControllerStatus = document.getElementById("joystick-controller-status");
@@ -618,8 +614,6 @@ function cacheUi() {
   ui.joystickReloadButton = document.getElementById("joystick-reload-button");
   ui.joystickResetButton = document.getElementById("joystick-reset-button");
   ui.joystickExportButton = document.getElementById("joystick-export-button");
-=======
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
   ui.systemsCatalog = document.getElementById("systems-catalog");
   ui.systemsStorageInventory = document.getElementById("systems-storage-inventory");
   ui.systemsDiagnosticSummary = document.getElementById("systems-diagnostic-summary");
@@ -768,13 +762,10 @@ function activateTab(tabName) {
       renderField();
     });
   }
-<<<<<<< HEAD
   if (target === "joystick") {
     renderJoystickEditor();
     renderJoystickLiveInputs();
   }
-=======
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
   if (target === "systems") {
     renderSystemsCatalog();
     renderStorageInventory();
@@ -786,12 +777,9 @@ function normalizeTabName(tabName) {
   const normalized = String(tabName || "")
     .trim()
     .toLowerCase();
-<<<<<<< HEAD
   if (normalized === "joystick" || normalized === "controls") {
     return "joystick";
   }
-=======
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
   if (normalized === "systems" || normalized === "system") {
     return "systems";
   }
@@ -897,7 +885,6 @@ function setupQueueBuilder() {
   if (ui.runAutoQuickRunButton) {
     ui.runAutoQuickRunButton.addEventListener("click", runAutoQuickRun);
   }
-<<<<<<< HEAD
   if (ui.joystickProfileSelect) {
     ui.joystickProfileSelect.addEventListener("change", () => {
       state.selectedJoystickProfileId = ui.joystickProfileSelect.value || "";
@@ -920,8 +907,6 @@ function setupQueueBuilder() {
   if (ui.joystickExportButton) {
     ui.joystickExportButton.addEventListener("click", exportJoystickMappings);
   }
-=======
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
   if (ui.systemsExportButton) {
     ui.systemsExportButton.addEventListener("click", () => {
       void exportDiagnosticBundle();
@@ -1046,8 +1031,7 @@ function updateMusicVolumeUi(value) {
 }
 
 async function loadPersistedOperatorBoardData(showToastOnSuccess = false) {
-<<<<<<< HEAD
-  const [joystickMappings, subsystemDescriptions, storageInventory, latestDiagnosticBundle] =
+  let [joystickMappings, subsystemDescriptions, storageInventory, latestDiagnosticBundle] =
     await Promise.all([
       fetchJsonDocument("./api/joystick-mappings"),
       fetchJsonDocument("./api/subsystem-descriptions"),
@@ -1064,13 +1048,11 @@ async function loadPersistedOperatorBoardData(showToastOnSuccess = false) {
       ? existingProfile.id
       : joystickMappings.activeProfileId || availableProfiles[0]?.id || "";
   }
-=======
-  const [subsystemDescriptions, storageInventory, latestDiagnosticBundle] = await Promise.all([
+  [subsystemDescriptions, storageInventory, latestDiagnosticBundle] = await Promise.all([
     fetchJsonDocument("./api/subsystem-descriptions"),
     fetchJsonDocument("./api/storage/inventory"),
     fetchJsonDocument("./api/diagnostics/latest"),
   ]);
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
   if (subsystemDescriptions) {
     state.subsystemDescriptions = subsystemDescriptions;
   }
@@ -1081,11 +1063,8 @@ async function loadPersistedOperatorBoardData(showToastOnSuccess = false) {
     state.latestDiagnosticBundle = latestDiagnosticBundle;
   }
 
-<<<<<<< HEAD
   renderJoystickEditor();
   renderJoystickLiveInputs();
-=======
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
   renderSystemsCatalog();
   renderStorageInventory();
   renderDiagnosticBundleSummary();
@@ -1114,7 +1093,6 @@ function cloneJson(value) {
   return value == null ? value : JSON.parse(JSON.stringify(value));
 }
 
-<<<<<<< HEAD
 function getActiveJoystickProfile() {
   const profiles = state.joystickMappings?.profiles;
   if (!Array.isArray(profiles) || profiles.length === 0) {
@@ -1346,9 +1324,6 @@ function exportJoystickMappings() {
   link.click();
   URL.revokeObjectURL(url);
 }
-
-=======
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
 function renderSystemsCatalog() {
   if (!ui.systemsCatalog) {
     return;
@@ -1947,10 +1922,7 @@ function render() {
   renderQueueStatus();
   renderQueueMeta();
   renderField();
-<<<<<<< HEAD
   renderJoystickLiveInputs();
-=======
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
   renderDiagnosticBundleSummary();
 }
 
@@ -2531,22 +2503,15 @@ function renderQueueStatus() {
   const selectedAuto = state.selectedAutoState;
   setText(ui.queuePhase, queueState.phase);
   setText(ui.queueRunning, queueState.running ? "YES" : "NO");
-<<<<<<< HEAD
   setText(ui.queueActiveLabel, queueState.activeLabel || "--");
-=======
   setText(ui.queueActiveLabel, queueState.activeLabel || selectedAuto?.name || "--");
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
   setText(ui.queueRevision, Number.isFinite(queueState.revision) ? String(queueState.revision) : "--");
   setText(ui.queueMessage, selectedAuto?.message || queueState.message || "--");
   setText(
     ui.queueStatusMessage,
-<<<<<<< HEAD
-    selectedAuto?.message || queueState.message || "Select a deployed PathPlanA auto to preview it here."
-=======
     selectedAuto?.message ||
       queueState.message ||
       "Select a deployed PathPlanner auto to preview it here."
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
   );
   setText(ui.fieldPreviewPose, formatAuthoringPose(getQueueStartPose()));
   setText(ui.startPoseSummary, formatAuthoringPose(queueModel.startPose));
@@ -2641,10 +2606,7 @@ function renderPresets() {
     const item = document.createElement("div");
     item.className = "preset";
     item.classList.toggle("is-active", preset.id === queueModel.currentPresetId);
-<<<<<<< HEAD
-=======
     item.classList.toggle("is-selected-for-robot", state.selectedAutoState?.id === preset.id);
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
 
     const title = document.createElement("div");
     title.className = "preset__title";
@@ -2656,14 +2618,11 @@ function renderPresets() {
     if (preset.folder) {
       metaParts.unshift(preset.folder);
     }
-<<<<<<< HEAD
-=======
     if (state.selectedAutoState?.id === preset.id) {
       metaParts.unshift("CHOSEN");
     } else if (preset.id === queueModel.currentPresetId) {
       metaParts.unshift("PREVIEW");
     }
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
     meta.innerText = metaParts.join(" • ");
 
     const swatches = document.createElement("div");
@@ -2812,7 +2771,6 @@ function clearSelectedAutoOnRobot() {
 
 function renderSelectedAutoSummary() {
   const preset = queueModel.presets.find((entry) => entry.id === queueModel.currentPresetId) || null;
-<<<<<<< HEAD
   setText(ui.selectedAutoName, preset ? preset.name : "--");
   if (!preset) {
     setText(ui.selectedAutoSummary, "--");
@@ -2825,42 +2783,38 @@ function renderSelectedAutoSummary() {
   }
   if (preset.startPose) {
     parts.push(formatAuthoringPose(preset.startPose));
-=======
-  const chosenAuto =
-    queueModel.presets.find((entry) => entry.id === state.selectedAutoState?.id) || null;
-  setText(ui.selectedAutoName, chosenAuto ? chosenAuto.name : preset ? `${preset.name} (Preview Only)` : "--");
-  if (!preset && !chosenAuto) {
-    setText(ui.selectedAutoSummary, "--");
-    return;
+    const chosenAuto =
+        queueModel.presets.find((entry) => entry.id === state.selectedAutoState?.id) || null;
+    setText(ui.selectedAutoName, chosenAuto ? chosenAuto.name : preset ? `${preset.name} (Preview Only)` : "--");
+    if (!preset && !chosenAuto) {
+      setText(ui.selectedAutoSummary, "--");
+      return;
+    }
+    const summaryTarget = chosenAuto || preset;
+    const states = Array.from(
+        new Set((summaryTarget.steps || []).map((step) => getStepActionLabel(step)).filter(Boolean))
+    );
+    const parts = [`${summaryTarget.steps.length} steps`];
+    if (summaryTarget.folder) {
+      parts.unshift(summaryTarget.folder);
+    }
+    if (summaryTarget.startPose) {
+      parts.push(formatAuthoringPose(summaryTarget.startPose));
+    }
+    if (states.length > 0) {
+      parts.push(states.join(", "));
+    }
+    if (state.selectedAutoState && state.selectedAutoState.id === preset.id) {
+      parts.push(state.selectedAutoState.loaded ? "Robot selected" : "Robot rejected");
+      if (chosenAuto) {
+        parts.push(state.selectedAutoState?.loaded ? "Robot selected" : "Robot rejected");
+      } else if (preset) {
+        parts.push("Preview only");
+      }
+      setText(ui.selectedAutoSummary, parts.join(" • "));
+    }
   }
-  const summaryTarget = chosenAuto || preset;
-  const states = Array.from(
-    new Set((summaryTarget.steps || []).map((step) => getStepActionLabel(step)).filter(Boolean))
-  );
-  const parts = [`${summaryTarget.steps.length} steps`];
-  if (summaryTarget.folder) {
-    parts.unshift(summaryTarget.folder);
-  }
-  if (summaryTarget.startPose) {
-    parts.push(formatAuthoringPose(summaryTarget.startPose));
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
-  }
-  if (states.length > 0) {
-    parts.push(states.join(", "));
-  }
-<<<<<<< HEAD
-  if (state.selectedAutoState && state.selectedAutoState.id === preset.id) {
-    parts.push(state.selectedAutoState.loaded ? "Robot selected" : "Robot rejected");
-=======
-  if (chosenAuto) {
-    parts.push(state.selectedAutoState?.loaded ? "Robot selected" : "Robot rejected");
-  } else if (preset) {
-    parts.push("Preview only");
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
-  }
-  setText(ui.selectedAutoSummary, parts.join(" • "));
 }
-
 function setupFieldCanvas() {
   if (!ui.fieldCanvas || !ui.fieldImage) return;
   fieldCtx = ui.fieldCanvas.getContext("2d");
@@ -3785,11 +3739,7 @@ function getEffectiveQueueState() {
         ? ntConnected
           ? "Auto selected on dashboard."
           : "Planner auto loaded from deploy. Connect the robot to select it live."
-<<<<<<< HEAD
         : "Select a deployed PathPlanA auto.",
-=======
-        : "Select a deployed PathPlanner auto.",
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
     activeLabel: "",
     startPose: queueModel.startPose,
     noGoZones: getAllNoGoZones(),
