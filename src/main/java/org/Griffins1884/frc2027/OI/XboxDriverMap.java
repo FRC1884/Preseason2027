@@ -60,6 +60,7 @@ public class XboxDriverMap extends CommandXboxController implements DriverMap {
     return leftBumper();
   }
 
+  //Unused Intentionally
   public ParallelCommandGroup generateParallelGroup(double value){
     Command leftRumble = Commands.runOnce(()-> getHID().setRumble(LEFT_RUMBLE, value));
     Command leftTriggerRumble = Commands.runOnce(() -> getHID().setRumble(LEFT_TRIGGER_RUMBLE, value));
