@@ -1,6 +1,7 @@
 # Gradle
 .gradle/
 build/
+bin/
 
 # WPILib / IDE
 .vscode/
@@ -15,3 +16,8 @@ harness-evidence/
 test-evidence/
 **/__pycache__/
 *.pyc
+
+/operatorboard-data
+/logs
+/ctre_sim
+libs/
