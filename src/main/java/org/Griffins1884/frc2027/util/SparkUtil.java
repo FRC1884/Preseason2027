@@ -52,12 +52,17 @@ public class SparkUtil {
   }
 
   public static double[] getSimulationOdometryTimeStamps() {
-    final double[] odometryTimeStamps = new double[SimulatedArena.getSimulationSubTicksIn1Period()];
-    for (int i = 0; i < odometryTimeStamps.length; i++) {
-      odometryTimeStamps[i] =
-          Timer.getTimestamp() - 0.02 + i * SimulatedArena.getSimulationDt().in(Seconds);
-    }
+    return getSimulationOdometryTimeStamps(Timer.getTimestamp());
+  }
 
-    return odometryTimeStamps;
+  public static double[] getSimulationOdometryTimeStamps(double acquisitionTimestampSeconds) {
+    double simulationDt = SimulatedArena.getSimulationDt().in(Seconds);
+    double[] timestamps =
+            new double[SimulatedArena.getSimulationSubTicksIn1Period()];
+
+    for (int i = 0; i < timestamps.length; i++) {
+      timestamps[i] = acquisitionTimestampSeconds - 0.02 + i * simulationDt;
+    }
+    return timestamps;
   }
 }

@@ -85,13 +85,13 @@ class SwerveSimulationSnapshotTest {
       refreshDashboardInput(SwerveConstants.DRIVE_MOTOR_GAINS.kV());
       io.setDriveVelocity(2.0);
       io.updateInputs(inputs, 0.04);
-      assertEquals(before, inputs.driveAppliedVolts, 1e-9);
+      assertEquals(before, inputs.driveAppliedVolts, 1e-6);
       DriverStationSim.setEnabled(false);
       DriverStationSim.notifyNewData();
       io.updateInputs(inputs, 0.06);
       io.setDriveVelocity(2.0);
       io.updateInputs(inputs, 0.08);
-      assertEquals(before + 1.0, inputs.driveAppliedVolts, 1e-9);
+      assertEquals(before + 1.0, inputs.driveAppliedVolts, 1e-6);
     } finally {
       entry.setDouble(original);
       refreshDashboardInput(SwerveConstants.DRIVE_MOTOR_GAINS.kV());

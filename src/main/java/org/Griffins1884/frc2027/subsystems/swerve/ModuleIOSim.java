@@ -3,6 +3,7 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 import static org.wpilib.units.Units.*;
 import static org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.*;
 
+import org.wpilib.driverstation.internal.DriverStationBackend;
 import org.wpilib.math.controller.PIDController;
 import org.wpilib.math.geometry.Rotation2d;
 import java.util.Arrays;
@@ -13,6 +14,7 @@ import org.Griffins1884.frc2027.sim3d.TerrainAwareSwerveSimulation;
 import org.Griffins1884.frc2027.sim3d.TerrainDriveLaws;
 import org.Griffins1884.frc2027.simV2.simulation.drivesims.SwerveModuleSimulation;
 import org.Griffins1884.frc2027.simV2.simulation.motorsims.SimulatedMotorController;
+import org.wpilib.system.Timer;
 
 /** Physics sim implementation of module IO. */
 public class ModuleIOSim implements ModuleIO {
@@ -32,6 +34,9 @@ public class ModuleIOSim implements ModuleIO {
   private double driveFFVolts = 0.0;
   private double driveAppliedVolts = 0.0;
   private double turnAppliedVolts = 0.0;
+
+  private double appliedDriveKs = DRIVE_MOTOR_GAINS.kS().get();
+  private double appliedDriveKv = DRIVE_MOTOR_GAINS.kV().get();
 
   public ModuleIOSim(SwerveModuleSimulation moduleSimulation) {
     this(null, null, moduleSimulation);
@@ -59,6 +64,15 @@ public class ModuleIOSim implements ModuleIO {
 
   @Override
   public void updateInputs(ModuleIOInputs inputs) {
+    updateInputs(inputs, Timer.getTimestamp());
+  }
+
+  @Override
+  public void updateInputs(ModuleIOInputs inputs, double acquisitionTimestampSeconds) {
+    if (DriverStationBackend.isDisabled()) {
+      appliedDriveKs = DRIVE_MOTOR_GAINS.kS().get();
+      appliedDriveKv = DRIVE_MOTOR_GAINS.kV().get();
+    }
     LoggedTunableNumber.ifChanged(
         tuningId,
         values -> driveController.setPID(values[0], values[1], values[2]),
@@ -109,7 +123,8 @@ public class ModuleIOSim implements ModuleIO {
     inputs.turnCurrentAmps = Math.abs(moduleSimulation.getSteerMotorStatorCurrent().in(Amps));
 
     // Update odometry inputs
-    inputs.odometryTimestamps = SparkUtil.getSimulationOdometryTimeStamps();
+    inputs.odometryTimestamps =
+            SparkUtil.getSimulationOdometryTimeStamps(acquisitionTimestampSeconds);
     inputs.odometryDrivePositionsRad =
         Arrays.stream(moduleSimulation.getCachedDriveWheelFinalPositions())
             .mapToDouble(angle -> angle.in(Radians))
@@ -133,8 +148,8 @@ public class ModuleIOSim implements ModuleIO {
   public void setDriveVelocity(double velocityRadPerSec) {
     driveClosedLoop = true;
     driveFFVolts =
-        DRIVE_MOTOR_GAINS.kS().get() * Math.signum(velocityRadPerSec)
-            + DRIVE_MOTOR_GAINS.kV().get() * velocityRadPerSec;
+            appliedDriveKs * Math.signum(velocityRadPerSec)
+                    + appliedDriveKv * velocityRadPerSec;
     driveController.setSetpoint(velocityRadPerSec);
   }
 
