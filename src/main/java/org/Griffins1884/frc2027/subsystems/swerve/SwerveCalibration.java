@@ -7,18 +7,26 @@ public final class SwerveCalibration {
   private static final String MODULE_ZERO_TRIM_PREFIX =
       "Swerve/Calibration/ModuleZeroTrimRotations/";
 
+  private static long wheelRadiusRevision;
+
   private SwerveCalibration() {}
 
   public static double getWheelRadiusMeters(double fallbackMeters) {
     return Preferences.getDouble(WHEEL_RADIUS_KEY, fallbackMeters);
   }
 
-  public static void setWheelRadiusMeters(double wheelRadiusMeters) {
-    Preferences.setDouble(WHEEL_RADIUS_KEY, wheelRadiusMeters);
+  public static synchronized long getWheelRadiusRevision() {
+    return wheelRadiusRevision;
   }
 
-  public static void clearWheelRadiusMeters() {
+  public static synchronized void setWheelRadiusMeters(double meters) {
+    Preferences.setDouble(WHEEL_RADIUS_KEY, meters);
+    wheelRadiusRevision++;
+  }
+
+  public static synchronized void clearWheelRadiusMeters() {
     Preferences.remove(WHEEL_RADIUS_KEY);
+    wheelRadiusRevision++;
   }
 
   public static double getModuleZeroTrimRotations(String moduleKey) {

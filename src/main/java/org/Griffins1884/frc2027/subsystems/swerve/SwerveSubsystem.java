@@ -145,11 +145,15 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
   private boolean hasLoggedCalibration;
   private double lastLoggedWheelRadiusMeters;
+  private double wheelRadiusMeters;
   private final double[] lastLoggedAbsoluteAnglesDeg = new double[4];
   private final double[] lastLoggedZeroTrimRotations = new double[4];
 
   private int derivedTelemetryCycles;
   private boolean lastTelemetryDebugEnabled;
+
+  private long odometryGeneration;
+  private long wheelRadiusRevision;
 
   public SwerveSubsystem(
       GyroIO gyroIO,
@@ -171,10 +175,10 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
     this.controlClock = controlClock;
     this.radiusSupplier = radiusSupplier;
     this.gyroIO = gyroIO;
-    modules[0] = new Module(flModuleIO,radiusSupplier, 0);
-    modules[1] = new Module(frModuleIO,radiusSupplier, 1);
-    modules[2] = new Module(blModuleIO,radiusSupplier, 2);
-    modules[3] = new Module(brModuleIO,radiusSupplier, 3);
+    modules[0] = new Module(flModuleIO, () -> wheelRadiusMeters, 0);
+    modules[1] = new Module(frModuleIO, () -> wheelRadiusMeters, 1);
+    modules[2] = new Module(blModuleIO, () -> wheelRadiusMeters, 2);
+    modules[3] = new Module(brModuleIO, () -> wheelRadiusMeters, 3);
 
     
     if (GlobalConstants.MODE != SIM) {
@@ -282,9 +286,13 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
   @Override
   public void periodic() {
-    odometryLock.lock(); // Prevents odometry updates while reading data
+    long snapshotGeneration;
+    odometryLock.lock();
     try {
+      snapshotGeneration = odometryGeneration;
       double timestamp = controlClock.getAsDouble();
+      wheelRadiusMeters = radiusSupplier.getAsDouble();
+      wheelRadiusRevision = SwerveCalibration.getWheelRadiusRevision();
       gyroIO.updateInputs(gyroInputs, timestamp);
       Logger.processInputs("Swerve/Gyro", gyroInputs);
       for (var module : modules) {
@@ -293,6 +301,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
         module.updateConfiguration(RobotState.isDisabled());
       }
       measuredChassisSpeeds = kinematics.toChassisVelocities(getModuleStates());
+      measuredKinematicsCount++;
       if (GlobalConstants.isDebugMode()) {
         Logger.recordOutput("Swerve/SysId/DriveLastCompleted", driveSysIdLastCompleted);
         Logger.recordOutput("Swerve/SysId/DriveLastCompletedPhase", driveSysIdLastCompletedPhase);
@@ -322,39 +331,100 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
       Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleVelocity[] {});
     }
 
-    // Update odometry
-    double[] sampleTimestamps =
-        modules[0].getOdometryTimestamps(); // All signals are sampled together
-    int sampleCount = sampleTimestamps.length;
-    int gyroSampleCount = gyroInputs.odometryYawPositions.length;
-    for (int i = 0; i < sampleCount; i++) {
-      // Read wheel positions and deltas from each module
-      SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
-      SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[4];
-      for (int moduleIndex = 0; moduleIndex < 4; moduleIndex++) {
-        modulePositions[moduleIndex] = modules[moduleIndex].getOdometryPositions()[i];
-        moduleDeltas[moduleIndex] =
-            new SwerveModulePosition(
-                modulePositions[moduleIndex].distance
-                    - lastModulePositions[moduleIndex].distance,
-                modulePositions[moduleIndex].angle);
-        lastModulePositions[moduleIndex] = modulePositions[moduleIndex];
+    if (snapshotGeneration != odometryGeneration) {
+      discardedSnapshotCount++;
+    }else{
+      // Update odometry
+      double[] sampleTimestamps =
+          modules[0].getOdometryTimestamps(); // All signals are sampled together
+      int sampleCount = sampleTimestamps.length;
+      int gyroSampleCount = gyroInputs.odometryYawPositions.length;
+
+      boolean validSnapshot = true;
+
+      if (sampleCount > 0) {
+        for (Module module : modules) {
+          double[] timestamps = module.getOdometryTimestamps();
+          SwerveModulePosition[] positions = module.getOdometryPositions();
+
+          if (timestamps == null
+                  || positions == null
+                  || timestamps.length != sampleCount
+                  || positions.length != sampleCount) {
+            validSnapshot = false;
+            break;
+          }
+
+          for (int i = 0; i < sampleCount; i++) {
+            if (!Double.isFinite(timestamps[i])
+                    || Math.abs(timestamps[i] - sampleTimestamps[i]) > 1e-9
+                    || positions[i] == null) {
+              validSnapshot = false;
+              break;
+            }
+          }
+
+          if (!validSnapshot) {
+            break;
+          }
+        }
+
+        double[] gyroTimestamps = gyroInputs.odometryYawTimestamps;
+        Rotation2d[] gyroPositions = gyroInputs.odometryYawPositions;
+
+        // Empty gyro batches retain the previous heading.
+        if (gyroInputs.connected && gyroTimestamps.length > 0) {
+          if (gyroTimestamps.length != sampleCount || gyroPositions.length != sampleCount) {
+            validSnapshot = false;
+          } else {
+            for (int i = 0; i < sampleCount; i++) {
+              if (!Double.isFinite(gyroTimestamps[i])
+                      || Math.abs(gyroTimestamps[i] - sampleTimestamps[i]) > 1e-9
+                      || gyroPositions[i] == null) {
+                validSnapshot = false;
+                break;
+              }
+            }
+          }
+        }
+
+
+        if (!validSnapshot) {
+          invalidSnapshotCount++;
+        }
       }
 
-      // Update gyro angle
-      if (gyroInputs.connected) {
-        // Use the real gyro angle
-        rawestGyroRotation = gyroInputs.yawPosition;
-        rawGyroRotation =
-            i < gyroSampleCount ? gyroInputs.odometryYawPositions[i] : rawGyroRotation;
-      } else {
-        // Use the angle delta from the kinematics and module deltas
-        Twist2d twist = kinematics.toTwist2d(moduleDeltas);
-        rawGyroRotation = rawGyroRotation.plus(new Rotation2d(twist.dtheta));
-      }
+      if (validSnapshot) {
+        for (int i = 0; i < sampleCount; i++) {
+          // Read wheel positions and deltas from each module
+          SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
+          SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[4];
+          for (int moduleIndex = 0; moduleIndex < 4; moduleIndex++) {
+            modulePositions[moduleIndex] = modules[moduleIndex].getOdometryPositions()[i];
+            moduleDeltas[moduleIndex] =
+                    new SwerveModulePosition(
+                            modulePositions[moduleIndex].distance
+                                    - lastModulePositions[moduleIndex].distance,
+                            modulePositions[moduleIndex].angle);
+            lastModulePositions[moduleIndex] = modulePositions[moduleIndex];
+          }
 
-      // Apply update
-      poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
+          // Update gyro angle
+          if (gyroInputs.connected) {
+            // Use the real gyro angle
+            rawestGyroRotation = gyroInputs.yawPosition;
+            rawGyroRotation =
+                    i < gyroSampleCount ? gyroInputs.odometryYawPositions[i] : rawGyroRotation;
+          } else {
+            // Use the angle delta from the kinematics and module deltas
+            Twist2d twist = kinematics.toTwist2d(moduleDeltas);
+            rawGyroRotation = rawGyroRotation.plus(new Rotation2d(twist.dtheta));
+          }
+
+          // Apply update
+          poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
+        }
+      }
     }
 
     Pose2d estimatedPose = poseEstimator.getEstimatedPosition();
@@ -422,7 +492,6 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
     Logger.recordOutput("Swerve/FieldMotionSampleDtSec", fieldMotionSampleDtSec);
     Logger.recordOutput("Swerve/FieldMotionSampleAgeSec", getFieldMotionSampleAgeSec());
 
-    double wheelRadiusMeters = radiusSupplier.getAsDouble();
     if (!hasLoggedCalibration
             || Double.compare(wheelRadiusMeters, lastLoggedWheelRadiusMeters) != 0) {
       Logger.recordOutput("Swerve/Calibration/WheelRadiusMeters", wheelRadiusMeters);
@@ -788,6 +857,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
    * return to their normal orientations the next time a nonzero velocity is requested.
    */
   public void stopWithX() {
+    if (!ensureConfigurationReady()) return;
     Rotation2d[] headings = new Rotation2d[4];
     for (int i = 0; i < 4; i++) {
       headings[i] = SwerveConstants.MODULE_TRANSLATIONS[i].getAngle().get();
@@ -1030,10 +1100,15 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   /** Returns the measured chassis speeds of the robot. */
   @AutoLogOutput(key = "SwerveChassisVelocities/Measured")
   private ChassisVelocities getChassisVelocities() {
+    long currentRevision = SwerveCalibration.getWheelRadiusRevision();
+    if (currentRevision != wheelRadiusRevision) {
+      wheelRadiusMeters = radiusSupplier.getAsDouble();
+      measuredChassisSpeeds = kinematics.toChassisVelocities(getModuleStates());
+      wheelRadiusRevision = currentRevision;
+    }
+
     return new ChassisVelocities(
-            measuredChassisSpeeds.vx,
-            measuredChassisSpeeds.vy,
-            measuredChassisSpeeds.omega);
+            measuredChassisSpeeds.vx, measuredChassisSpeeds.vy, measuredChassisSpeeds.omega);
   }
 
   public Translation2d getFieldAcceleration() {
@@ -1155,11 +1230,25 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
    * @param resetGyro If true, reset the gyro yaw to pose rotation (field heading).
    */
   public void resetOdometry(Pose2d pose, boolean resetGyro) {
-    if (resetGyro) {
-      gyroIO.resetYaw(pose.getRotation().getDegrees());
-      rawGyroRotation = pose.getRotation();
+    odometryLock.lock();
+    try {
+      odometryGeneration++;
+      for (Module module : modules) {
+        module.getIo().clearOdometrySamples();
+      }
+
+      if (resetGyro) {
+        gyroIO.resetYaw(pose.getRotation().getDegrees());
+        rawGyroRotation = pose.getRotation();
+      }
+
+      SwerveModulePosition[] positions = getModulePositions();
+      poseEstimator.resetPosition(rawGyroRotation, positions, pose);
+      System.arraycopy(positions, 0, lastModulePositions, 0, positions.length);
+    } finally {
+      odometryLock.unlock();
     }
-    poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
+
     odometryResetListener.run();
   }
 
