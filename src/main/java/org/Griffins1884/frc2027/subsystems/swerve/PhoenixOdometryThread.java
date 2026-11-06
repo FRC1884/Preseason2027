@@ -156,21 +156,18 @@ public class PhoenixOdometryThread extends Thread {
     // https://docs.advantagekit.org/getting-started/template-projects/spark-swerve-template#real-time-thread-priority
     ThreadsJNI.setCurrentThreadPriority(1);
 
-    while (true) {
-      // Wait for updates from all signals
+    while (!Thread.currentThread().isInterrupted()) {
       signalsLock.lock();
       try {
         if (isCANFD && phoenixSignals.length > 0) {
           BaseStatusSignal.waitForAll(2.0 / GlobalConstants.ODOMETRY_FREQUENCY, phoenixSignals);
         } else {
-          // "waitForAll" does not support blocking on multiple signals with a bus
-          // that is not CAN FD, regardless of Pro licensing. No reasoning for this
-          // behavior is provided by the documentation.
           Thread.sleep((long) (1000.0 / GlobalConstants.ODOMETRY_FREQUENCY));
           if (phoenixSignals.length > 0) BaseStatusSignal.refreshAll(phoenixSignals);
         }
       } catch (InterruptedException e) {
-        e.printStackTrace();
+        Thread.currentThread().interrupt();
+        break;
       } finally {
         signalsLock.unlock();
       }
