@@ -86,9 +86,20 @@ public class LoggedTunableNumber implements DoubleSupplier {
   public double get() {
     if (!hasDefault) {
       return 0.0;
-    } else {
-      return isDashboardEnabled() ? dashboardNumber.get() : defaultValue;
     }
+    if (!isDashboardEnabled()) {
+      return defaultValue;
+    }
+
+    LoggedNetworkNumber input;
+    synchronized (this) {
+      if (dashboardNumber == null) {
+        dashboardNumber = new LoggedNetworkNumber(key, defaultValue);
+        dashboardNumber.periodic(); // Load any value already present in NetworkTables.
+      }
+      input = dashboardNumber;
+    }
+    return input.get();
   }
 
   private boolean isDashboardEnabled() {
@@ -125,8 +136,14 @@ public class LoggedTunableNumber implements DoubleSupplier {
    */
   public static void ifChanged(
       int id, Consumer<double[]> action, LoggedTunableNumber... tunableNumbers) {
-    if (Arrays.stream(tunableNumbers).anyMatch(tunableNumber -> tunableNumber.hasChanged(id))) {
-      action.accept(Arrays.stream(tunableNumbers).mapToDouble(LoggedTunableNumber::get).toArray());
+    boolean changed = false;
+    for (LoggedTunableNumber tunableNumber : tunableNumbers) {
+      changed |= tunableNumber.hasChanged(id);
+    }
+
+    if (changed) {
+      action.accept(
+              Arrays.stream(tunableNumbers).mapToDouble(LoggedTunableNumber::get).toArray());
     }
   }
 
