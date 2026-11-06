@@ -50,6 +50,7 @@ public class Module {
     krakenTurnkD.initDefault(KRAKEN_TURN_TORQUE_GAINS.kD().get());
   }
 
+  @Getter
   private final ModuleIO io;
   private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
   private final int index;

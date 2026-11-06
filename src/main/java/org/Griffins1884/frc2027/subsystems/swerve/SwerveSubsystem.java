@@ -278,6 +278,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
       Logger.processInputs("Swerve/Gyro", gyroInputs);
       for (var module : modules) {
         module.periodic();
+        module.updateConfiguration(RobotState.isDisabled());
       }
       if (GlobalConstants.isDebugMode()) {
         Logger.recordOutput("Swerve/SysId/DrivePhase", driveSysIdPhase);
@@ -587,12 +588,30 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
     Logger.recordOutput("Swerve/Observer/CandidateLoops", observerCandidateLoops);
   }
 
+  private void stopAll(){
+    for (Module module:modules){
+      module.stop();
+    }
+  }
+
+  private boolean ensureConfigurationReady() {
+    for (Module module : modules) {
+      if (!module.getIo().isConfigurationReady()) {
+        stopAll();
+        return false;
+      }
+    }
+    return true;
+  }
+
   /**
    * Runs the drive at the desired velocity.
    *
    * @param speeds Speeds in meters/sec
    */
   public void runVelocity(ChassisVelocities speeds) {
+    if (!ensureConfigurationReady()) return;
+
     krakenVelocityMode = true;
     requestedTranslationalMps = Math.hypot(speeds.vx, speeds.vy);
     requestedOmegaRadPerSec = speeds.omega;
@@ -616,6 +635,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
   /** Runs the drive in a straight line with the specified drive output. */
   public void runCharacterization(double output) {
+    if (!ensureConfigurationReady()) return;
     krakenVelocityMode = false;
     for (int i = 0; i < 4; i++) {
       modules[i].runCharacterization(output);
@@ -624,6 +644,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
   /** Runs the turn motors open-loop for SysId and tuning. */
   public void runTurnCharacterization(double output) {
+    if (!ensureConfigurationReady()) return;
     krakenVelocityMode = false;
     for (int i = 0; i < 4; i++) {
       modules[i].runTurnCharacterization(output);
