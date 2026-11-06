@@ -26,6 +26,9 @@ jobs:
         with:
           gradle-version: '9.1.0'
 
+      - name: Fetch Dependencies
+        run: ./gradlew downloadVendorJars
+
       - name: Build and test
         run: gradle build --no-daemon --console=plain
 
