@@ -59,6 +59,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   private static final double SYS_ID_IDLE_WAIT_SECONDS = 0.5;
 
   private long measuredKinematicsCount;
+  private ChassisVelocities measuredChassisSpeeds = new ChassisVelocities();
 
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
@@ -280,6 +281,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
         module.periodic();
         module.updateConfiguration(RobotState.isDisabled());
       }
+      measuredChassisSpeeds = kinematics.toChassisVelocities(getModuleStates());
       if (GlobalConstants.isDebugMode()) {
         Logger.recordOutput("Swerve/SysId/DrivePhase", driveSysIdPhase);
         Logger.recordOutput("Swerve/SysId/DriveActive", driveSysIdActive);
@@ -983,7 +985,10 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   /** Returns the measured chassis speeds of the robot. */
   @AutoLogOutput(key = "SwerveChassisVelocities/Measured")
   private ChassisVelocities getChassisVelocities() {
-    return kinematics.toChassisVelocities(getModuleStates());
+    return new ChassisVelocities(
+            measuredChassisSpeeds.vx,
+            measuredChassisSpeeds.vy,
+            measuredChassisSpeeds.omega);
   }
 
   public Translation2d getFieldAcceleration() {
