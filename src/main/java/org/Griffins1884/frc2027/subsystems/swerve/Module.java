@@ -1,8 +1,11 @@
 package org.Griffins1884.frc2027.subsystems.swerve;
 
+import static org.Griffins1884.frc2027.GlobalConstants.isDebugMode;
 import static org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.*;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import lombok.Setter;
+import org.Griffins1884.frc2027.GlobalConstants;
 import org.wpilib.math.util.MathUtil;
 import org.wpilib.driverstation.internal.DriverStationBackend;
 import org.wpilib.math.controller.SimpleMotorFeedforward;
@@ -13,6 +16,7 @@ import org.wpilib.math.system.DCMotor;
 import org.wpilib.util.Alert;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.DoubleSupplier;
 
 import lombok.Getter;
 
@@ -76,12 +80,24 @@ public class Module {
   private int invalidOdometryBatches;
   private ModuleConfigurationWorker.Status lastConfigurationStatus;
 
-  /** -- GETTER -- Returns the module positions received this cycle. */
+  private int callsToPeriodic = 0;
+  private boolean lastDebugMode;
+  private boolean characterizationActive;
+  @Setter
+  private boolean sysIdActive;
+
+  private boolean hasLoggedZeroTrim;
+  private double lastLoggedZeroTrimRotations;
+
+  private DoubleSupplier wheelRadius;
+
+    /** -- GETTER -- Returns the module positions received this cycle. */
   @Getter private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
 
-  public Module(ModuleIO io, int index) {
+  public Module(ModuleIO io, DoubleSupplier wheelRadius, int index) {
     this.io = io;
     this.index = index;
+    this.wheelRadius = wheelRadius;
     String configurationKey = "Swerve/Module" + index + "/Configuration";
 
     desiredConfiguration = readConfiguration();
@@ -117,7 +133,7 @@ public class Module {
     io.addOrchestraInstruments(instruments);
   }
 
-  public void periodic() {
+  public void periodic(double timestamp) {
     if (krakenDrivekS.hasChanged(hashCode()) || krakenDrivekV.hasChanged(hashCode())) {
       krakenFfModel = new SimpleMotorFeedforward(krakenDrivekS.get(), krakenDrivekV.get());
     }
@@ -128,7 +144,16 @@ public class Module {
       io.setTurnPID(krakenTurnkP.get(), 0.0, krakenTurnkD.get());
     }
 
-    io.updateInputs(inputs);
+    io.updateInputs(inputs, timestamp);
+
+    double zeroTrimRotations = inputs.turnZeroTrimRotations;
+    if (!hasLoggedZeroTrim
+            || Double.compare(zeroTrimRotations, lastLoggedZeroTrimRotations) != 0) {
+      Logger.recordOutput("Swerve/Module" + index + "/ZeroTrimRotations", zeroTrimRotations);
+      lastLoggedZeroTrimRotations = zeroTrimRotations;
+      hasLoggedZeroTrim = true;
+    }
+
     Logger.processInputs("Swerve/Module" + index, inputs);
 
     double actualSpeedMetersPerSec = getVelocityMetersPerSec();
@@ -148,20 +173,31 @@ public class Module {
     angleJumpDetected = suspiciousJump;
     lastTurnPosition = getAngle();
 
-    Logger.recordOutput("Swerve/Module" + index + "/DesiredSpeedMps", desiredSpeedMetersPerSec);
-    Logger.recordOutput("Swerve/Module" + index + "/ActualSpeedMps", actualSpeedMetersPerSec);
-    Logger.recordOutput("Swerve/Module" + index + "/SpeedErrorMps", speedErrorMetersPerSec);
-    Logger.recordOutput("Swerve/Module" + index + "/SpeedRatio", speedRatio);
-    Logger.recordOutput("Swerve/Module" + index + "/DesiredAngleRad", desiredAngle.getRadians());
-    Logger.recordOutput("Swerve/Module" + index + "/ActualAngleRad", getAngle().getRadians());
-    Logger.recordOutput(
-        "Swerve/Module" + index + "/AbsoluteAngleRad", inputs.turnAbsolutePosition.getRadians());
-    Logger.recordOutput(
-        "Swerve/Module" + index + "/ZeroTrimRotations", inputs.turnZeroTrimRotations);
-    Logger.recordOutput("Swerve/Module" + index + "/AngleErrorRad", angleErrorRad);
-    Logger.recordOutput("Swerve/Module" + index + "/LastAngleDeltaRad", lastAngleDeltaRad);
+    boolean debug = RuntimeModeManager.isDebugEnabled();
+    if (debug != lastDebugMode) {
+      callsToPeriodic = 0;
+      lastDebugMode = debug;
+    }
+
+    if (callsToPeriodic % 5 == 0 || debug || characterizationActive || sysIdActive) {
+      Logger.recordOutput("Swerve/Module" + index + "/DesiredSpeedMps", desiredSpeedMetersPerSec);
+      Logger.recordOutput("Swerve/Module" + index + "/ActualSpeedMps", actualSpeedMetersPerSec);
+      Logger.recordOutput("Swerve/Module" + index + "/SpeedErrorMps", speedErrorMetersPerSec);
+      Logger.recordOutput("Swerve/Module" + index + "/SpeedRatio", speedRatio);
+      Logger.recordOutput("Swerve/Module" + index + "/DesiredAngleRad", desiredAngle.getRadians());
+      Logger.recordOutput("Swerve/Module" + index + "/ActualAngleRad", getAngle().getRadians());
+      Logger.recordOutput(
+              "Swerve/Module" + index + "/AbsoluteAngleRad", inputs.turnAbsolutePosition.getRadians());
+      Logger.recordOutput(
+              "Swerve/Module" + index + "/ZeroTrimRotations", inputs.turnZeroTrimRotations);
+      Logger.recordOutput("Swerve/Module" + index + "/AngleErrorRad", angleErrorRad);
+      Logger.recordOutput("Swerve/Module" + index + "/LastAngleDeltaRad", lastAngleDeltaRad);
+
+    }
     Logger.recordOutput("Swerve/Module" + index + "/AngleJumpDetected", angleJumpDetected);
     Logger.recordOutput("Swerve/Module" + index + "/AngleJumpCount", angleJumpCount);
+
+    callsToPeriodic++;
 
     // Calculate positions for odometry
     int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
@@ -196,6 +232,7 @@ public class Module {
 
   /** Runs the module with the specified output while controlling to zeroRotation degrees. */
   public void runCharacterization(double output) {
+    characterizationActive = true;
     desiredSpeedMetersPerSec = 0.0;
     desiredAngle = new Rotation2d();
     io.setDriveOpenLoop(output);
@@ -204,6 +241,7 @@ public class Module {
 
   /** Runs a steer-only SysId sweep while keeping the drive stage disabled. */
   public void runTurnCharacterization(double output) {
+    characterizationActive = true;
     desiredSpeedMetersPerSec = 0.0;
     desiredAngle = new Rotation2d();
     io.setDriveOpenLoop(0.0);
@@ -212,6 +250,7 @@ public class Module {
 
   /** Disables all outputs to motors. */
   public void stop() {
+    characterizationActive = false;
     desiredSpeedMetersPerSec = 0.0;
     desiredAngle = getAngle();
     io.setDriveOpenLoop(0.0);
@@ -360,7 +399,7 @@ public class Module {
   }
 
   private double getWheelRadiusMeters() {
-    return SwerveConstants.getWheelRadiusMeters();
+    return wheelRadius.getAsDouble();
   }
 
   private double getCompensatedDrivePositionRad(double rawDrivePositionRad) {

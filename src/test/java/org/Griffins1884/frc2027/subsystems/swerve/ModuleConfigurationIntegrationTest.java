@@ -184,7 +184,7 @@ class ModuleConfigurationIntegrationTest {
     }
     try (var worker = new ModuleConfigurationWorker(DriverStationBackend::isDisabled)) {
       FakeIO io = new FakeIO(worker, (gains, brake) -> "");
-      Module module = new Module(io, 0);
+      Module module = new Module(io, SwerveConstants::getWheelRadiusMeters, 0);
       try {
         for (int i = 0; i < inputs.size(); i++) {
           inputs.get(i).set(values.get(i) + i + 1);
