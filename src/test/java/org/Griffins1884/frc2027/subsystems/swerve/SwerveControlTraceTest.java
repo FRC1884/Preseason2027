@@ -29,6 +29,7 @@ class SwerveControlTraceTest {
 
   @Test
   void commandOutputsAndMeasurementsMatchTheIntegrationBase() throws Exception {
+    SwerveCalibration.clearWheelRadiusMeters();
     TraceModule[] io = {new TraceModule(), new TraceModule(), new TraceModule(), new TraceModule()};
     SwerveSubsystem drive = new SwerveSubsystem(new GyroIO() {}, io[0], io[1], io[2], io[3]);
     List<String> trace = new ArrayList<>();
@@ -107,6 +108,7 @@ class SwerveControlTraceTest {
       DriverStationSim.setEnabled(false);
       DriverStationSim.notifyNewData();
       CommandScheduler.getInstance().unregisterSubsystem(drive);
+      SwerveCalibration.clearWheelRadiusMeters();
     }
   }
 

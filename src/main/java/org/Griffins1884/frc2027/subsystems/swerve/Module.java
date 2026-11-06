@@ -181,8 +181,9 @@ public class Module {
 
   /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */
   public void runSetpoint(SwerveModuleVelocity state) {
-    desiredSpeedMetersPerSec = state.velocity;
-    desiredAngle = state.angle;
+    SwerveModuleVelocity adjusted = state.optimize(getAngle()).cosineScale(getAngle());
+    state.velocity = adjusted.velocity;
+    state.angle = adjusted.angle;
     // Mechanical Advantage-style control for full Kraken modules
     double speedRadPerSec = state.velocity / getWheelRadiusMeters();
     io.setDriveVelocity(speedRadPerSec, krakenFfModel.calculate(speedRadPerSec));
