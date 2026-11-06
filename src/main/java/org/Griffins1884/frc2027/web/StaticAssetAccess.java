@@ -100,7 +100,6 @@ final class StaticAssetAccess {
   private static SecureDirectoryStream<Path> openSecureRoot(Path path) throws IOException {
     DirectoryStream<Path> opened = Files.newDirectoryStream(path);
     if (opened instanceof SecureDirectoryStream<Path> secure) {
-      opened.close();
       return secure;
     }
     opened.close();
@@ -235,12 +234,16 @@ final class StaticAssetAccess {
             directory == null
                 ? readPortableAttributes(root, relativePath)
                 : readAttributes(directory, relativePath.getFileName());
+        Object savedKey = attributes.fileKey();
+        Object currentKey = current.fileKey();
+        boolean sameFile =
+                savedKey == null ? currentKey == null : savedKey.equals(currentKey);
+
         return current.isRegularFile()
-            && attributes.fileKey() != null
-            && Objects.equals(attributes.fileKey(), current.fileKey())
-            && attributes.size() == current.size()
-            && attributes.lastModifiedTime().equals(current.lastModifiedTime())
-            && attributes.creationTime().equals(current.creationTime());
+                && sameFile
+                && attributes.size() == current.size()
+                && attributes.lastModifiedTime().equals(current.lastModifiedTime())
+                && attributes.creationTime().equals(current.creationTime());
       } catch (NoSuchFileException ex) {
         return false;
       }

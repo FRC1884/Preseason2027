@@ -80,8 +80,11 @@ public final class OperatorBoardServer implements AutoCloseable {
   private final AtomicInteger activeTransfers = new AtomicInteger();
   private final AtomicInteger transferHighWater = new AtomicInteger();
 
-  private OperatorBoardServer(Path contentRoot, String bindAddress, int port) throws IOException {
+  private final TransferStartHook transferStartHook;
+
+  private OperatorBoardServer(Path contentRoot, String bindAddress, int port, TransferStartHook transferStartHook) throws IOException {
     assets = new StaticAssetAccess(contentRoot);
+    this.transferStartHook = transferStartHook;
     server = HttpServer.create(new InetSocketAddress(bindAddress, port), LISTEN_BACKLOG);
     int serverId = SERVER_IDS.incrementAndGet();
     AtomicInteger workerIds = new AtomicInteger();
@@ -137,10 +140,21 @@ public final class OperatorBoardServer implements AutoCloseable {
     }
   }
 
+  @FunctionalInterface
+  interface TransferStartHook {
+    void afterStart() throws IOException;
+  }
+
   /** A port of zero selects an ephemeral port; tests and benchmarks bind only to loopback. */
   public static OperatorBoardServer start(Path contentRoot, String bindAddress, int port)
-      throws IOException {
-    OperatorBoardServer result = new OperatorBoardServer(contentRoot, bindAddress, port);
+          throws IOException {
+    return start(contentRoot, bindAddress, port, () -> {});
+  }
+
+  static OperatorBoardServer start(
+          Path contentRoot, String bindAddress, int port, TransferStartHook hook) throws IOException {
+    OperatorBoardServer result =
+            new OperatorBoardServer(contentRoot, bindAddress, port, hook);
     try {
       result.server.start();
       return result;
@@ -256,6 +270,7 @@ public final class OperatorBoardServer implements AutoCloseable {
       int active = activeTransfers.incrementAndGet();
       transferHighWater.accumulateAndGet(active, Math::max);
       try (input) {
+        transferStartHook.afterStart();
         long size = asset.attributes().size();
         exchange.getResponseHeaders().set("Content-Type", contentType(asset.relativePath()));
         exchange.getResponseHeaders().set("Cache-Control", revalidate ? "no-cache" : "no-store");
