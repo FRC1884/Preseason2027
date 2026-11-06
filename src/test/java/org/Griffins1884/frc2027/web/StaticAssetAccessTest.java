@@ -83,8 +83,12 @@ class StaticAssetAccessTest {
     try (var asset = access.inspect("/")) {
       var time = Files.getLastModifiedTime(file);
       Path replacement = Files.writeString(root.resolve("replacement"), "new");
-      Files.setLastModifiedTime(replacement, time);
       Files.move(replacement, file, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+      Files.setLastModifiedTime(
+              file,
+              java.nio.file.attribute.FileTime.from(
+                      time.toInstant().plus(java.time.Duration.ofSeconds(2))));
+      assertFalse(asset.unchanged());
       assertFalse(asset.unchanged());
       assertThrows(IOException.class, asset::openBody);
     }
