@@ -1,5 +1,7 @@
 package org.Griffins1884.frc2027.subsystems.vision;
 
+import org.wpilib.system.Timer;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.wpilib.math.geometry.Pose2d;
@@ -12,14 +14,19 @@ class VisionMeasurementTest {
   void acceptsGenericAprilTagPoseAndHonorsExclusiveTagFilter() {
     AtomicInteger acceptedCount = new AtomicInteger();
     FakeVisionIO io = new FakeVisionIO();
-    Vision vision = new Vision((pose, timestamp, stdDevs) -> acceptedCount.incrementAndGet(), io);
+    Vision vision = new Vision(
+            (pose, timestamp, stdDevs) -> acceptedCount.incrementAndGet(),
+            Pose2d::new,
+            () -> 0.0,
+            () -> 0.0,
+            io);
 
-    io.setEstimate(1.0, 7);
+    io.setEstimate(Timer.getTimestamp(), 7);
     vision.periodic();
     assertEquals(1, acceptedCount.get());
 
     vision.setExclusiveTagId(12);
-    io.setEstimate(2.0, 7);
+    io.setEstimate(Timer.getTimestamp(), 7);
     vision.periodic();
     assertEquals(1, acceptedCount.get());
   }
