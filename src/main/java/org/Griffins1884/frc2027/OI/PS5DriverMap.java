@@ -1,14 +1,19 @@
 package org.Griffins1884.frc2027.OI;
 
-import static org.wpilib.driverstation.GenericHID.RumbleType.kBothRumble;
+import static org.wpilib.driverstation.GenericHID.RumbleType.*;
 import static org.wpilib.command2.Commands.startEnd;
+import static org.wpilib.command2.Commands.startRun;
+import org.wpilib.command2.Commands;
 
 import org.wpilib.command2.Command;
-import org.wpilib.command2.button.CommandPS5Controller;
+import org.wpilib.command2.ParallelCommandGroup;
+import org.wpilib.command2.button.CommandNiDsPS5Controller;
+import org.wpilib.command2.button.InternalButton;
+import org.wpilib.command2.button.JoystickButton;
 import org.wpilib.command2.button.Trigger;
 import java.util.function.DoubleSupplier;
 
-public class PS5DriverMap extends CommandPS5Controller implements DriverMap {
+public class PS5DriverMap extends CommandNiDsPS5Controller implements DriverMap {
   /**
    * Construct an instance of a controller.
    *
@@ -58,25 +63,24 @@ public class PS5DriverMap extends CommandPS5Controller implements DriverMap {
     return triangle();
   }
 
+  //Placeholder
   public Trigger shooterPivotUp() {
-    return button(50);
+    return new InternalButton();
   }
 
+  //Placeholder
   public Trigger shooterPivotDown() {
-    return button(51);
+    return new InternalButton();
   }
 
+  //Placeholder
   public Trigger turretLeft() {
-    return button(52);
+    return new InternalButton();
   }
 
+  //Placeholder
   public Trigger turretRight() {
-    return button(53);
+    return new InternalButton();
   }
 
-  @Override
-  public Command rumble() {
-    return startEnd(
-        () -> getHID().setRumble(kBothRumble, 1), () -> getHID().setRumble(kBothRumble, 0));
-  }
 }

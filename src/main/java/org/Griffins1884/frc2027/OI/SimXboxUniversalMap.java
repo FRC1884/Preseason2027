@@ -1,9 +1,11 @@
 package org.Griffins1884.frc2027.OI;
 
-import static org.wpilib.driverstation.GenericHID.RumbleType.kBothRumble;
+import static org.wpilib.driverstation.GenericHID.RumbleType.*;
 import static org.wpilib.command2.Commands.startEnd;
 
 import org.wpilib.command2.Command;
+import org.wpilib.command2.Commands;
+import org.wpilib.command2.ParallelCommandGroup;
 import org.wpilib.command2.button.CommandXboxController;
 import org.wpilib.command2.button.Trigger;
 import java.util.function.DoubleSupplier;
@@ -35,17 +37,17 @@ public class SimXboxUniversalMap extends CommandXboxController implements Driver
 
   @Override
   public Trigger resetOdometry() {
-    return back();
+    return menu();
   }
 
   @Override
   public Trigger alignWithBall() {
-    return new Trigger(() -> this.getLeftTriggerAxis() > 0.5);
+    return new Trigger(() -> this.getLeftTrigger() > 0.5);
   }
 
   @Override
   public Trigger shootToggle() {
-    return new Trigger(() -> this.getRightTriggerAxis() > 0.5);
+    return new Trigger(() -> this.getRightTrigger() > 0.5);
   }
 
   @Override
@@ -56,12 +58,6 @@ public class SimXboxUniversalMap extends CommandXboxController implements Driver
   @Override
   public Trigger intakeDeployToggle() {
     return leftBumper();
-  }
-
-  @Override
-  public Command rumble() {
-    return startEnd(
-        () -> getHID().setRumble(kBothRumble, 1), () -> getHID().setRumble(kBothRumble, 0));
   }
 
   public Trigger shooterPivotUp() {
