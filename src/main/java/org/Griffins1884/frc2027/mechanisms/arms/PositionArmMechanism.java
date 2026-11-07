@@ -79,7 +79,7 @@ public abstract class PositionArmMechanism<G extends PositionArmMechanism.PivotG
 
   @Getter private double goalPosition = 0.0;
 
-  private ControlMode controlMode = ControlMode.OPEN_LOOP;
+  private ControlMode controlMode = ControlMode.CLOSED_LOOP;
   private double openLoopPercent = 0.0;
   private boolean initialized = false;
   private double zeroOffset = 0.0;

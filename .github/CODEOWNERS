@@ -1,7 +1,7 @@
 # FRC 1884 Season 2027 ownership policy
 # Hosted enforcement must also be enabled in repository branch/ruleset settings.
 
-* @FRC1884/student-reviewers @FRC1884/mentors
+* @FRC1884/student-reviewers
 
 # Governance / Harness
 /.github/workflows/ @FRC1884/mentors @FRC1884/student-reviewers
@@ -13,8 +13,8 @@
 /settings.gradle @FRC1884/mentors @FRC1884/student-reviewers
 
 # Safety-critical shared configuration
-/src/main/java/ @FRC1884/student-reviewers @FRC1884/mentors
-/src/main/deploy/ @FRC1884/student-reviewers @FRC1884/mentors
+/src/main/java/ @FRC1884/student-reviewers
+/src/main/deploy/ @FRC1884/student-reviewers
 
 # Shared provider adapters and executable policy
 /CLAUDE.md @FRC1884/mentors
