@@ -1,10 +1,14 @@
 package org.Griffins1884.frc2027.subsystems.objectivetracker;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
 import org.wpilib.driverstation.Alliance;
 import org.wpilib.driverstation.MatchType;
 import org.wpilib.driverstation.DriverStationErrors;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -22,6 +26,7 @@ public final class OperatorBoardDiagnosticBundleWriter {
 
   private final OperatorBoardPersistence persistence;
   private String lastFingerprint = "";
+  private OperatorBoardDataModels.DiagnosticBundleManifest lastManifest;
 
   public OperatorBoardDiagnosticBundleWriter(OperatorBoardPersistence persistence) {
     this.persistence = persistence;
@@ -31,16 +36,22 @@ public final class OperatorBoardDiagnosticBundleWriter {
       OperatorBoardDiagnosticSnapshot snapshot) {
     String fingerprint = snapshot.fingerprint();
     if (fingerprint.equals(lastFingerprint)) {
-      return persistence.readLatestDiagnosticManifest().orElseGet(() -> write(snapshot));
+      if (lastManifest == null) {
+        lastManifest = persistence.readLatestDiagnosticManifest().orElseGet(() -> write(snapshot));
+      }
+      return lastManifest;
     }
+    OperatorBoardDataModels.DiagnosticBundleManifest manifest = write(snapshot);
+    lastManifest = manifest;
     lastFingerprint = fingerprint;
-    return write(snapshot);
+    return manifest;
   }
 
   public synchronized OperatorBoardDataModels.DiagnosticBundleManifest forceWrite(
       OperatorBoardDiagnosticSnapshot snapshot) {
     lastFingerprint = snapshot.fingerprint();
-    return write(snapshot);
+    lastManifest = write(snapshot);
+    return lastManifest;
   }
 
   private OperatorBoardDataModels.DiagnosticBundleManifest write(
@@ -191,7 +202,35 @@ public final class OperatorBoardDiagnosticBundleWriter {
     }
 
     private static String normalize(String value) {
-      return value == null ? "" : value;
+      if (value == null || value.isBlank()) {
+        return "";
+      }
+      try {
+        JsonNode node = OperatorBoardPersistence.JSON.readTree(value);
+        return OperatorBoardPersistence.JSON.writeValueAsString(withoutTimestamps(node));
+      } catch (IOException ex) {
+        return value;
+      }
+    }
+
+    private static JsonNode withoutTimestamps(JsonNode node) {
+      if (node.isObject()) {
+        ObjectNode normalized = OperatorBoardPersistence.JSON.createObjectNode();
+        node.fields()
+            .forEachRemaining(
+                field -> {
+                  if (!field.getKey().toLowerCase(java.util.Locale.ROOT).contains("timestamp")) {
+                    normalized.set(field.getKey(), withoutTimestamps(field.getValue()));
+                  }
+                });
+        return normalized;
+      }
+      if (node.isArray()) {
+        ArrayNode normalized = OperatorBoardPersistence.JSON.createArrayNode();
+        node.forEach(value -> normalized.add(withoutTimestamps(value)));
+        return normalized;
+      }
+      return node;
     }
   }
 }
