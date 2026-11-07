@@ -1479,13 +1479,10 @@ body.body--match-alert::before {
     grid-template-columns: 340px minmax(0, 1fr) 380px;
   }
 
-<<<<<<< HEAD
   .layout--joystick {
     grid-template-columns: 1fr;
   }
 
-=======
->>>>>>> 4498fa1 (Initial Commit (Completely Broken) Migration Using migration tool for systemcore (WPILIB 2027_alpha7))
   .layout--systems {
     grid-template-columns: 1fr;
   }
