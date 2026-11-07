@@ -87,7 +87,6 @@ public class Superstructure extends SubsystemBase {
   @Setter private boolean shooterPivotExternalControl = false;
   private DoubleSupplier manualTurretAxis = () -> 0.0;
   private DoubleSupplier manualPivotAxis = () -> 0.0;
-  private boolean wasManualControlActive = false;
 
   private Supplier<Optional<Pose2d>> autoStartPoseSupplier = Optional::empty;
 
@@ -327,11 +326,9 @@ public class Superstructure extends SubsystemBase {
 
     if (manualControlActive) {
       applyManualJog();
-    } else if (wasManualControlActive) {
+    } else {
       stopManualJog();
     }
-    wasManualControlActive = manualControlActive;
-
     Logger.recordOutput("Superstructure/State", currentState.toString());
     Logger.recordOutput("Superstructure/RequestedState", requestedState.toString());
     Logger.recordOutput("Superstructure/turretTarget", lastTurretTarget);
@@ -635,8 +632,7 @@ public class Superstructure extends SubsystemBase {
       turret.stopOpenLoop();
     }
     if (arms.shooterPivot != null) {
-      arms.shooterPivot.setGoalPosition(arms.shooterPivot.getPosition());
-      arms.shooterPivot.clearGoalOverride();
+      arms.shooterPivot.stopOpenLoop();
     }
   }
   private void requestStateInternal(SuperState state, boolean override) {
@@ -684,6 +680,7 @@ public class Superstructure extends SubsystemBase {
     }
     if (arms.shooterPivot != null) {
       if (!isShooterPivotExternallyControlled()) {
+        arms.shooterPivot.stopOpenLoop();
         arms.shooterPivot.clearGoalOverride();
       }
     }

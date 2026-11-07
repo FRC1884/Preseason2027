@@ -184,7 +184,12 @@ public class RobotContainer {
     }
 
     if (SHOOTER_PIVOT_ENABLED) {
-      shooterPivot = superstructure.getArms().shooterPivot;
+      shooterPivot =
+          switch (MODE) {
+            case REAL -> new ShooterPivotSubsystem("ShooterPivot", new ShooterPivotIOKraken());
+            case SIM -> new ShooterPivotSubsystem("ShooterPivot", new ShooterPivotIOSim());
+            default -> new ShooterPivotSubsystem("ShooterPivot", new ShooterPivotIO() {});
+          };
     } else {
       shooterPivot = null;
     }

@@ -20,7 +20,6 @@ import org.wpilib.system.RobotController;
 import org.wpilib.system.Timer;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.SubsystemBase;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -36,10 +35,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.Griffins1884.frc2027.Config;
 import org.Griffins1884.frc2027.mechanisms.MechanismHealth;
 import org.Griffins1884.frc2027.runtime.RuntimeModeManager;
@@ -73,17 +68,6 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
   private final DeployAutoLibrary deployAutoLibrary;
   private final OperatorBoardPersistence persistence;
   private final OperatorBoardDiagnosticBundleWriter diagnosticBundleWriter;
-  private final ExecutorService diagnosticWriterExecutor =
-      Executors.newSingleThreadExecutor(
-          task -> {
-            Thread thread = new Thread(task, "OperatorBoardDiagnosticWriter");
-            thread.setDaemon(true);
-            return thread;
-          });
-  private final AtomicReference<
-      OperatorBoardDiagnosticBundleWriter.OperatorBoardDiagnosticSnapshot>
-      pendingDiagnosticSnapshot = new AtomicReference<>();
-  private final AtomicBoolean diagnosticWriteScheduled = new AtomicBoolean();
 
   private String lastRequestedState = "";
   private boolean lastRequestAccepted = true;
@@ -92,7 +76,7 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
       RuntimeProfileCodec.toJson(RuntimeModeManager.getActiveProfile());
   private String lastRuntimeProfileStatus = "READY";
   private String lastSubsystemDescriptionsJson = "{}";
-  private volatile OperatorBoardDiagnosticBundleWriter.OperatorBoardDiagnosticSnapshot
+  private OperatorBoardDiagnosticBundleWriter.OperatorBoardDiagnosticSnapshot
       lastDiagnosticSnapshot;
   private double lastTelemetryPublishTimestampSec = Double.NEGATIVE_INFINITY;
   private ActionTraceState lastActionTraceState =
@@ -459,7 +443,7 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
     String autoQueueStateJson = autoQueue.getQueueStateJson();
     String selectedAutoStateJson = autoQueue.getSelectedAutoStateJson();
     double[] previewPoseArray =
-        queuePreviewPose.map(OperatorBoardTracker::toPoseArray).orElseGet(() -> new double[]{});
+        queuePreviewPose.map(OperatorBoardTracker::toPoseArray).orElseGet(() -> new double[] {});
     String runtimeProfileStateJson =
         RuntimeProfileCodec.toJson(RuntimeModeManager.getActiveProfile());
     String systemCheckStateJson = buildSystemCheckStateJson(queuePreviewPose);
@@ -526,7 +510,7 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
             runtimeProfileStateJson,
             selectedAutoStateJson,
             autoQueueStateJson);
-    queueDiagnosticBundleWrite(lastDiagnosticSnapshot);
+    diagnosticBundleWriter.maybeWrite(lastDiagnosticSnapshot);
 
     io.setHasBall(superstructure != null && superstructure.hasBall());
 
@@ -582,39 +566,6 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
     io.setLogCleanDeletedEntries(LogRollover.getLastCleanDeletedEntries());
   }
 
-  private void queueDiagnosticBundleWrite(
-      OperatorBoardDiagnosticBundleWriter.OperatorBoardDiagnosticSnapshot snapshot) {
-    pendingDiagnosticSnapshot.set(snapshot);
-    scheduleDiagnosticBundleWrite();
-  }
-
-  private void scheduleDiagnosticBundleWrite() {
-    if (!diagnosticWriteScheduled.compareAndSet(false, true)) {
-      return;
-    }
-    try {
-      diagnosticWriterExecutor.execute(this::writePendingDiagnosticBundles);
-    } catch (RejectedExecutionException ex) {
-      diagnosticWriteScheduled.set(false);
-      DriverStationErrors.reportError(
-          "Failed to schedule diagnostic bundle write: " + ex.getMessage(), ex.getStackTrace());
-    }
-  }
-
-  private void writePendingDiagnosticBundles() {
-    try {
-      OperatorBoardDiagnosticBundleWriter.OperatorBoardDiagnosticSnapshot snapshot;
-      while ((snapshot = pendingDiagnosticSnapshot.getAndSet(null)) != null) {
-        diagnosticBundleWriter.maybeWrite(snapshot);
-      }
-    } finally {
-      diagnosticWriteScheduled.set(false);
-      if (pendingDiagnosticSnapshot.get() != null) {
-        scheduleDiagnosticBundleWrite();
-      }
-    }
-  }
-
   private boolean shouldPublishTelemetry() {
     double now = Timer.getTimestamp();
     double publishPeriod =
@@ -636,7 +587,7 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
     String targetType = superstructure.isInAllianceZone() ? "HUB" : "FERRY";
 
     if (target == null || !isFinite(target.getX()) || !isFinite(target.getY())) {
-      return new TargetSnapshot(targetType, new double[]{}, false);
+      return new TargetSnapshot(targetType, new double[] {}, false);
     }
 
     Pose2d pose = new Pose2d(target, new Rotation2d());
@@ -645,29 +596,29 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
 
   private double[] computeRobotPose() {
     if (drive == null) {
-      return new double[]{};
+      return new double[] {};
     }
     Pose2d pose = drive.getPose();
     if (pose == null || !isFinitePose(pose)) {
-      return new double[]{};
+      return new double[] {};
     }
     return toPoseArray(pose);
   }
 
   private static double[] toPoseArray(Pose2d pose) {
-    return new double[]{pose.getX(), pose.getY(), pose.getRotation().getRadians()};
+    return new double[] {pose.getX(), pose.getY(), pose.getRotation().getRadians()};
   }
 
   private OperatorBoardDiagnosticBundleWriter.OperatorBoardDiagnosticSnapshot
-  buildDiagnosticSnapshot(
-      String systemCheckStateJson,
-      String autoCheckStateJson,
-      String ntDiagnosticsStateJson,
-      String mechanismStatusStateJson,
-      String actionTraceStateJson,
-      String runtimeProfileStateJson,
-      String selectedAutoStateJson,
-      String autoQueueStateJson) {
+      buildDiagnosticSnapshot(
+          String systemCheckStateJson,
+          String autoCheckStateJson,
+          String ntDiagnosticsStateJson,
+          String mechanismStatusStateJson,
+          String actionTraceStateJson,
+          String runtimeProfileStateJson,
+          String selectedAutoStateJson,
+          String autoQueueStateJson) {
     return new OperatorBoardDiagnosticBundleWriter.OperatorBoardDiagnosticSnapshot(
         extractJsonField(systemCheckStateJson, "status", "unknown"),
         extractJsonField(systemCheckStateJson, "summary", "UNKNOWN"),
@@ -796,9 +747,9 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
         checkItem(
             "CAN bus",
             canStatus.percentBusUtilization >= 0.90
-                || canStatus.txFullCount > 0
-                || canStatus.receiveErrorCount > 0
-                || canStatus.transmitErrorCount > 0
+                    || canStatus.txFullCount > 0
+                    || canStatus.receiveErrorCount > 0
+                    || canStatus.transmitErrorCount > 0
                 ? CheckStatus.FAIL
                 : canStatus.percentBusUtilization >= 0.70 ? CheckStatus.WARN : CheckStatus.PASS,
             String.format(
@@ -821,13 +772,13 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
             !Config.Subsystems.VISION_ENABLED
                 ? CheckStatus.FAIL
                 : vision != null && vision.anyCameraHasAcceptedPose()
-                ? CheckStatus.PASS
-                : CheckStatus.WARN,
+                    ? CheckStatus.PASS
+                    : CheckStatus.WARN,
             !Config.Subsystems.VISION_ENABLED
                 ? "Vision subsystem disabled."
                 : vision != null && vision.anyCameraHasAcceptedPose()
-                ? "At least one camera currently has an accepted pose."
-                : "No accepted vision pose is currently visible."));
+                    ? "At least one camera currently has an accepted pose."
+                    : "No accepted vision pose is currently visible."));
     items.add(
         checkItem(
             "Turret readiness",
@@ -837,22 +788,22 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
             turret == null
                 ? "Turret subsystem unavailable."
                 : turret.getControlMode().name()
-                + (turret.isAtGoal() ? " and at goal." : " still moving.")));
+                    + (turret.isAtGoal() ? " and at goal." : " still moving.")));
     items.add(
         checkItem(
             "Mechanism zeroing",
             superstructure != null
-                && (superstructure.isIntakeDeployRezeroInProgress()
-                || superstructure.isManualIntakeDeployZeroSeekInProgress())
+                    && (superstructure.isIntakeDeployRezeroInProgress()
+                        || superstructure.isManualIntakeDeployZeroSeekInProgress())
                 ? CheckStatus.WARN
                 : CheckStatus.PASS,
             superstructure == null
                 ? "Superstructure unavailable."
                 : superstructure.isIntakeDeployRezeroInProgress()
-                ? "Intake deploy rezero is running."
-                : superstructure.isManualIntakeDeployZeroSeekInProgress()
-                ? "Manual intake zero seek is running."
-                : "No intake zeroing process active."));
+                    ? "Intake deploy rezero is running."
+                    : superstructure.isManualIntakeDeployZeroSeekInProgress()
+                        ? "Manual intake zero seek is running."
+                        : "No intake zeroing process active."));
     items.add(
         checkItem(
             "Request channel",
@@ -860,8 +811,8 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
             lastRequestAccepted
                 ? "Last dashboard request was accepted."
                 : (lastRequestReason == null || lastRequestReason.isBlank())
-                ? "Last dashboard request was rejected."
-                : lastRequestReason));
+                    ? "Last dashboard request was rejected."
+                    : lastRequestReason));
     items.add(
         checkItem(
             "Shoot gate",
@@ -896,10 +847,10 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
             "ERROR".equals(queuePhase)
                 ? CheckStatus.FAIL
                 : "READY".equals(queuePhase)
-                || "RUNNING".equals(queuePhase)
-                || "COMPLETE".equals(queuePhase)
-                ? CheckStatus.PASS
-                : CheckStatus.WARN,
+                        || "RUNNING".equals(queuePhase)
+                        || "COMPLETE".equals(queuePhase)
+                    ? CheckStatus.PASS
+                    : CheckStatus.WARN,
             "Phase: " + (queuePhase == null || queuePhase.isBlank() ? "UNKNOWN" : queuePhase)));
     items.add(
         checkItem(
@@ -1162,8 +1113,8 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
         items.isEmpty()
             ? "No migrated mechanisms available."
             : offlineCount > 0
-            ? offlineCount + " offline"
-            : degradedCount > 0 ? degradedCount + " degraded" : items.size() + " nominal";
+                ? offlineCount + " offline"
+                : degradedCount > 0 ? degradedCount + " degraded" : items.size() + " nominal";
 
     return writeJson(new MechanismStatusReport(Timer.getTimestamp(), summary, items));
   }
@@ -1203,8 +1154,8 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
         status == CheckStatus.FAIL
             ? failCount + " fail, " + warnCount + " warn"
             : status == CheckStatus.WARN
-            ? warnCount + (warnCount == 1 ? " warning" : " warnings")
-            : "READY";
+                ? warnCount + (warnCount == 1 ? " warning" : " warnings")
+                : "READY";
     return new CheckReport(
         Timer.getTimestamp(),
         mode,
@@ -1360,7 +1311,6 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
 
   @Override
   public void close() {
-    diagnosticWriterExecutor.shutdown();
     if (webServer != null) {
       webServer.close();
     }
@@ -1368,7 +1318,7 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
 
   private record TargetSnapshot(String type, double[] pose, boolean valid) {
     private static TargetSnapshot unknown() {
-      return new TargetSnapshot("UNKNOWN", new double[]{}, false);
+      return new TargetSnapshot("UNKNOWN", new double[] {}, false);
     }
   }
 
