@@ -2,10 +2,10 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.wpi.first.hal.HAL;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.simulation.DriverStationSim;
+import org.wpilib.hal.HAL;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.networktables.NetworkTableInstance;
+import org.wpilib.wpilibj.simulation.DriverStationSim;
 import java.util.Set;
 import org.Griffins1884.frc2027.GlobalConstants;
 import org.Griffins1884.frc2027.runtime.RuntimeModeManager;
