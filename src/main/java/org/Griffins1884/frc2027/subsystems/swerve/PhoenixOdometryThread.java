@@ -39,6 +39,8 @@ public class PhoenixOdometryThread extends Thread {
 
   private static boolean isCANFD = detectCanFd();
 
+  private volatile boolean shutdownRequested;
+
   private static boolean detectCanFd() {
     try {
       return new CANBus("").isNetworkFD();
@@ -52,6 +54,7 @@ public class PhoenixOdometryThread extends Thread {
   }
   
   public void shutdown() {
+    shutdownRequested = true;
     interrupt();
     boolean interrupted = false;
     while (isAlive()) {
@@ -156,7 +159,7 @@ public class PhoenixOdometryThread extends Thread {
     // https://docs.advantagekit.org/getting-started/template-projects/spark-swerve-template#real-time-thread-priority
     ThreadsJNI.setCurrentThreadPriority(1);
 
-    while (!Thread.currentThread().isInterrupted()) {
+    while (!shutdownRequested && !Thread.currentThread().isInterrupted()) {
       signalsLock.lock();
       try {
         if (isCANFD && phoenixSignals.length > 0) {
