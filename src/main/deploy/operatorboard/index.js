@@ -1031,7 +1031,7 @@ function updateMusicVolumeUi(value) {
 }
 
 async function loadPersistedOperatorBoardData(showToastOnSuccess = false) {
-  const [joystickMappings, subsystemDescriptions, storageInventory, latestDiagnosticBundle] =
+  let [joystickMappings, subsystemDescriptions, storageInventory, latestDiagnosticBundle] =
     await Promise.all([
       fetchJsonDocument("./api/joystick-mappings"),
       fetchJsonDocument("./api/subsystem-descriptions"),
@@ -1048,6 +1048,11 @@ async function loadPersistedOperatorBoardData(showToastOnSuccess = false) {
       ? existingProfile.id
       : joystickMappings.activeProfileId || availableProfiles[0]?.id || "";
   }
+  [subsystemDescriptions, storageInventory, latestDiagnosticBundle] = await Promise.all([
+    fetchJsonDocument("./api/subsystem-descriptions"),
+    fetchJsonDocument("./api/storage/inventory"),
+    fetchJsonDocument("./api/diagnostics/latest"),
+  ]);
   if (subsystemDescriptions) {
     state.subsystemDescriptions = subsystemDescriptions;
   }
@@ -1319,7 +1324,6 @@ function exportJoystickMappings() {
   link.click();
   URL.revokeObjectURL(url);
 }
-
 function renderSystemsCatalog() {
   if (!ui.systemsCatalog) {
     return;
@@ -2500,11 +2504,14 @@ function renderQueueStatus() {
   setText(ui.queuePhase, queueState.phase);
   setText(ui.queueRunning, queueState.running ? "YES" : "NO");
   setText(ui.queueActiveLabel, queueState.activeLabel || "--");
+  setText(ui.queueActiveLabel, queueState.activeLabel || selectedAuto?.name || "--");
   setText(ui.queueRevision, Number.isFinite(queueState.revision) ? String(queueState.revision) : "--");
   setText(ui.queueMessage, selectedAuto?.message || queueState.message || "--");
   setText(
     ui.queueStatusMessage,
-    selectedAuto?.message || queueState.message || "Select a deployed PathPlanA auto to preview it here."
+    selectedAuto?.message ||
+      queueState.message ||
+      "Select a deployed PathPlanner auto to preview it here."
   );
   setText(ui.fieldPreviewPose, formatAuthoringPose(getQueueStartPose()));
   setText(ui.startPoseSummary, formatAuthoringPose(queueModel.startPose));
@@ -2599,6 +2606,7 @@ function renderPresets() {
     const item = document.createElement("div");
     item.className = "preset";
     item.classList.toggle("is-active", preset.id === queueModel.currentPresetId);
+    item.classList.toggle("is-selected-for-robot", state.selectedAutoState?.id === preset.id);
 
     const title = document.createElement("div");
     title.className = "preset__title";
@@ -2609,6 +2617,11 @@ function renderPresets() {
     const metaParts = [`${preset.steps.length} steps`, formatPresetTimestamp(preset.updatedAt)];
     if (preset.folder) {
       metaParts.unshift(preset.folder);
+    }
+    if (state.selectedAutoState?.id === preset.id) {
+      metaParts.unshift("CHOSEN");
+    } else if (preset.id === queueModel.currentPresetId) {
+      metaParts.unshift("PREVIEW");
     }
     meta.innerText = metaParts.join(" • ");
 
@@ -2770,16 +2783,38 @@ function renderSelectedAutoSummary() {
   }
   if (preset.startPose) {
     parts.push(formatAuthoringPose(preset.startPose));
+    const chosenAuto =
+        queueModel.presets.find((entry) => entry.id === state.selectedAutoState?.id) || null;
+    setText(ui.selectedAutoName, chosenAuto ? chosenAuto.name : preset ? `${preset.name} (Preview Only)` : "--");
+    if (!preset && !chosenAuto) {
+      setText(ui.selectedAutoSummary, "--");
+      return;
+    }
+    const summaryTarget = chosenAuto || preset;
+    const states = Array.from(
+        new Set((summaryTarget.steps || []).map((step) => getStepActionLabel(step)).filter(Boolean))
+    );
+    const parts = [`${summaryTarget.steps.length} steps`];
+    if (summaryTarget.folder) {
+      parts.unshift(summaryTarget.folder);
+    }
+    if (summaryTarget.startPose) {
+      parts.push(formatAuthoringPose(summaryTarget.startPose));
+    }
+    if (states.length > 0) {
+      parts.push(states.join(", "));
+    }
+    if (state.selectedAutoState && state.selectedAutoState.id === preset.id) {
+      parts.push(state.selectedAutoState.loaded ? "Robot selected" : "Robot rejected");
+      if (chosenAuto) {
+        parts.push(state.selectedAutoState?.loaded ? "Robot selected" : "Robot rejected");
+      } else if (preset) {
+        parts.push("Preview only");
+      }
+      setText(ui.selectedAutoSummary, parts.join(" • "));
+    }
   }
-  if (states.length > 0) {
-    parts.push(states.join(", "));
-  }
-  if (state.selectedAutoState && state.selectedAutoState.id === preset.id) {
-    parts.push(state.selectedAutoState.loaded ? "Robot selected" : "Robot rejected");
-  }
-  setText(ui.selectedAutoSummary, parts.join(" • "));
 }
-
 function setupFieldCanvas() {
   if (!ui.fieldCanvas || !ui.fieldImage) return;
   fieldCtx = ui.fieldCanvas.getContext("2d");

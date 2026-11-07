@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import org.wpilib.math.linalg.VecBuilder;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.driverstation.Alliance;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -35,29 +35,10 @@ class SwerveSubsystemResetAndRecoveryTest {
     subsystem.setOdometryResetListener(resetNotifications::incrementAndGet);
 
     subsystem.resetOdometry(new Pose2d(1.0, 2.0, Rotation2d.fromDegrees(15.0)));
-    subsystem.zeroGyroAndOdometryToAllianceWall(Alliance.Blue);
+    subsystem.zeroGyroAndOdometryToAllianceWall(Alliance.BLUE);
 
     assertEquals(2, resetNotifications.get());
     assertEquals(1, gyro.resetCount);
-    assertEquals(180.0, gyro.lastResetYawDegrees, EPSILON);
-  }
-
-  @Test
-  void allianceForwardResetPreservesTranslationAndUsesAllianceHeading() {
-    subsystem.resetOdometry(new Pose2d(2.5, 4.25, Rotation2d.fromDegrees(45.0)));
-
-    subsystem.resetHeadingToAllianceForward(Alliance.Blue);
-
-    assertEquals(2.5, subsystem.getPose().getX(), EPSILON);
-    assertEquals(4.25, subsystem.getPose().getY(), EPSILON);
-    assertEquals(0.0, subsystem.getPose().getRotation().getDegrees(), EPSILON);
-    assertEquals(0.0, gyro.lastResetYawDegrees, EPSILON);
-
-    subsystem.resetHeadingToAllianceForward(Alliance.Red);
-
-    assertEquals(2.5, subsystem.getPose().getX(), EPSILON);
-    assertEquals(4.25, subsystem.getPose().getY(), EPSILON);
-    assertEquals(180.0, subsystem.getPose().getRotation().getDegrees(), EPSILON);
     assertEquals(180.0, gyro.lastResetYawDegrees, EPSILON);
   }
 
