@@ -41,9 +41,10 @@ public final class OperatorBoardDiagnosticBundleWriter {
       }
       return lastManifest;
     }
+    OperatorBoardDataModels.DiagnosticBundleManifest manifest = write(snapshot);
+    lastManifest = manifest;
     lastFingerprint = fingerprint;
-    lastManifest = write(snapshot);
-    return lastManifest;
+    return manifest;
   }
 
   public synchronized OperatorBoardDataModels.DiagnosticBundleManifest forceWrite(
