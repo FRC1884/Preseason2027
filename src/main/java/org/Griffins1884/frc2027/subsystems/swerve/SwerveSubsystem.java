@@ -339,99 +339,104 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
       Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleVelocity[] {});
     }
 
-    if (snapshotGeneration != odometryGeneration) {
-      discardedSnapshotCount++;
-    } else {
-      // Update odometry
-      double[] sampleTimestamps =
-          modules[0].getOdometryTimestamps(); // All signals are sampled together
-      int sampleCount = sampleTimestamps.length;
-      int gyroSampleCount = gyroInputs.odometryYawPositions.length;
+    odometryLock.lock();
+    try {
+      if (snapshotGeneration != odometryGeneration) {
+        discardedSnapshotCount++;
+      } else {
+        // Update odometry
+        double[] sampleTimestamps =
+            modules[0].getOdometryTimestamps(); // All signals are sampled together
+        int sampleCount = sampleTimestamps.length;
+        int gyroSampleCount = gyroInputs.odometryYawPositions.length;
 
-      boolean validSnapshot = true;
+        boolean validSnapshot = true;
 
-      if (sampleCount > 0) {
-        for (Module module : modules) {
-          double[] timestamps = module.getOdometryTimestamps();
-          SwerveModulePosition[] positions = module.getOdometryPositions();
+        if (sampleCount > 0) {
+          for (Module module : modules) {
+            double[] timestamps = module.getOdometryTimestamps();
+            SwerveModulePosition[] positions = module.getOdometryPositions();
 
-          if (timestamps == null
-              || positions == null
-              || timestamps.length != sampleCount
-              || positions.length != sampleCount) {
-            validSnapshot = false;
-            break;
-          }
-
-          for (int i = 0; i < sampleCount; i++) {
-            if (!Double.isFinite(timestamps[i])
-                || Math.abs(timestamps[i] - sampleTimestamps[i]) > 1e-9
-                || positions[i] == null) {
+            if (timestamps == null
+                || positions == null
+                || timestamps.length != sampleCount
+                || positions.length != sampleCount) {
               validSnapshot = false;
               break;
             }
-          }
 
-          if (!validSnapshot) {
-            break;
-          }
-        }
-
-        double[] gyroTimestamps = gyroInputs.odometryYawTimestamps;
-        Rotation2d[] gyroPositions = gyroInputs.odometryYawPositions;
-
-        // Empty gyro batches retain the previous heading.
-        if (gyroInputs.connected && gyroTimestamps.length > 0) {
-          if (gyroTimestamps.length != sampleCount || gyroPositions.length != sampleCount) {
-            validSnapshot = false;
-          } else {
             for (int i = 0; i < sampleCount; i++) {
-              if (!Double.isFinite(gyroTimestamps[i])
-                  || Math.abs(gyroTimestamps[i] - sampleTimestamps[i]) > 1e-9
-                  || gyroPositions[i] == null) {
+              if (!Double.isFinite(timestamps[i])
+                  || Math.abs(timestamps[i] - sampleTimestamps[i]) > 1e-9
+                  || positions[i] == null) {
                 validSnapshot = false;
                 break;
               }
             }
+
+            if (!validSnapshot) {
+              break;
+            }
+          }
+
+          double[] gyroTimestamps = gyroInputs.odometryYawTimestamps;
+          Rotation2d[] gyroPositions = gyroInputs.odometryYawPositions;
+
+          // Empty gyro batches retain the previous heading.
+          if (gyroInputs.connected && gyroTimestamps.length > 0) {
+            if (gyroTimestamps.length != sampleCount || gyroPositions.length != sampleCount) {
+              validSnapshot = false;
+            } else {
+              for (int i = 0; i < sampleCount; i++) {
+                if (!Double.isFinite(gyroTimestamps[i])
+                    || Math.abs(gyroTimestamps[i] - sampleTimestamps[i]) > 1e-9
+                    || gyroPositions[i] == null) {
+                  validSnapshot = false;
+                  break;
+                }
+              }
+            }
+          }
+
+          if (!validSnapshot) {
+            invalidSnapshotCount++;
           }
         }
 
-        if (!validSnapshot) {
-          invalidSnapshotCount++;
+        if (validSnapshot) {
+          for (int i = 0; i < sampleCount; i++) {
+            // Read wheel positions and deltas from each module
+            SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
+            SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[4];
+            for (int moduleIndex = 0; moduleIndex < 4; moduleIndex++) {
+              modulePositions[moduleIndex] = modules[moduleIndex].getOdometryPositions()[i];
+              moduleDeltas[moduleIndex] =
+                  new SwerveModulePosition(
+                      modulePositions[moduleIndex].distance
+                          - lastModulePositions[moduleIndex].distance,
+                      modulePositions[moduleIndex].angle);
+              lastModulePositions[moduleIndex] = modulePositions[moduleIndex];
+            }
+
+            // Update gyro angle
+            if (gyroInputs.connected) {
+              // Use the real gyro angle
+              rawestGyroRotation = gyroInputs.yawPosition;
+              rawGyroRotation =
+                  i < gyroSampleCount ? gyroInputs.odometryYawPositions[i] : rawGyroRotation;
+            } else {
+              // Use the angle delta from the kinematics and module deltas
+              Twist2d twist = kinematics.toTwist2d(moduleDeltas);
+              rawGyroRotation = rawGyroRotation.plus(new Rotation2d(twist.dtheta));
+            }
+
+            // Apply update
+            poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
+          }
         }
       }
-
-      if (validSnapshot) {
-        for (int i = 0; i < sampleCount; i++) {
-          // Read wheel positions and deltas from each module
-          SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
-          SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[4];
-          for (int moduleIndex = 0; moduleIndex < 4; moduleIndex++) {
-            modulePositions[moduleIndex] = modules[moduleIndex].getOdometryPositions()[i];
-            moduleDeltas[moduleIndex] =
-                new SwerveModulePosition(
-                    modulePositions[moduleIndex].distance
-                        - lastModulePositions[moduleIndex].distance,
-                    modulePositions[moduleIndex].angle);
-            lastModulePositions[moduleIndex] = modulePositions[moduleIndex];
-          }
-
-          // Update gyro angle
-          if (gyroInputs.connected) {
-            // Use the real gyro angle
-            rawestGyroRotation = gyroInputs.yawPosition;
-            rawGyroRotation =
-                i < gyroSampleCount ? gyroInputs.odometryYawPositions[i] : rawGyroRotation;
-          } else {
-            // Use the angle delta from the kinematics and module deltas
-            Twist2d twist = kinematics.toTwist2d(moduleDeltas);
-            rawGyroRotation = rawGyroRotation.plus(new Rotation2d(twist.dtheta));
-          }
-
-          // Apply update
-          poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
-        }
-      }
+    } finally {
+      odometryLock.unlock();
     }
 
     Pose2d estimatedPose = poseEstimator.getEstimatedPosition();
