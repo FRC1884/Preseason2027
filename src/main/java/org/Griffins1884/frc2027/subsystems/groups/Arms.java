@@ -3,7 +3,6 @@ package org.Griffins1884.frc2027.subsystems.groups;
 import static org.Griffins1884.frc2027.Config.Subsystems.INTAKE_PIVOT_ENABLED;
 import static org.Griffins1884.frc2027.Config.Subsystems.SHOOTER_PIVOT_ENABLED;
 
-import org.wpilib.command2.SubsystemBase;
 import org.Griffins1884.frc2027.GlobalConstants;
 import org.Griffins1884.frc2027.subsystems.intake.IntakePivotConstants;
 import org.Griffins1884.frc2027.subsystems.intake.IntakePivotIOFlex;
@@ -17,6 +16,7 @@ import org.Griffins1884.frc2027.subsystems.shooter.ShooterPivotIOKraken;
 import org.Griffins1884.frc2027.subsystems.shooter.ShooterPivotIOMax;
 import org.Griffins1884.frc2027.subsystems.shooter.ShooterPivotIOSim;
 import org.Griffins1884.frc2027.subsystems.shooter.ShooterPivotSubsystem;
+import org.wpilib.command2.SubsystemBase;
 
 public class Arms extends SubsystemBase {
   public IntakePivotSubsystem intakePivot =

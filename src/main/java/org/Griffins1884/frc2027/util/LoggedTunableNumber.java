@@ -142,8 +142,7 @@ public class LoggedTunableNumber implements DoubleSupplier {
     }
 
     if (changed) {
-      action.accept(
-              Arrays.stream(tunableNumbers).mapToDouble(LoggedTunableNumber::get).toArray());
+      action.accept(Arrays.stream(tunableNumbers).mapToDouble(LoggedTunableNumber::get).toArray());
     }
   }
 

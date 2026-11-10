@@ -2,18 +2,6 @@ package org.Griffins1884.frc2027.subsystems.vision;
 
 import static org.Griffins1884.frc2027.GlobalConstants.FieldConstants.defaultAprilTagType;
 
-import org.wpilib.math.linalg.Matrix;
-import org.wpilib.math.linalg.VecBuilder;
-import org.wpilib.math.geometry.Pose2d;
-import org.wpilib.math.geometry.Rotation2d;
-import org.wpilib.math.geometry.Translation2d;
-import org.wpilib.math.numbers.N1;
-import org.wpilib.math.numbers.N3;
-import org.wpilib.util.Alert;
-import org.wpilib.driverstation.RobotState;
-import org.wpilib.system.Timer;
-import org.wpilib.telemetry.Telemetry;
-import org.wpilib.command2.SubsystemBase;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +12,17 @@ import java.util.function.Supplier;
 import lombok.Setter;
 import org.Griffins1884.frc2027.GlobalConstants;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.command2.SubsystemBase;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Translation2d;
+import org.wpilib.math.linalg.Matrix;
+import org.wpilib.math.linalg.VecBuilder;
+import org.wpilib.math.numbers.N1;
+import org.wpilib.math.numbers.N3;
+import org.wpilib.system.Timer;
+import org.wpilib.util.Alert;
 
 public class Vision extends SubsystemBase implements VisionTargetProvider {
   private static final double HISTORY_WINDOW_SEC = 1.5;
@@ -99,14 +98,16 @@ public class Vision extends SubsystemBase implements VisionTargetProvider {
     this.disconnectedAlerts = new Alert[io.length];
     for (int i = 0; i < inputs.length; i++) {
       disconnectedAlerts[i] =
-          new Alert("Camera Disconnect" + io[i].getCameraConstants().cameraName(),
+          new Alert(
+              "Camera Disconnect" + io[i].getCameraConstants().cameraName(),
               "Vision camera \"" + io[i].getCameraConstants().cameraName() + "\" is disconnected.",
               Alert.Level.MEDIUM);
     }
     this.outlierAlerts = new Alert[io.length];
     for (int i = 0; i < io.length; i++) {
       outlierAlerts[i] =
-          new Alert("Outlier Detected" + io[i].getCameraConstants().cameraName(),
+          new Alert(
+              "Outlier Detected" + io[i].getCameraConstants().cameraName(),
               "Vision Outlier detected on camera \""
                   + io[i].getCameraConstants().cameraName()
                   + "\".",
@@ -115,7 +116,8 @@ public class Vision extends SubsystemBase implements VisionTargetProvider {
     this.noAcceptedMeasurementAlerts = new Alert[io.length];
     for (int i = 0; i < io.length; i++) {
       noAcceptedMeasurementAlerts[i] =
-          new Alert("No accepted measurements" + io[i].getCameraConstants().cameraName() ,
+          new Alert(
+              "No accepted measurements" + io[i].getCameraConstants().cameraName(),
               "Vision camera \""
                   + io[i].getCameraConstants().cameraName()
                   + "\" is connected but has no accepted measurements.",
@@ -367,8 +369,7 @@ public class Vision extends SubsystemBase implements VisionTargetProvider {
         yawRateRadPerSecSupplier != null
             ? Math.toDegrees(yawRateRadPerSecSupplier.getAsDouble())
             : 0.0;
-    if (!RobotState.isDisabled()
-        && Math.abs(yawRateDegPerSec) > HARD_REJECT_YAW_RATE_DEG_PER_SEC) {
+    if (!RobotState.isDisabled() && Math.abs(yawRateDegPerSec) > HARD_REJECT_YAW_RATE_DEG_PER_SEC) {
       return Optional.empty();
     }
 

@@ -2,13 +2,6 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.wpilib.hardware.hal.HAL;
-import org.wpilib.math.geometry.Rotation2d;
-import org.wpilib.math.kinematics.ChassisVelocities;
-import org.wpilib.math.kinematics.SwerveDriveKinematics;
-import org.wpilib.math.kinematics.SwerveModuleVelocity;
-import org.wpilib.simulation.DriverStationSim;
-import org.wpilib.command2.CommandScheduler;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,6 +10,13 @@ import java.util.List;
 import java.util.Locale;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.wpilib.command2.CommandScheduler;
+import org.wpilib.hardware.hal.HAL;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.kinematics.ChassisVelocities;
+import org.wpilib.math.kinematics.SwerveDriveKinematics;
+import org.wpilib.math.kinematics.SwerveModuleVelocity;
+import org.wpilib.simulation.DriverStationSim;
 
 /**
  * Golden outputs captured by executing the unchanged integration base, not recomputed by the test.

@@ -4,12 +4,12 @@ import static org.wpilib.units.Units.Seconds;
 
 import com.revrobotics.REVLibError;
 import com.revrobotics.spark.SparkBase;
-import org.wpilib.system.Timer;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.Griffins1884.frc2027.simV2.simulation.SimulatedArena;
+import org.wpilib.system.Timer;
 
 public class SparkUtil {
   /** Stores whether any error was has been detected by other utility methods. */
@@ -57,8 +57,7 @@ public class SparkUtil {
 
   public static double[] getSimulationOdometryTimeStamps(double acquisitionTimestampSeconds) {
     double simulationDt = SimulatedArena.getSimulationDt().in(Seconds);
-    double[] timestamps =
-            new double[SimulatedArena.getSimulationSubTicksIn1Period()];
+    double[] timestamps = new double[SimulatedArena.getSimulationSubTicksIn1Period()];
 
     for (int i = 0; i < timestamps.length; i++) {
       timestamps[i] = acquisitionTimestampSeconds - 0.02 + i * simulationDt;

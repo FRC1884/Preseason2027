@@ -1,7 +1,7 @@
 package org.Griffins1884.frc2027.util;
 
-import org.wpilib.driverstation.DriverStationErrors;
 import org.Griffins1884.frc2027.runtime.RuntimeModeManager;
+import org.wpilib.driverstation.DriverStationErrors;
 
 /** Shared runtime logging helpers for debug/competition behavior. */
 public final class RobotLogging {
@@ -42,6 +42,7 @@ public final class RobotLogging {
       error(message);
       return;
     }
-    DriverStationErrors.reportError(message + ": " + throwable.getMessage(), throwable.getStackTrace());
+    DriverStationErrors.reportError(
+        message + ": " + throwable.getMessage(), throwable.getStackTrace());
   }
 }

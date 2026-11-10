@@ -3,34 +3,35 @@ package org.Griffins1884.frc2027;
 import static org.Griffins1884.frc2027.Config.Subsystems.AUTONOMOUS_ENABLED;
 import static org.Griffins1884.frc2027.GlobalConstants.MODE;
 
-import org.Griffins1884.frc2027.subsystems.Superstructure;
-import org.wpilib.system.DataLogManager;
-// import org.wpilib.driverstation.MatchState;
-// import org.wpilib.driverstation.RobotState;
-import org.wpilib.hardware.hal.ThreadsJNI;
-// import org.wpilib.driverstation.Alliance;
-// import org.wpilib.driverstation.MatchType;
-// import org.wpilib.driverstation.DriverStationErrors;
-import org.wpilib.driverstation.DriverStation;
-import org.wpilib.system.Filesystem;
-// import org.wpilib.system.Threads;
-import org.wpilib.command2.Command;
-import org.wpilib.command2.CommandScheduler;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import org.Griffins1884.frc2027.simV2.simulation.SimulatedArena;
 import org.Griffins1884.frc2027.util.LogRollover;
 import org.Griffins1884.frc2027.util.RobotLogging;
 import org.Griffins1884.frc2027.util.RollingWPILOGWriter;
-import org.Griffins1884.frc2027.simV2.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.CommandScheduler;
+import org.wpilib.driverstation.DriverStation;
+import org.wpilib.hardware.hal.ThreadsJNI;
+// import org.wpilib.driverstation.Alliance;
+// import org.wpilib.driverstation.MatchType;
+// import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.system.DataLogManager;
+// import org.wpilib.driverstation.MatchState;
+// import org.wpilib.driverstation.RobotState;
+import org.wpilib.system.Filesystem;
+
+// import org.wpilib.system.Threads;
+
 // import org.littletonrobotics.urcl.URCL;
 
 /**

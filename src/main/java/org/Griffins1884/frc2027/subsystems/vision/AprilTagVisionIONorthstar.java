@@ -3,6 +3,13 @@ package org.Griffins1884.frc2027.subsystems.vision;
 import static org.Griffins1884.frc2027.GlobalConstants.FieldConstants.aprilTagWidth;
 import static org.Griffins1884.frc2027.GlobalConstants.FieldConstants.defaultAprilTagType;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import lombok.Getter;
+import org.Griffins1884.frc2027.subsystems.swerve.SwerveSubsystem;
+import org.wpilib.driverstation.MatchState;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Pose3d;
 import org.wpilib.math.geometry.Quaternion;
@@ -17,15 +24,8 @@ import org.wpilib.networktables.IntegerSubscriber;
 import org.wpilib.networktables.NetworkTableInstance;
 import org.wpilib.networktables.PubSubOption;
 import org.wpilib.networktables.StringPublisher;
-import org.wpilib.util.WPIUtilJNI;
-import org.wpilib.driverstation.MatchState;
 import org.wpilib.system.Timer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import lombok.Getter;
-import org.Griffins1884.frc2027.subsystems.swerve.SwerveSubsystem;
+import org.wpilib.util.WPIUtilJNI;
 
 /** Hardware implementation of VisionIO using a Northstar coprocessor. */
 public class AprilTagVisionIONorthstar implements VisionIO {

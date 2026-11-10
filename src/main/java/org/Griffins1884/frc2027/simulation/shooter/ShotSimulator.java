@@ -1,14 +1,14 @@
 package org.Griffins1884.frc2027.simulation.shooter;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Pose3d;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Rotation3d;
 import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.math.geometry.Translation3d;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 /** Converts shot-math setpoints into field-space release poses, arcs, and projectile spawns. */
 public final class ShotSimulator {

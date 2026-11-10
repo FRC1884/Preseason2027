@@ -1,10 +1,10 @@
 package org.Griffins1884.frc2027.subsystems.leds;
 
-import org.wpilib.drivers.motor.Spark;
+import java.util.function.Supplier;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.SubsystemBase;
-import java.util.function.Supplier;
+import org.wpilib.drivers.motor.Spark;
 
 public class LEDSubsystem extends SubsystemBase {
   private Spark blinkin;

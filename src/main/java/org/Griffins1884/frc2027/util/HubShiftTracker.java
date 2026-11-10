@@ -1,10 +1,10 @@
 package org.Griffins1884.frc2027.util;
 
-import org.wpilib.driverstation.MatchState;
-import org.wpilib.driverstation.RobotState;
-import org.wpilib.driverstation.Alliance;
 import java.util.Locale;
 import java.util.Optional;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchState;
+import org.wpilib.driverstation.RobotState;
 
 /**
  * Implements 2026 REBUILT hub-active shifting rules.

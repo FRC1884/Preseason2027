@@ -5,13 +5,6 @@ import static org.wpilib.units.Units.RadiansPerSecond;
 import static org.wpilib.units.Units.Seconds;
 import static org.wpilib.units.Units.Volts;
 
-import org.wpilib.util.Alert;
-import org.wpilib.util.Alert.Level;
-import org.wpilib.driverstation.RobotState;
-import org.wpilib.system.Timer;
-import org.wpilib.command2.Command;
-import org.wpilib.command2.SubsystemBase;
-import org.wpilib.command2.sysid.SysIdRoutine;
 import java.util.Objects;
 import java.util.function.DoubleSupplier;
 import org.Griffins1884.frc2027.mechanisms.MechanismDefinition;
@@ -19,6 +12,13 @@ import org.Griffins1884.frc2027.mechanisms.MechanismHealth;
 import org.Griffins1884.frc2027.mechanisms.MechanismTelemetry;
 import org.Griffins1884.frc2027.runtime.RuntimeModeManager;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.SubsystemBase;
+import org.wpilib.command2.sysid.SysIdRoutine;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.system.Timer;
+import org.wpilib.util.Alert;
+import org.wpilib.util.Alert.Level;
 
 /** Mechanism-backed replacement for the old generic voltage roller base. */
 public abstract class VoltageRollerMechanism<G extends VoltageRollerMechanism.VoltageGoal>
@@ -90,7 +90,11 @@ public abstract class VoltageRollerMechanism<G extends VoltageRollerMechanism.Vo
                         .angularPosition(Radian.of(inputs.positionRads)),
                 this));
 
-    disconnected = new Alert("Voltage Roller Motor Disconnected" + name ,name + " motor disconnected!", Level.MEDIUM);
+    disconnected =
+        new Alert(
+            "Voltage Roller Motor Disconnected" + name,
+            name + " motor disconnected!",
+            Level.MEDIUM);
     stateTimer.start();
     recordConfigSnapshot();
   }

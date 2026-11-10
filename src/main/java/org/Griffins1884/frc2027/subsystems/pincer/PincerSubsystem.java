@@ -1,9 +1,9 @@
 package org.Griffins1884.frc2027.subsystems.pincer;
 
+import java.util.Objects;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.SubsystemBase;
-import java.util.Objects;
 
 /** Vendor-neutral two-motor pincer control. */
 public class PincerSubsystem extends SubsystemBase {

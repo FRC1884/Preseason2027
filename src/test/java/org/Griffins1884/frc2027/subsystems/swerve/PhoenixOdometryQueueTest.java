@@ -2,10 +2,10 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.wpilib.hardware.hal.HAL;
 import java.util.Queue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.wpilib.hardware.hal.HAL;
 
 class PhoenixOdometryQueueTest {
   @BeforeAll

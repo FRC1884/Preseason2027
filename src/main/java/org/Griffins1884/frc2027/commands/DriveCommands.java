@@ -1,18 +1,5 @@
 package org.Griffins1884.frc2027.commands;
 
-import org.wpilib.math.util.MathUtil;
-import org.wpilib.math.filter.SlewRateLimiter;
-import org.wpilib.math.geometry.Pose2d;
-import org.wpilib.math.geometry.Rotation2d;
-import org.wpilib.math.geometry.Transform2d;
-import org.wpilib.math.geometry.Translation2d;
-import org.wpilib.math.kinematics.ChassisVelocities;
-import org.wpilib.math.util.Units;
-import org.wpilib.system.Timer;
-import org.wpilib.command2.Command;
-import org.wpilib.command2.Commands;
-import org.wpilib.driverstation.Alliance;
-
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
@@ -28,6 +15,18 @@ import org.Griffins1884.frc2027.util.AllianceFlipUtil;
 import org.Griffins1884.frc2027.util.AllianceUtil;
 import org.Griffins1884.frc2027.util.RobotLogging;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.Commands;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.math.filter.SlewRateLimiter;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Transform2d;
+import org.wpilib.math.geometry.Translation2d;
+import org.wpilib.math.kinematics.ChassisVelocities;
+import org.wpilib.math.util.MathUtil;
+import org.wpilib.math.util.Units;
+import org.wpilib.system.Timer;
 
 public class DriveCommands {
   private static final Pose2d DEPOT_ALIGN_POSE = new Pose2d(0.7, 5.94, Rotation2d.fromDegrees(0.0));
@@ -91,10 +90,10 @@ public class DriveCommands {
     double allianceSign = isFlipped ? -1.0 : 1.0;
 
     ChassisVelocities speeds =
-            new ChassisVelocities(
-                    allianceSign * linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
-                    allianceSign * linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
-                    omega * drive.getMaxAngularSpeedRadPerSec());
+        new ChassisVelocities(
+            allianceSign * linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+            allianceSign * linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
+            omega * drive.getMaxAngularSpeedRadPerSec());
 
     drive.runVelocity(speeds.toRobotRelative(drive.getRotation()));
   }

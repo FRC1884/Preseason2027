@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.Griffins1884.frc2027.mechanisms.RobotMechanismDefinitions;
 import org.Griffins1884.frc2027.mechanisms.rollers.VelocityRollerMechanism;
-import org.Griffins1884.frc2027.util.LoggedTunableNumber;
 import org.Griffins1884.frc2027.mechanisms.rollers.VelocityRollerMechanism.VelocityGoal;
+import org.Griffins1884.frc2027.util.LoggedTunableNumber;
 
 @Setter
 @Getter

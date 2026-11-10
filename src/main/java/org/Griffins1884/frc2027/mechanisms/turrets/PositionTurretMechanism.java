@@ -5,16 +5,6 @@ import static org.wpilib.units.Units.RadiansPerSecond;
 import static org.wpilib.units.Units.Seconds;
 import static org.wpilib.units.Units.Volts;
 
-import org.wpilib.math.util.MathUtil;
-import org.wpilib.math.controller.ProfiledPIDController;
-import org.wpilib.math.trajectory.TrapezoidProfile;
-import org.wpilib.util.Alert;
-import org.wpilib.hardware.discrete.DigitalInput;
-import org.wpilib.driverstation.RobotState;
-import org.wpilib.hardware.rotation.DutyCycleEncoder;
-import org.wpilib.command2.Command;
-import org.wpilib.command2.SubsystemBase;
-import org.wpilib.command2.sysid.SysIdRoutine;
 import lombok.Getter;
 import org.Griffins1884.frc2027.mechanisms.MechanismDefinition;
 import org.Griffins1884.frc2027.mechanisms.MechanismHealth;
@@ -22,6 +12,16 @@ import org.Griffins1884.frc2027.mechanisms.MechanismTelemetry;
 import org.Griffins1884.frc2027.runtime.RuntimeModeManager;
 import org.Griffins1884.frc2027.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.SubsystemBase;
+import org.wpilib.command2.sysid.SysIdRoutine;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.hardware.discrete.DigitalInput;
+import org.wpilib.hardware.rotation.DutyCycleEncoder;
+import org.wpilib.math.controller.ProfiledPIDController;
+import org.wpilib.math.trajectory.TrapezoidProfile;
+import org.wpilib.math.util.MathUtil;
+import org.wpilib.util.Alert;
 
 /** Mechanism-backed replacement for the old generic position turret base. */
 public class PositionTurretMechanism extends SubsystemBase {
@@ -85,7 +85,8 @@ public class PositionTurretMechanism extends SubsystemBase {
             new TrapezoidProfile.Constraints(
                 config.maxVelocityRadPerSec(), config.maxAccelRadPerSec2()));
     controller.setTolerance(config.positionToleranceRad());
-    disconnected = new Alert("Turret Motor Disconnected", name + " motor disconnected!", Alert.Level.MEDIUM);
+    disconnected =
+        new Alert("Turret Motor Disconnected", name + " motor disconnected!", Alert.Level.MEDIUM);
     sysIdRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
@@ -194,9 +195,9 @@ public class PositionTurretMechanism extends SubsystemBase {
   }
 
   public void stopOpenLoop() {
-      openLoopPercent = 0.0;
-      goalRad = getPositionRad(); // hold wherever we stopped
-      controlMode = ControlMode.CLOSED_LOOP;
+    openLoopPercent = 0.0;
+    goalRad = getPositionRad(); // hold wherever we stopped
+    controlMode = ControlMode.CLOSED_LOOP;
   }
 
   public boolean isAtGoal() {

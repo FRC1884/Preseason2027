@@ -1,22 +1,18 @@
 package org.Griffins1884.frc2027;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.nio.file.Path;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.Griffins1884.frc2027.util.LoggedTunableNumber;
 import org.wpilib.fields.Field;
 import org.wpilib.fields.Fields;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.math.geometry.Translation3d;
 import org.wpilib.math.util.Units;
+import org.wpilib.system.Filesystem;
 import org.wpilib.util.Alert;
 import org.wpilib.util.Alert.Level;
-import org.wpilib.system.Filesystem;
-import java.io.IOException;
-import java.nio.file.Path;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.Griffins1884.frc2027.util.LoggedTunableNumber;
-
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -68,7 +64,8 @@ public final class GlobalConstants {
   public static void main(String... args) {
     if (ROBOT == RobotType.SIMBOT) {
       Alert realModeAlert =
-          new Alert("Mode Check","SIM robot loaded in REAL mode, gains likely breaking!", Level.MEDIUM);
+          new Alert(
+              "Mode Check", "SIM robot loaded in REAL mode, gains likely breaking!", Level.MEDIUM);
       realModeAlert.set(true);
       realModeAlert.close();
     }
@@ -388,16 +385,19 @@ public final class GlobalConstants {
           synchronized (this) {
             if (layout == null) {
               @SuppressWarnings("unused")
-                Path p =
-                    Path.of(
-                        Filesystem.getDeployDirectory().getPath(),
-                        "apriltags",
-                        fieldType.getJsonFolder(),
-                        name + ".json");
-                // layout = new AprilTagFieldLayout(p);
-                Fields fieldInfo = fieldType == FieldType.ANDYMARK ? Fields.FRC_2026_REBUILT_ANDY_MARK : Fields.FRC_2026_REBUILT_WELDED;
-                layout  = fieldInfo.loadField();
-                layoutString = layout.getJson();
+              Path p =
+                  Path.of(
+                      Filesystem.getDeployDirectory().getPath(),
+                      "apriltags",
+                      fieldType.getJsonFolder(),
+                      name + ".json");
+              // layout = new AprilTagFieldLayout(p);
+              Fields fieldInfo =
+                  fieldType == FieldType.ANDYMARK
+                      ? Fields.FRC_2026_REBUILT_ANDY_MARK
+                      : Fields.FRC_2026_REBUILT_WELDED;
+              layout = fieldInfo.loadField();
+              layoutString = layout.getJson();
             }
           }
         }

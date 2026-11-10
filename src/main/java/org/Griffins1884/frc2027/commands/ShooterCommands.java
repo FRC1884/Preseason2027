@@ -1,9 +1,5 @@
 package org.Griffins1884.frc2027.commands;
 
-import org.wpilib.math.geometry.Pose2d;
-import org.wpilib.math.geometry.Translation2d;
-import org.wpilib.command2.Command;
-import org.wpilib.command2.Commands;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -14,6 +10,10 @@ import org.Griffins1884.frc2027.subsystems.shooter.ShooterPivotConstants;
 import org.Griffins1884.frc2027.subsystems.shooter.ShooterPivotSubsystem;
 import org.Griffins1884.frc2027.util.ShotMath;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.Commands;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Translation2d;
 
 public class ShooterCommands {
   private static final double GRAVITY = 9.80665;

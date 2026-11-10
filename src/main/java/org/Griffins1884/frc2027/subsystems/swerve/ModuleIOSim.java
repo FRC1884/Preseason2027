@@ -1,19 +1,19 @@
 package org.Griffins1884.frc2027.subsystems.swerve;
 
-import static org.wpilib.units.Units.*;
 import static org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.*;
+import static org.wpilib.units.Units.*;
 
-import org.wpilib.driverstation.internal.DriverStationBackend;
-import org.wpilib.math.controller.PIDController;
-import org.wpilib.math.geometry.Rotation2d;
 import java.util.Arrays;
-import org.Griffins1884.frc2027.util.LoggedTunableNumber;
-import org.Griffins1884.frc2027.util.SparkUtil;
 import org.Griffins1884.frc2027.sim3d.SwerveCorner;
 import org.Griffins1884.frc2027.sim3d.TerrainAwareSwerveSimulation;
 import org.Griffins1884.frc2027.sim3d.TerrainDriveLaws;
 import org.Griffins1884.frc2027.simV2.simulation.drivesims.SwerveModuleSimulation;
 import org.Griffins1884.frc2027.simV2.simulation.motorsims.SimulatedMotorController;
+import org.Griffins1884.frc2027.util.LoggedTunableNumber;
+import org.Griffins1884.frc2027.util.SparkUtil;
+import org.wpilib.driverstation.internal.DriverStationBackend;
+import org.wpilib.math.controller.PIDController;
+import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.system.Timer;
 
 /** Physics sim implementation of module IO. */
@@ -110,7 +110,8 @@ public class ModuleIOSim implements ModuleIO {
     // Update drive inputs
     inputs.driveConnected = true;
     inputs.drivePositionRad = moduleSimulation.getDriveWheelFinalPosition().in(Radians);
-    inputs.driveVelocityRadPerSec = moduleSimulation.getDriveWheelFinalVelocity().in(RadiansPerSecond);
+    inputs.driveVelocityRadPerSec =
+        moduleSimulation.getDriveWheelFinalVelocity().in(RadiansPerSecond);
     inputs.driveAppliedVolts = driveAppliedVolts;
     inputs.driveCurrentAmps = Math.abs(moduleSimulation.getDriveMotorStatorCurrent().in(Amps));
 
@@ -124,7 +125,7 @@ public class ModuleIOSim implements ModuleIO {
 
     // Update odometry inputs
     inputs.odometryTimestamps =
-            SparkUtil.getSimulationOdometryTimeStamps(acquisitionTimestampSeconds);
+        SparkUtil.getSimulationOdometryTimeStamps(acquisitionTimestampSeconds);
     inputs.odometryDrivePositionsRad =
         Arrays.stream(moduleSimulation.getCachedDriveWheelFinalPositions())
             .mapToDouble(angle -> angle.in(Radians))
@@ -148,8 +149,7 @@ public class ModuleIOSim implements ModuleIO {
   public void setDriveVelocity(double velocityRadPerSec) {
     driveClosedLoop = true;
     driveFFVolts =
-            appliedDriveKs * Math.signum(velocityRadPerSec)
-                    + appliedDriveKv * velocityRadPerSec;
+        appliedDriveKs * Math.signum(velocityRadPerSec) + appliedDriveKv * velocityRadPerSec;
     driveController.setSetpoint(velocityRadPerSec);
   }
 

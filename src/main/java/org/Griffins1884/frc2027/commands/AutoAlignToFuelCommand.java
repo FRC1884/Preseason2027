@@ -1,13 +1,13 @@
 package org.Griffins1884.frc2027.commands;
 
+import org.Griffins1884.frc2027.subsystems.swerve.SwerveSubsystem;
+import org.littletonrobotics.junction.Logger;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.Commands;
 import org.wpilib.math.kinematics.ChassisVelocities;
 import org.wpilib.networktables.NetworkTable;
 import org.wpilib.networktables.NetworkTableInstance;
 import org.wpilib.system.Timer;
-import org.wpilib.command2.Command;
-import org.wpilib.command2.Commands;
-import org.Griffins1884.frc2027.subsystems.swerve.SwerveSubsystem;
-import org.littletonrobotics.junction.Logger;
 
 /**
  * Auto-aligns the robot to a fuel cluster using Limelight game-piece detection.

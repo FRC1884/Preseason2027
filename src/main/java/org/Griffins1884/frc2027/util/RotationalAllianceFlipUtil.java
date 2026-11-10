@@ -1,7 +1,7 @@
 package org.Griffins1884.frc2027.util;
 
-import org.wpilib.math.geometry.*;
 import org.Griffins1884.frc2027.GlobalConstants.FieldConstants;
+import org.wpilib.math.geometry.*;
 
 /**
  * Utility functions for flipping from the blue (default) to red alliance for mirrored fields. All

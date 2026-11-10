@@ -2,11 +2,11 @@ package org.Griffins1884.frc2027.simulation.shooter;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Test;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.math.geometry.Translation3d;
-import org.junit.jupiter.api.Test;
 
 class ShotSimulatorTest {
   @Test

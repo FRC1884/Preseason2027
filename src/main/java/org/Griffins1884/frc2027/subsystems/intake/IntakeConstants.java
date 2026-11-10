@@ -1,9 +1,7 @@
 package org.Griffins1884.frc2027.subsystems.intake;
 
-import org.Griffins1884.frc2027.CanIDConstants;
-
 import com.ctre.phoenix6.CANBus;
-
+import org.Griffins1884.frc2027.CanIDConstants;
 import org.Griffins1884.frc2027.GlobalConstants;
 import org.Griffins1884.frc2027.mechanisms.MechanismDefinition;
 import org.Griffins1884.frc2027.util.LoggedTunableNumber;

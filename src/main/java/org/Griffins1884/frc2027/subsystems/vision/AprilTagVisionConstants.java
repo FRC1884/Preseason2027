@@ -1,16 +1,16 @@
 package org.Griffins1884.frc2027.subsystems.vision;
 
-import static org.wpilib.math.util.Units.degreesToRadians;
 import static org.Griffins1884.frc2027.GlobalConstants.ROBOT;
+import static org.wpilib.math.util.Units.degreesToRadians;
 
-import org.wpilib.math.linalg.MatBuilder;
-import org.wpilib.math.linalg.Matrix;
-import org.wpilib.math.util.Nat;
+import org.Griffins1884.frc2027.util.LoggedTunableNumber;
 import org.wpilib.math.geometry.Rotation3d;
 import org.wpilib.math.geometry.Transform3d;
+import org.wpilib.math.linalg.MatBuilder;
+import org.wpilib.math.linalg.Matrix;
 import org.wpilib.math.numbers.N1;
 import org.wpilib.math.numbers.N3;
-import org.Griffins1884.frc2027.util.LoggedTunableNumber;
+import org.wpilib.math.util.Nat;
 
 public final class AprilTagVisionConstants {
   public enum VisionBackend {

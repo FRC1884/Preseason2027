@@ -114,7 +114,11 @@ tasks.register("downloadVendorJars") {
         def libsDir = file("$projectDir/libs")
         libsDir.mkdirs()
 
-        def jars = ["simV2.jar", "sim3d.jar", "dyn4j-6.0.0.jar"]
+        def jars = [
+            "simV2.jar",
+            "sim3d.jar",
+            "dyn4j-6.0.0.jar"
+        ]
         jars.each { jarName ->
             def targetFile = file("$libsDir/$jarName")
             if (!targetFile.exists()) {

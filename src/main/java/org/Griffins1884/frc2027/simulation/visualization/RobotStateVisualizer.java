@@ -1,12 +1,5 @@
 package org.Griffins1884.frc2027.simulation.visualization;
 
-import org.wpilib.math.geometry.Pose2d;
-import org.wpilib.math.geometry.Pose3d;
-import org.wpilib.math.geometry.Rotation2d;
-import org.wpilib.math.geometry.Translation2d;
-import org.wpilib.math.geometry.Translation3d;
-import org.wpilib.driverstation.MatchState;
-import org.wpilib.driverstation.Alliance;
 import org.Griffins1884.frc2027.GlobalConstants;
 import org.Griffins1884.frc2027.GlobalConstants.RobotMode;
 import org.Griffins1884.frc2027.commands.AlignConstants;
@@ -25,6 +18,13 @@ import org.Griffins1884.frc2027.subsystems.swerve.SwerveSubsystem;
 import org.Griffins1884.frc2027.subsystems.turret.TurretSubsystem;
 import org.Griffins1884.frc2027.util.TurretUtil;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchState;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Pose3d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Translation2d;
+import org.wpilib.math.geometry.Translation3d;
 
 /** Publishes robot components, predicted arcs, and active projectiles for AdvantageScope. */
 public final class RobotStateVisualizer {
@@ -205,8 +205,7 @@ public final class RobotStateVisualizer {
   }
 
   private static Translation3d getHubTarget(Pose2d pose) {
-    Alliance alliance =
-        MatchState.getAlliance().orElseGet(() -> inferAllianceFromPose(pose));
+    Alliance alliance = MatchState.getAlliance().orElseGet(() -> inferAllianceFromPose(pose));
     return alliance == Alliance.BLUE
         ? GlobalConstants.FieldConstants.Hub.innerCenterPoint
         : new Translation3d(
@@ -217,8 +216,7 @@ public final class RobotStateVisualizer {
   }
 
   private static Translation3d getHubConeTop(Pose2d pose) {
-    Alliance alliance =
-        MatchState.getAlliance().orElseGet(() -> inferAllianceFromPose(pose));
+    Alliance alliance = MatchState.getAlliance().orElseGet(() -> inferAllianceFromPose(pose));
     return alliance == Alliance.BLUE
         ? GlobalConstants.FieldConstants.Hub.topCenterPoint
         : new Translation3d(

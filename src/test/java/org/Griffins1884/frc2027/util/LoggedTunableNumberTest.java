@@ -2,7 +2,6 @@ package org.Griffins1884.frc2027.util;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.wpilib.networktables.NetworkTableInstance;
 import java.lang.reflect.Field;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,6 +11,7 @@ import org.Griffins1884.frc2027.runtime.RuntimeModeProfile;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
+import org.wpilib.networktables.NetworkTableInstance;
 
 class LoggedTunableNumberTest {
   @AfterEach
@@ -59,8 +59,7 @@ class LoggedTunableNumberTest {
   void lateTuningRetainsExistingDashboardValueAndSingleInputAcrossTransitions() throws Exception {
     tuning(false);
     var number = new LoggedTunableNumber("test/late", 4.0);
-    var entry =
-        NetworkTableInstance.getDefault().getEntry("/Telemetry/TunableNumbers/test/late");
+    var entry = NetworkTableInstance.getDefault().getEntry("/Telemetry/TunableNumbers/test/late");
     entry.setDouble(7.0);
     assertEquals(4.0, number.get());
     tuning(true);

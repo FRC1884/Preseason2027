@@ -1,9 +1,9 @@
 package org.Griffins1884.frc2027.simulation.shooter;
 
-import org.wpilib.math.geometry.Rotation2d;
-import org.wpilib.math.geometry.Translation3d;
 import org.Griffins1884.frc2027.subsystems.shooter.ShooterConstants;
 import org.Griffins1884.frc2027.subsystems.shooter.ShooterPivotConstants;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Translation3d;
 
 /** Geometry and simple projectile constants used by the shot-math visualizer. */
 public record ShotSimulationConfig(

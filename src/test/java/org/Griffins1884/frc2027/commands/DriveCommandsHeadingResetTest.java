@@ -3,15 +3,15 @@ package org.Griffins1884.frc2027.commands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.wpilib.math.geometry.Pose2d;
-import org.wpilib.math.geometry.Rotation2d;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.command2.Command;
 import java.util.Optional;
 import org.Griffins1884.frc2027.subsystems.swerve.GyroIO;
 import org.Griffins1884.frc2027.subsystems.swerve.ModuleIO;
 import org.Griffins1884.frc2027.subsystems.swerve.SwerveSubsystem;
 import org.junit.jupiter.api.Test;
+import org.wpilib.command2.Command;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
 
 class DriveCommandsHeadingResetTest {
   private static final double EPSILON = 1e-6;

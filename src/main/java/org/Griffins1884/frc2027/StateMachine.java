@@ -1,13 +1,13 @@
 package org.Griffins1884.frc2027;
 
-import org.wpilib.system.Timer;
-import org.wpilib.tunable.Selectable;
-import org.wpilib.command2.*;
 import java.util.*;
 import org.Griffins1884.frc2027.util.StateGraph;
 import org.Griffins1884.frc2027.util.Transition;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkChooser;
+import org.wpilib.command2.*;
+import org.wpilib.system.Timer;
+import org.wpilib.tunable.Selectable;
 
 public abstract class StateMachine<E extends Enum<E>> extends SubsystemBase {
   private final StateGraph<E, Transition<E>> transitionGraph;

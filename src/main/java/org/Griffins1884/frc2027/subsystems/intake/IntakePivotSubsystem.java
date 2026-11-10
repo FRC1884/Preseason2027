@@ -1,10 +1,5 @@
 package org.Griffins1884.frc2027.subsystems.intake;
 
-import org.wpilib.hardware.discrete.DigitalInput;
-import org.wpilib.command2.Command;
-import org.wpilib.command2.Commands;
-import org.wpilib.command2.SubsystemBase;
-import org.wpilib.command2.sysid.SysIdRoutine;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import lombok.Getter;
@@ -18,6 +13,11 @@ import org.Griffins1884.frc2027.mechanisms.arms.PositionArmMechanism;
 import org.Griffins1884.frc2027.mechanisms.arms.PositionArmMechanism.ControlMode;
 import org.Griffins1884.frc2027.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.Commands;
+import org.wpilib.command2.SubsystemBase;
+import org.wpilib.command2.sysid.SysIdRoutine;
+import org.wpilib.hardware.discrete.DigitalInput;
 
 public class IntakePivotSubsystem extends SubsystemBase {
   @RequiredArgsConstructor

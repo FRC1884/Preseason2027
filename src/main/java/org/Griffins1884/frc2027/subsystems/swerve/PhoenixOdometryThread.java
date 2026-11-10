@@ -3,9 +3,6 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
-import org.wpilib.units.measure.Angle;
-import org.wpilib.hardware.hal.ThreadsJNI;
-import org.wpilib.system.RobotController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -14,6 +11,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.DoubleSupplier;
 import org.Griffins1884.frc2027.GlobalConstants;
+import org.wpilib.hardware.hal.ThreadsJNI;
+import org.wpilib.system.RobotController;
+import org.wpilib.units.measure.Angle;
 
 /**
  * Provides an interface for asynchronously reading high-frequency measurements to a set of queues.
@@ -49,7 +49,7 @@ public class PhoenixOdometryThread extends Thread {
   public long getDroppedSamples() {
     return droppedSamples;
   }
-  
+
   public void shutdown() {
     interrupt();
     boolean interrupted = false;
@@ -83,8 +83,8 @@ public class PhoenixOdometryThread extends Thread {
       super.start();
     }
   }
-  
-  private boolean anyQueueFull(List<Queue<Double>> queues){
+
+  private boolean anyQueueFull(List<Queue<Double>> queues) {
     for (Queue<Double> queue : queues) if (queue.size() >= QUEUE_CAPACITY) return true;
     return false;
   }

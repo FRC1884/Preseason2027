@@ -2,9 +2,9 @@ package org.Griffins1884.frc2027.OI;
 
 import static org.wpilib.command2.Commands.none;
 
+import java.util.function.DoubleSupplier;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.button.Trigger;
-import java.util.function.DoubleSupplier;
 
 public interface DriverMap {
   DoubleSupplier getXAxis();

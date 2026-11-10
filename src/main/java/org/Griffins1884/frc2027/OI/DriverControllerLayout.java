@@ -1,8 +1,8 @@
 package org.Griffins1884.frc2027.OI;
 
-import org.wpilib.driverstation.GenericHID;
 import java.util.Locale;
 import java.util.Map;
+import org.wpilib.driverstation.GenericHID;
 
 enum DriverControllerLayout {
   XBOX(
@@ -187,12 +187,12 @@ enum DriverControllerLayout {
       case "xbox", "simxboxuniversal", "sim-xbox-universal" -> XBOX;
       case "ps4", "dualshock4", "dualshock-4" -> PS4;
       case "ps5",
-              "ps5pro",
-              "ps5-pro",
-              "dualsense",
-              "dualsenseedge",
-              "dualsense-edge",
-              "genericgamepad" ->
+          "ps5pro",
+          "ps5-pro",
+          "dualsense",
+          "dualsenseedge",
+          "dualsense-edge",
+          "genericgamepad" ->
           PS5_PRO;
       default -> PS5_PRO;
     };

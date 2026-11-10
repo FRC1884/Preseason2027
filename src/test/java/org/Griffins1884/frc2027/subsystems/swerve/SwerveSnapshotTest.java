@@ -2,13 +2,13 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.wpilib.hardware.hal.HAL;
-import org.wpilib.math.geometry.Pose2d;
-import org.wpilib.math.geometry.Rotation2d;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.wpilib.hardware.hal.HAL;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
 
 class SwerveSnapshotTest {
   @BeforeAll
@@ -67,9 +67,7 @@ class SwerveSnapshotTest {
       SwerveCalibration.clearWheelRadiusMeters();
       drive.resetOdometry(Pose2d.ZERO);
       assertEquals(
-          2.0 * SwerveConstants.getWheelRadiusMeters(),
-          drive.getRobotRelativeSpeeds().vx,
-          1e-9);
+          2.0 * SwerveConstants.getWheelRadiusMeters(), drive.getRobotRelativeSpeeds().vx, 1e-9);
     } finally {
       SwerveCalibration.clearWheelRadiusMeters();
       drive.close();

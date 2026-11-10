@@ -1,15 +1,15 @@
 package org.Griffins1884.frc2027.OI;
 
-import static org.wpilib.driverstation.GenericHID.RumbleType.*;
 import static org.wpilib.command2.Commands.startEnd;
+import static org.wpilib.driverstation.GenericHID.RumbleType.*;
 
+import java.util.function.DoubleSupplier;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.ParallelCommandGroup;
 import org.wpilib.command2.button.CommandNiDsPS5Controller;
 import org.wpilib.command2.button.InternalButton;
 import org.wpilib.command2.button.Trigger;
-import java.util.function.DoubleSupplier;
 
 public class PS5ProDriverMap extends CommandNiDsPS5Controller implements DriverMap {
   // WPILib doesn't define DualSense Edge rear buttons; these rely on DS exposing
@@ -94,22 +94,27 @@ public class PS5ProDriverMap extends CommandNiDsPS5Controller implements DriverM
     return new InternalButton();
   }
 
-  //Unused Intentionally
-  public ParallelCommandGroup generateParallelGroup(double value){
-    Command leftRumble = Commands.runOnce(()-> getHID().setRumble(LEFT_RUMBLE, value));
-    Command leftTriggerRumble = Commands.runOnce(() -> getHID().setRumble(LEFT_TRIGGER_RUMBLE, value));
+  // Unused Intentionally
+  public ParallelCommandGroup generateParallelGroup(double value) {
+    Command leftRumble = Commands.runOnce(() -> getHID().setRumble(LEFT_RUMBLE, value));
+    Command leftTriggerRumble =
+        Commands.runOnce(() -> getHID().setRumble(LEFT_TRIGGER_RUMBLE, value));
 
-    Command rightRumble = Commands.runOnce(()-> getHID().setRumble(RIGHT_RUMBLE, value));
-    Command rightTriggerRumble = Commands.runOnce(() -> getHID().setRumble(RIGHT_TRIGGER_RUMBLE, value));
+    Command rightRumble = Commands.runOnce(() -> getHID().setRumble(RIGHT_RUMBLE, value));
+    Command rightTriggerRumble =
+        Commands.runOnce(() -> getHID().setRumble(RIGHT_TRIGGER_RUMBLE, value));
 
-    ParallelCommandGroup hidGroup = leftRumble.alongWith(leftTriggerRumble).alongWith(rightRumble).alongWith(rightTriggerRumble);
+    ParallelCommandGroup hidGroup =
+        leftRumble
+            .alongWith(leftTriggerRumble)
+            .alongWith(rightRumble)
+            .alongWith(rightTriggerRumble);
 
     return hidGroup;
   }
 
   @Override
   public Command rumble() {
-    return startEnd(
-        () -> generateParallelGroup(1), () -> generateParallelGroup(0));
+    return startEnd(() -> generateParallelGroup(1), () -> generateParallelGroup(0));
   }
 }

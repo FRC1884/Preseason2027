@@ -85,9 +85,9 @@ class StaticAssetAccessTest {
       Path replacement = Files.writeString(root.resolve("replacement"), "new");
       Files.move(replacement, file, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
       Files.setLastModifiedTime(
-              file,
-              java.nio.file.attribute.FileTime.from(
-                      time.toInstant().plus(java.time.Duration.ofSeconds(2))));
+          file,
+          java.nio.file.attribute.FileTime.from(
+              time.toInstant().plus(java.time.Duration.ofSeconds(2))));
       assertFalse(asset.unchanged());
       assertFalse(asset.unchanged());
       assertThrows(IOException.class, asset::openBody);
@@ -153,9 +153,8 @@ class StaticAssetAccessTest {
     long before = unix.getOpenFileDescriptorCount();
     for (int index = 0; index < 100; index++) {
       try (var asset = access.inspect(request);
-
-        @SuppressWarnings("unused")
-          var body = asset.openBody()) {
+          @SuppressWarnings("unused")
+              var body = asset.openBody()) {
         // Only the final directory and the body may remain open, regardless of depth.
         assertTrue(unix.getOpenFileDescriptorCount() <= before + 3);
       }

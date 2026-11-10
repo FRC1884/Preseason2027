@@ -5,16 +5,6 @@ import static org.wpilib.units.Units.RadiansPerSecond;
 import static org.wpilib.units.Units.Seconds;
 import static org.wpilib.units.Units.Volts;
 
-import org.wpilib.math.controller.PIDController;
-import org.wpilib.math.controller.SimpleMotorFeedforward;
-import org.wpilib.util.Alert;
-import org.wpilib.util.Alert.Level;
-import org.wpilib.driverstation.RobotState;
-import org.wpilib.system.Timer;
-import org.wpilib.sysid.SysIdRoutineLog;
-import org.wpilib.command2.Command;
-import org.wpilib.command2.SubsystemBase;
-import org.wpilib.command2.sysid.SysIdRoutine;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -27,6 +17,16 @@ import org.Griffins1884.frc2027.mechanisms.MechanismTelemetry;
 import org.Griffins1884.frc2027.runtime.RuntimeModeManager;
 import org.Griffins1884.frc2027.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.SubsystemBase;
+import org.wpilib.command2.sysid.SysIdRoutine;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.math.controller.PIDController;
+import org.wpilib.math.controller.SimpleMotorFeedforward;
+import org.wpilib.sysid.SysIdRoutineLog;
+import org.wpilib.system.Timer;
+import org.wpilib.util.Alert;
+import org.wpilib.util.Alert.Level;
 
 /**
  * Mechanism-backed replacement for the old generic velocity roller base.
@@ -120,7 +120,11 @@ public abstract class VelocityRollerMechanism<G extends VelocityRollerMechanism.
                 }),
             new SysIdRoutine.Mechanism(voltage -> io.runVolts(voltage.in(Volts)), sysIdLog, this));
 
-    disconnected = new Alert("Velocity Roller Motor Disconnected"+name, name + " motor disconnected!", Level.MEDIUM);
+    disconnected =
+        new Alert(
+            "Velocity Roller Motor Disconnected" + name,
+            name + " motor disconnected!",
+            Level.MEDIUM);
     stateTimer.start();
     recordConfigSnapshot();
   }
@@ -238,8 +242,7 @@ public abstract class VelocityRollerMechanism<G extends VelocityRollerMechanism.
     } else {
       double pidOutput = pidController.calculate(measuredVelocity, goalVelocity);
       double outputVoltage =
-          Math.clamp(
-              pidOutput + totalFeedforwardVolts, -config.maxVoltage(), config.maxVoltage());
+          Math.clamp(pidOutput + totalFeedforwardVolts, -config.maxVoltage(), config.maxVoltage());
       io.runVolts(outputVoltage);
     }
 

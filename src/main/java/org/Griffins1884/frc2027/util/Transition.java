@@ -1,8 +1,8 @@
 package org.Griffins1884.frc2027.util;
 
+import lombok.Getter;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
-import lombok.Getter;
 
 public class Transition<E extends Enum<E>> {
   @Getter protected final E startState;

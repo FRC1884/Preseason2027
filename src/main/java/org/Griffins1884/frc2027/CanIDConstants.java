@@ -6,7 +6,7 @@ import org.wpilib.hardware.bus.CANPort;
 public class CanIDConstants {
   public static RobotType ROBOT = GlobalConstants.ROBOT;
 
-  //CANPorts
+  // CANPorts
   public static final CANPort MECHANISM_ARM_SPARK_FLEX = CANPort.CAN_S0;
   public static final CANPort INTAKE_PIVOT_IO_FLEX = CANPort.CAN_S0;
   public static final CANPort INTAKE_PIVOT_IO_MAX = CANPort.CAN_S0;

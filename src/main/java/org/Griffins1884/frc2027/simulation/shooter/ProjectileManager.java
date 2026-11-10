@@ -1,10 +1,10 @@
 package org.Griffins1884.frc2027.simulation.shooter;
 
-import org.wpilib.math.geometry.Pose3d;
-import org.wpilib.system.Timer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.wpilib.math.geometry.Pose3d;
+import org.wpilib.system.Timer;
 
 /** Owns active simulated projectiles and advances them over time. */
 public final class ProjectileManager {

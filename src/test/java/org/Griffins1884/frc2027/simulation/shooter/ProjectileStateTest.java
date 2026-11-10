@@ -3,8 +3,8 @@ package org.Griffins1884.frc2027.simulation.shooter;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.wpilib.math.geometry.Translation3d;
 import org.junit.jupiter.api.Test;
+import org.wpilib.math.geometry.Translation3d;
 
 class ProjectileStateTest {
   @Test

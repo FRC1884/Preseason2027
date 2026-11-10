@@ -1,7 +1,7 @@
 package org.Griffins1884.frc2027.subsystems.swerve;
 
-import org.wpilib.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
+import org.wpilib.math.geometry.Rotation2d;
 
 public interface GyroIO {
   @AutoLog
