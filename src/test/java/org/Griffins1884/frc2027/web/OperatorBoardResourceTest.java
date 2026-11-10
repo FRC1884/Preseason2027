@@ -150,7 +150,10 @@ class OperatorBoardResourceTest {
       int count;
       while ((count = input.read(buffer)) >= 0) received += count;
       assertTrue(received < 16L * 1024 * 1024, "A changed response must not look complete");
-      await(() -> server.getMetricsSnapshot().activeTransfers() == 0);
+      await(
+          () ->
+              server.getMetricsSnapshot().activeTransfers() == 0
+                  && server.getMetricsSnapshot().ioFailures() == 1);
       assertEquals(0, server.getMetricsSnapshot().fullResponses());
       assertEquals(1, server.getMetricsSnapshot().ioFailures());
     }
