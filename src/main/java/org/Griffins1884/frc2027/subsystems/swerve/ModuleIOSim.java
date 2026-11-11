@@ -8,9 +8,9 @@ import org.wpilib.math.geometry.Rotation2d;
 import java.util.Arrays;
 import org.Griffins1884.frc2027.util.LoggedTunableNumber;
 import org.Griffins1884.frc2027.util.SparkUtil;
-import org.Griffins1884.frc2027.simV2.sim3d.SwerveCorner;
-import org.Griffins1884.frc2027.simV2.sim3d.TerrainAwareSwerveSimulation;
-import org.Griffins1884.frc2027.simV2.sim3d.TerrainDriveLaws;
+import org.Griffins1884.frc2027.sim3d.SwerveCorner;
+import org.Griffins1884.frc2027.sim3d.TerrainAwareSwerveSimulation;
+import org.Griffins1884.frc2027.sim3d.TerrainDriveLaws;
 import org.Griffins1884.frc2027.simV2.simulation.drivesims.SwerveModuleSimulation;
 import org.Griffins1884.frc2027.simV2.simulation.motorsims.SimulatedMotorController;
 
