@@ -191,7 +191,7 @@ class SwerveLoggingTest {
     double velocity = 1.0;
     double trim;
     boolean connected = true;
-    Rotation2d angle = Rotation2d.kZero;
+    Rotation2d angle = Rotation2d.ZERO;
 
     @Override
     public void updateInputs(ModuleIOInputs inputs, double timestamp) {
@@ -213,7 +213,7 @@ class SwerveLoggingTest {
     public void updateInputs(GyroIOInputs inputs, double timestamp) {
       inputs.connected = true;
       inputs.odometryYawTimestamps = new double[] {timestamp};
-      inputs.odometryYawPositions = new Rotation2d[] {Rotation2d.kZero};
+      inputs.odometryYawPositions = new Rotation2d[] {Rotation2d.ZERO};
     }
   }
 }

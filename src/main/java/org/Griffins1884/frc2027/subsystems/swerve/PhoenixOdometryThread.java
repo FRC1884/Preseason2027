@@ -33,13 +33,41 @@ public class PhoenixOdometryThread extends Thread {
   private final List<Queue<Double>> genericQueues = new ArrayList<>();
   private final List<Queue<Double>> timestampQueues = new ArrayList<>();
 
+  private volatile long droppedSamples;
+
+  private static final int QUEUE_CAPACITY = 20;
+
+  private static final long SHUTDOWN_TIMEOUT_MILLIS = 1_000;
+
   private static boolean isCANFD = detectCanFd();
+
+  private volatile boolean shutdownRequested;
 
   private static boolean detectCanFd() {
     try {
       return new CANBus("").isNetworkFD();
     } catch (RuntimeException e) {
       return false;
+    }
+  }
+
+  public long getDroppedSamples() {
+    return droppedSamples;
+  }
+
+  public void shutdown() {
+    shutdownRequested = true;
+    interrupt();
+
+    try {
+      join(SHUTDOWN_TIMEOUT_MILLIS);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IllegalStateException("Interrupted while stopping odometry thread", e);
+    }
+
+    if (isAlive()) {
+      throw new IllegalStateException("Odometry thread did not stop before timeout");
     }
   }
 
@@ -52,7 +80,7 @@ public class PhoenixOdometryThread extends Thread {
     return instance;
   }
 
-  private PhoenixOdometryThread() {
+  PhoenixOdometryThread() {
     setName("PhoenixOdometryThread");
     setDaemon(true);
   }
@@ -62,6 +90,26 @@ public class PhoenixOdometryThread extends Thread {
     if (timestampQueues.size() > 0) {
       super.start();
     }
+  }
+  
+  private boolean anyQueueFull(List<Queue<Double>> queues){
+    for (Queue<Double> queue : queues) if (queue.size() >= QUEUE_CAPACITY) return true;
+    return false;
+  }
+
+  /** All channels append together or all drop together; caller holds odometryLock. */
+  void publishSample(double timestamp) {
+    if (anyQueueFull(phoenixQueues)
+        || anyQueueFull(genericQueues)
+        || anyQueueFull(timestampQueues)) {
+      droppedSamples++;
+      return;
+    }
+    for (int i = 0; i < phoenixSignals.length; i++)
+      phoenixQueues.get(i).offer(phoenixSignals[i].getValueAsDouble());
+    for (int i = 0; i < genericSignals.size(); i++)
+      genericQueues.get(i).offer(genericSignals.get(i).getAsDouble());
+    for (Queue<Double> queue : timestampQueues) queue.offer(timestamp);
   }
 
   /** Registers a Phoenix signal to be read from the thread. */
@@ -115,21 +163,18 @@ public class PhoenixOdometryThread extends Thread {
     // https://docs.advantagekit.org/getting-started/template-projects/spark-swerve-template#real-time-thread-priority
     ThreadsJNI.setCurrentThreadPriority(1);
 
-    while (true) {
-      // Wait for updates from all signals
+    while (!shutdownRequested && !Thread.currentThread().isInterrupted()) {
       signalsLock.lock();
       try {
         if (isCANFD && phoenixSignals.length > 0) {
           BaseStatusSignal.waitForAll(2.0 / GlobalConstants.ODOMETRY_FREQUENCY, phoenixSignals);
         } else {
-          // "waitForAll" does not support blocking on multiple signals with a bus
-          // that is not CAN FD, regardless of Pro licensing. No reasoning for this
-          // behavior is provided by the documentation.
           Thread.sleep((long) (1000.0 / GlobalConstants.ODOMETRY_FREQUENCY));
           if (phoenixSignals.length > 0) BaseStatusSignal.refreshAll(phoenixSignals);
         }
       } catch (InterruptedException e) {
-        e.printStackTrace();
+        Thread.currentThread().interrupt();
+        break;
       } finally {
         signalsLock.unlock();
       }

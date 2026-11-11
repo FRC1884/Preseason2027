@@ -52,4 +52,9 @@ public class GyroIOPigeon2 implements GyroIO {
   public void resetYaw(double yawDegrees) {
     pigeon.getConfigurator().setYaw(yawDegrees);
   }
+
+  @Override
+  public void close() {
+    pigeon.close();
+  }
 }
