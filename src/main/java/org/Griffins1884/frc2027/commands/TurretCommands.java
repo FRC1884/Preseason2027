@@ -2,7 +2,7 @@ package org.Griffins1884.frc2027.commands;
 
 import static org.Griffins1884.frc2027.commands.AlignConstants.TurretAutoAim.*;
 import static org.Griffins1884.frc2027.commands.ShooterCommands.getShooterRpm;
-import static org.ironmaple.simulation.gamepieces.GamePieceProjectile.GRAVITY;
+import static org.Griffins1884.frc2027.simV2.simulation.gamepieces.GamePieceProjectile.GRAVITY;
 
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;

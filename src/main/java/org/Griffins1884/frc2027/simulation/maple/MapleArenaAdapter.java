@@ -1,6 +1,6 @@
 package org.Griffins1884.frc2027.simulation.maple;
 
-import org.ironmaple.simulation.SimulatedArena;
+import org.Griffins1884.frc2027.simV2.simulation.SimulatedArena;
 
 /** Small facade for MapleSim arena access so simulation code does not depend on the singleton. */
 public final class MapleArenaAdapter {
