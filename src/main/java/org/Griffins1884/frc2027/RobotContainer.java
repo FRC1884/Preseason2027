@@ -96,6 +96,7 @@ public class RobotContainer implements AutoCloseable {
   private final TurretSubsystem turret;
   private final ShooterPivotSubsystem shooterPivot;
   private final OperatorBoardTracker operatorBoard;
+  private ModuleConfigurationWorker swerveConfigurationWorker;
 
   // Controller
   private final DriverMap driver = getDriverController();
@@ -123,6 +124,7 @@ public class RobotContainer implements AutoCloseable {
     if (DRIVETRAIN_ENABLED) {
       drive = switch (MODE) {
         case REAL:
+          swerveConfigurationWorker = new ModuleConfigurationWorker(RobotState::isDisabled);
           // Real robot, instantiate hardware IO implementations
           yield new SwerveSubsystem(
               switch (GYRO_TYPE) {
@@ -130,10 +132,10 @@ public class RobotContainer implements AutoCloseable {
                 case ADIS -> new GyroIO() {
                 };
               },
-              new ModuleIOFullKraken(FRONT_LEFT),
-              new ModuleIOFullKraken(FRONT_RIGHT),
-              new ModuleIOFullKraken(BACK_LEFT),
-              new ModuleIOFullKraken(BACK_RIGHT));
+              new ModuleIOFullKraken(FRONT_LEFT, swerveConfigurationWorker),
+              new ModuleIOFullKraken(FRONT_RIGHT, swerveConfigurationWorker),
+              new ModuleIOFullKraken(BACK_LEFT, swerveConfigurationWorker),
+              new ModuleIOFullKraken(BACK_RIGHT, swerveConfigurationWorker));
         case SIM:
           MapleArenaSetup.ensure2026RebuiltArena();
           this.driveSimulation = requireCommandableDriveSimulation(
@@ -659,5 +661,6 @@ public class RobotContainer implements AutoCloseable {
   @Override
   public void close(){
     CommandScheduler.getInstance().cancelAll();
+    if (swerveConfigurationWorker!=null) swerveConfigurationWorker.close();
   }
 }

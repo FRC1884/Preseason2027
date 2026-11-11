@@ -137,12 +137,6 @@ public class Module {
     if (krakenDrivekS.hasChanged(hashCode()) || krakenDrivekV.hasChanged(hashCode())) {
       krakenFfModel = new SimpleMotorFeedforward(krakenDrivekS.get(), krakenDrivekV.get());
     }
-    if (krakenDrivekP.hasChanged(hashCode()) || krakenDrivekD.hasChanged(hashCode())) {
-      io.setDrivePID(krakenDrivekP.get(), 0.0, krakenDrivekD.get());
-    }
-    if (krakenTurnkP.hasChanged(hashCode()) || krakenTurnkD.hasChanged(hashCode())) {
-      io.setTurnPID(krakenTurnkP.get(), 0.0, krakenTurnkD.get());
-    }
 
     io.updateInputs(inputs, timestamp);
 
@@ -220,6 +214,8 @@ public class Module {
     SwerveModuleVelocity adjusted = state.optimize(getAngle()).cosineScale(getAngle());
     state.velocity = adjusted.velocity;
     state.angle = adjusted.angle;
+    desiredSpeedMetersPerSec = adjusted.velocity;
+    desiredAngle = adjusted.angle;
     // Mechanical Advantage-style control for full Kraken modules
     double speedRadPerSec = state.velocity / getWheelRadiusMeters();
     io.setDriveVelocity(speedRadPerSec, krakenFfModel.calculate(speedRadPerSec));

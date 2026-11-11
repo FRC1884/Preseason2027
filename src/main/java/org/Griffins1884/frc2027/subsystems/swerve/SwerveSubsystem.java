@@ -128,6 +128,8 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   private String turnSysIdLastCompletedPhase = "NONE";
   private Runnable odometryResetListener = () -> {};
 
+  private long measuredWheelRadiusRevision = -1;
+
   private Translation2d fieldAcceleration = new Translation2d();
   private Translation2d lastFieldVelocity = new Translation2d();
   private double lastFieldVelTimestamp = Double.NaN;
@@ -290,9 +292,10 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
       for (var module : modules) {
         module.setSysIdActive(driveSysIdActive || turnSysIdActive);
         module.periodic(timestamp);
-        module.updateConfiguration(RobotState.isDisabled());
       }
       measuredChassisSpeeds = kinematics.toChassisVelocities(getModuleStates());
+      measuredKinematicsCount++;
+      measuredWheelRadiusRevision = SwerveCalibration.getWheelRadiusRevision();
       if (GlobalConstants.isDebugMode()) {
         Logger.recordOutput("Swerve/SysId/DriveLastCompleted", driveSysIdLastCompleted);
         Logger.recordOutput("Swerve/SysId/DriveLastCompletedPhase", driveSysIdLastCompletedPhase);
@@ -307,6 +310,10 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
     } finally {
       odometryLock.unlock();
+    }
+
+    for (var module: modules){
+      module.updateConfiguration(RobotState.isDisabled());
     }
 
     // Stop moving when disabled
@@ -788,6 +795,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
    * return to their normal orientations the next time a nonzero velocity is requested.
    */
   public void stopWithX() {
+    if (!ensureConfigurationReady()) return;
     Rotation2d[] headings = new Rotation2d[4];
     for (int i = 0; i < 4; i++) {
       headings[i] = SwerveConstants.MODULE_TRANSLATIONS[i].getAngle().get();
@@ -1030,10 +1038,24 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   /** Returns the measured chassis speeds of the robot. */
   @AutoLogOutput(key = "SwerveChassisVelocities/Measured")
   private ChassisVelocities getChassisVelocities() {
+    long revision = SwerveCalibration.getWheelRadiusRevision();
+
+    if (revision != measuredWheelRadiusRevision) {
+      odometryLock.lock();
+      try {
+        revision = SwerveCalibration.getWheelRadiusRevision();
+        if (revision != measuredWheelRadiusRevision) {
+          measuredChassisSpeeds = kinematics.toChassisVelocities(getModuleStates());
+          measuredKinematicsCount++;
+          measuredWheelRadiusRevision = revision;
+        }
+      } finally {
+        odometryLock.unlock();
+      }
+    }
+
     return new ChassisVelocities(
-            measuredChassisSpeeds.vx,
-            measuredChassisSpeeds.vy,
-            measuredChassisSpeeds.omega);
+            measuredChassisSpeeds.vx, measuredChassisSpeeds.vy, measuredChassisSpeeds.omega);
   }
 
   public Translation2d getFieldAcceleration() {

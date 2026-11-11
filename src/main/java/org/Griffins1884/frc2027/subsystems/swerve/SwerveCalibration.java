@@ -2,12 +2,20 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 
 import org.wpilib.preferences.Preferences;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 public final class SwerveCalibration {
   private static final String WHEEL_RADIUS_KEY = "Swerve/Calibration/WheelRadiusMeters";
   private static final String MODULE_ZERO_TRIM_PREFIX =
       "Swerve/Calibration/ModuleZeroTrimRotations/";
 
+  private static final AtomicLong wheelRadiusRevision = new AtomicLong();
+
   private SwerveCalibration() {}
+
+  public static long getWheelRadiusRevision() {
+    return wheelRadiusRevision.get();
+  }
 
   public static double getWheelRadiusMeters(double fallbackMeters) {
     return Preferences.getDouble(WHEEL_RADIUS_KEY, fallbackMeters);
@@ -15,10 +23,12 @@ public final class SwerveCalibration {
 
   public static void setWheelRadiusMeters(double wheelRadiusMeters) {
     Preferences.setDouble(WHEEL_RADIUS_KEY, wheelRadiusMeters);
+    wheelRadiusRevision.incrementAndGet();
   }
 
   public static void clearWheelRadiusMeters() {
     Preferences.remove(WHEEL_RADIUS_KEY);
+    wheelRadiusRevision.incrementAndGet();
   }
 
   public static double getModuleZeroTrimRotations(String moduleKey) {
