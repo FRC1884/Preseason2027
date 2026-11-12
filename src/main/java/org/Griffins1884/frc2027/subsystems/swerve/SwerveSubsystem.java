@@ -354,6 +354,24 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
         // Update odometry
         double[] sampleTimestamps =
                 modules[0].getOdometryTimestamps(); // All signals are sampled together
+        int sampleCount = sampleTimestamps.length;
+        int gyroSampleCount = gyroInputs.odometryYawPositions.length;
+
+        boolean validSnapshot = true;
+
+        if (sampleCount > 0) {
+          for (Module module : modules) {
+            double[] timestamps = module.getOdometryTimestamps();
+            SwerveModulePosition[] positions = module.getOdometryPositions();
+
+            if (timestamps == null
+                    || positions == null
+                    || timestamps.length != sampleCount
+                    || positions.length != sampleCount) {
+              validSnapshot = false;
+              break;
+            }
+
 
         int sampleCount = 0;
         int gyroSampleCount = 0;
@@ -389,6 +407,17 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
                 break;
               }
             }
+
+            if (!validSnapshot) {
+              break;
+            }
+          }
+
+          double[] gyroTimestamps = gyroInputs.odometryYawTimestamps;
+          Rotation2d[] gyroPositions = gyroInputs.odometryYawPositions;
+
+          // Empty gyro batches retain the previous heading.
+          if (gyroInputs.connected && gyroTimestamps.length > 0) {
 
             if (!validSnapshot) {
               break;
@@ -453,7 +482,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
         }
       }
     } finally {
-        odometryLock.unlock();
+      odometryLock.unlock();
     }
 
     Pose2d estimatedPose = poseEstimator.getEstimatedPosition();
