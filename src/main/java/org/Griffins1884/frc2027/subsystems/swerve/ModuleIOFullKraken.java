@@ -84,7 +84,68 @@ public class ModuleIOFullKraken implements ModuleIO {
   // TimeStamp Queue
   private final Queue<Double> timestampQueue;
 
-  public ModuleIOFullKraken(ModuleConstants moduleConstants) {
+  @Override
+  public void clearOdometrySamples(){
+    timestampQueue.clear();
+    turnPositionQueue.clear();
+    drivePositionQueue.clear();
+
+  }
+
+  private ModuleConfigurationWorker.Handle configurationHandle;
+
+  private String applyConfiguration(ModuleConfiguration configuration, boolean brake) {
+    synchronized (driveConfig) {
+      driveConfig.Slot0.kP = configuration.driveP();
+      driveConfig.Slot0.kI = configuration.driveI();
+      driveConfig.Slot0.kD = configuration.driveD();
+      driveConfig.MotorOutput.NeutralMode =
+              brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
+
+      var status = driveMotor.getConfigurator().apply(driveConfig, 0.25);
+      if (!status.isOK()) return "Drive configuration failed: " + status;
+    }
+
+    synchronized (turnConfig) {
+      turnConfig.Slot0.kP = configuration.turnP();
+      turnConfig.Slot0.kI = configuration.turnI();
+      turnConfig.Slot0.kD = configuration.turnD();
+      turnConfig.MotorOutput.NeutralMode =
+              brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
+
+      var status = turnMotor.getConfigurator().apply(turnConfig, 0.25);
+      if (!status.isOK()) return "Turn configuration failed: " + status;
+    }
+
+    return "";
+  }
+
+  @Override
+  public void initializeConfiguration(ModuleConfiguration configuration) {
+    configurationHandle.initialize(configuration);
+  }
+
+  @Override
+  public boolean requestConfiguration(ModuleConfiguration configuration) {
+    return configurationHandle.request(configuration);
+  }
+
+  @Override
+  public void updateConfigurationState(boolean disabled) {
+    configurationHandle.updateState(disabled);
+  }
+
+  @Override
+  public boolean isConfigurationReady() {
+    return configurationHandle.isReady();
+  }
+
+  @Override
+  public ModuleConfigurationWorker.Status getConfigurationStatus() {
+    return configurationHandle.status();
+  }
+
+  public ModuleIOFullKraken(ModuleConstants moduleConstants, ModuleConfigurationWorker worker) {
     zeroRotation = moduleConstants.zeroRotation();
     hasCancoder = moduleConstants.cancoderID() >= 0;
     encoderOffset = hasCancoder ? new Rotation2d() : zeroRotation;
@@ -232,6 +293,7 @@ public class ModuleIOFullKraken implements ModuleIO {
           turnSupplyCurrentAmps,
           turnTorqueCurrentAmps);
     }
+    configurationHandle = worker.register(this::applyConfiguration);
   }
 
   @Override

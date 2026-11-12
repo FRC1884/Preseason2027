@@ -81,22 +81,4 @@ public class PS5DriverMap extends CommandNiDsPS5Controller implements DriverMap 
     return new InternalButton();
   }
 
-  //Unused Intentionally
-  public ParallelCommandGroup generateParallelGroup(double value){
-    Command leftRumble = Commands.runOnce(()-> getHID().setRumble(LEFT_RUMBLE, value));
-    Command leftTriggerRumble = Commands.runOnce(() -> getHID().setRumble(LEFT_TRIGGER_RUMBLE, value));
-
-    Command rightRumble = Commands.runOnce(()-> getHID().setRumble(RIGHT_RUMBLE, value));
-    Command rightTriggerRumble = Commands.runOnce(() -> getHID().setRumble(RIGHT_TRIGGER_RUMBLE, value));
-
-    ParallelCommandGroup hidGroup = leftRumble.alongWith(leftTriggerRumble).alongWith(rightRumble).alongWith(rightTriggerRumble);
-
-    return hidGroup;
-  }
-
-  @Override
-  public Command rumble() {
-    return startEnd(
-        () -> generateParallelGroup(1), () -> generateParallelGroup(0));
-  }
 }

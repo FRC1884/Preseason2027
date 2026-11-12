@@ -128,6 +128,8 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   private String turnSysIdLastCompletedPhase = "NONE";
   private Runnable odometryResetListener = () -> {};
 
+  private long measuredWheelRadiusRevision = -1;
+
   private Translation2d fieldAcceleration = new Translation2d();
   private Translation2d lastFieldVelocity = new Translation2d();
   private double lastFieldVelTimestamp = Double.NaN;
@@ -271,6 +273,15 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
   long discardedSnapshotCount() {
     return discardedSnapshotCount;
+  public void resetHeadingToAllianceForward(Alliance alliance) {
+    Rotation2d heading = getAllianceForwardRotation(alliance);
+    resetOdometry(new Pose2d(getPose().getTranslation(), heading), true);
+    Logger.recordOutput("Odometry/AllianceForwardReset/HeadingDeg", heading.getDegrees());
+    Logger.recordOutput("Odometry/AllianceForwardReset/Alliance", alliance.name());
+  }
+
+  public static Rotation2d getAllianceForwardRotation(Alliance alliance) {
+    return alliance == Alliance.RED ? Rotation2d.fromDegrees(180.0) : new Rotation2d();
   }
 
   public void resetHeadingToAllianceForward(Alliance alliance) {
@@ -298,10 +309,10 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
       for (var module : modules) {
         module.setSysIdActive(driveSysIdActive || turnSysIdActive);
         module.periodic(timestamp);
-        module.updateConfiguration(RobotState.isDisabled());
       }
       measuredChassisSpeeds = kinematics.toChassisVelocities(getModuleStates());
       measuredKinematicsCount++;
+      measuredWheelRadiusRevision = SwerveCalibration.getWheelRadiusRevision();
       if (GlobalConstants.isDebugMode()) {
         Logger.recordOutput("Swerve/SysId/DriveLastCompleted", driveSysIdLastCompleted);
         Logger.recordOutput("Swerve/SysId/DriveLastCompletedPhase", driveSysIdLastCompletedPhase);
@@ -316,6 +327,10 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
     } finally {
       odometryLock.unlock();
+    }
+
+    for (var module: modules){
+      module.updateConfiguration(RobotState.isDisabled());
     }
 
     // Stop moving when disabled
@@ -357,6 +372,33 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
               break;
             }
 
+
+        int sampleCount = 0;
+        int gyroSampleCount = 0;
+
+        if (sampleTimestamps == null || gyroInputs.odometryYawTimestamps == null || gyroInputs.odometryYawPositions == null){
+          invalidSnapshotCount++;
+        }
+        else{
+          sampleCount = sampleTimestamps.length;
+          gyroSampleCount = gyroInputs.odometryYawPositions.length;
+        }
+
+        boolean validSnapshot = true;
+
+        if (sampleCount > 0) {
+          for (Module module : modules) {
+            double[] timestamps = module.getOdometryTimestamps();
+            SwerveModulePosition[] positions = module.getOdometryPositions();
+
+            if (timestamps == null
+                    || positions == null
+                    || timestamps.length != sampleCount
+                    || positions.length != sampleCount) {
+              validSnapshot = false;
+              break;
+            }
+
             for (int i = 0; i < sampleCount; i++) {
               if (!Double.isFinite(timestamps[i])
                       || Math.abs(timestamps[i] - sampleTimestamps[i]) > 1e-9
@@ -376,6 +418,17 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
           // Empty gyro batches retain the previous heading.
           if (gyroInputs.connected && gyroTimestamps.length > 0) {
+
+            if (!validSnapshot) {
+              break;
+            }
+          }
+
+          double[] gyroTimestamps = gyroInputs.odometryYawTimestamps;
+          Rotation2d[] gyroPositions = gyroInputs.odometryYawPositions;
+
+          // Empty gyro batches retain the previous heading.
+          if (gyroTimestamps != null && gyroInputs.connected && gyroTimestamps.length > 0) {
             if (gyroTimestamps.length != sampleCount || gyroPositions.length != sampleCount) {
               validSnapshot = false;
             } else {
@@ -1110,6 +1163,20 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
       wheelRadiusMeters = radiusSupplier.getAsDouble();
       measuredChassisSpeeds = kinematics.toChassisVelocities(getModuleStates());
       wheelRadiusRevision = currentRevision;
+    long revision = SwerveCalibration.getWheelRadiusRevision();
+
+    if (revision != measuredWheelRadiusRevision) {
+      odometryLock.lock();
+      try {
+        revision = SwerveCalibration.getWheelRadiusRevision();
+        if (revision != measuredWheelRadiusRevision) {
+          measuredChassisSpeeds = kinematics.toChassisVelocities(getModuleStates());
+          measuredKinematicsCount++;
+          measuredWheelRadiusRevision = revision;
+        }
+      } finally {
+        odometryLock.unlock();
+      }
     }
 
     return new ChassisVelocities(
@@ -1241,6 +1308,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
       for (Module module : modules) {
         module.getIo().clearOdometrySamples();
       }
+      gyroIO.clearOdometrySamples();
 
       if (resetGyro) {
         gyroIO.resetYaw(pose.getRotation().getDegrees());
