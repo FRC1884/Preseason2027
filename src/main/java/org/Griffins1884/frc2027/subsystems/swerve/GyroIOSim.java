@@ -6,6 +6,7 @@ import org.wpilib.math.util.Units;
 import org.Griffins1884.frc2027.util.SparkUtil;
 import org.Griffins1884.frc2027.sim3d.TerrainAwareSwerveSimulation;
 import org.Griffins1884.frc2027.sim3d.TerrainSample;
+import org.wpilib.system.Timer;
 
 public class GyroIOSim implements GyroIO {
   private final TerrainAwareSwerveSimulation simulation;
@@ -13,9 +14,13 @@ public class GyroIOSim implements GyroIO {
   public GyroIOSim(TerrainAwareSwerveSimulation simulation) {
     this.simulation = simulation;
   }
-
   @Override
   public void updateInputs(GyroIOInputs inputs) {
+    updateInputs(inputs, Timer.getTimestamp());
+  }
+
+  @Override
+  public void updateInputs(GyroIOInputs inputs, double acquisitionTimestampSeconds) {
     TerrainSample terrainSample = simulation.getTerrainSample();
     inputs.connected = true;
     inputs.yawPosition = simulation.getGyroSimulation().getGyroReading();
@@ -29,7 +34,8 @@ public class GyroIOSim implements GyroIO {
     inputs.pitchVelocityRadPerSec = simulation.getPitchRateRadPerSec();
     inputs.rollVelocityRadPerSec = simulation.getRollRateRadPerSec();
 
-    inputs.odometryYawTimestamps = SparkUtil.getSimulationOdometryTimeStamps();
+    inputs.odometryYawTimestamps =
+            SparkUtil.getSimulationOdometryTimeStamps(acquisitionTimestampSeconds);
     inputs.odometryYawPositions = simulation.getGyroSimulation().getCachedGyroReadings();
   }
 }

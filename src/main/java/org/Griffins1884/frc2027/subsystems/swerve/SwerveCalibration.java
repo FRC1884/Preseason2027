@@ -26,7 +26,7 @@ public final class SwerveCalibration {
     wheelRadiusRevision.incrementAndGet();
   }
 
-  public static void clearWheelRadiusMeters() {
+  public static synchronized void clearWheelRadiusMeters() {
     Preferences.remove(WHEEL_RADIUS_KEY);
     wheelRadiusRevision.incrementAndGet();
   }

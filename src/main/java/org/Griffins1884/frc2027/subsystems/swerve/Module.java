@@ -193,15 +193,23 @@ public class Module {
 
     callsToPeriodic++;
 
-    // Calculate positions for odometry
-    int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
-    odometryPositions = new SwerveModulePosition[sampleCount];
-    for (int i = 0; i < sampleCount; i++) {
-      double positionMeters =
-          getCompensatedDrivePositionRad(inputs.odometryDrivePositionsRad[i], i)
-              * getWheelRadiusMeters();
-      Rotation2d angle = inputs.odometryTurnPositions[i];
-      odometryPositions[i] = new SwerveModulePosition(positionMeters, angle);
+    double[] timestamps = inputs.odometryTimestamps;
+    double[] drivePositions = inputs.odometryDrivePositionsRad;
+    Rotation2d[] turnPositions = inputs.odometryTurnPositions;
+
+    int sampleCount = timestamps == null ? 0 : timestamps.length;
+    if (drivePositions == null
+            || turnPositions == null
+            || drivePositions.length != sampleCount
+            || turnPositions.length != sampleCount) {
+      odometryPositions = new SwerveModulePosition[0];
+    } else {
+      odometryPositions = new SwerveModulePosition[sampleCount];
+      for (int i = 0; i < sampleCount; i++) {
+        double positionMeters =
+                getCompensatedDrivePositionRad(drivePositions[i], i) * getWheelRadiusMeters();
+        odometryPositions[i] = new SwerveModulePosition(positionMeters, turnPositions[i]);
+      }
     }
 
     // Update alerts

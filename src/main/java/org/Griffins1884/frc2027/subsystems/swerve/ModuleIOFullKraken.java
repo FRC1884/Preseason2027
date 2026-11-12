@@ -84,6 +84,14 @@ public class ModuleIOFullKraken implements ModuleIO {
   // TimeStamp Queue
   private final Queue<Double> timestampQueue;
 
+  @Override
+  public void clearOdometrySamples(){
+    timestampQueue.clear();
+    turnPositionQueue.clear();
+    drivePositionQueue.clear();
+
+  }
+
   private ModuleConfigurationWorker.Handle configurationHandle;
 
   private String applyConfiguration(ModuleConfiguration configuration, boolean brake) {
