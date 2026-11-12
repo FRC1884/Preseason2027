@@ -394,7 +394,6 @@ public final class GlobalConstants {
                         "apriltags",
                         fieldType.getJsonFolder(),
                         name + ".json");
-                // layout = new AprilTagFieldLayout(p);
                 Fields fieldInfo = fieldType == FieldType.ANDYMARK ? Fields.FRC_2026_REBUILT_ANDY_MARK : Fields.FRC_2026_REBUILT_WELDED;
                 layout  = fieldInfo.loadField();
                 layoutString = layout.getJson();
