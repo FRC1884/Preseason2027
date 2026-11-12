@@ -238,15 +238,14 @@ public class Vision extends SubsystemBase implements VisionTargetProvider {
       final int cameraIndex = i;
       final VisionIO.VisionIOInputs cameraInputs = inputs[i];
       buildLimelightEstimate(cameraIndex, cameraLabel, cameraInputs)
-          .ifPresent(
-              estimate ->
-                  acceptedEstimates.add(
-                      new ReferenceCameraEstimate(
-                          cameraIndex,
-                          cameraLabel,
-                          estimate,
-                          getPrimaryTagDistanceMeters(cameraInputs),
-                          getReferenceStdDevScore(cameraInputs))));
+          .ifPresent(estimate ->
+              acceptedEstimates.add(
+                  new ReferenceCameraEstimate(
+                      cameraIndex,
+                      cameraLabel,
+                      estimate,
+                      getPrimaryTagDistanceMeters(cameraInputs),
+                      getReferenceStdDevScore(cameraInputs))));
 
       boolean isOutlier =
           inputs[i].rejectReason == VisionIO.RejectReason.LARGE_TRANSLATION_RESIDUAL
@@ -288,20 +287,19 @@ public class Vision extends SubsystemBase implements VisionTargetProvider {
             ? "ACCEPTED"
             : bestEstimate.isPresent() ? "ODOMETRY_PREFERRED" : "NO_ACCEPTED_ESTIMATE");
 
-    bestEstimate.ifPresent(
-        selected -> {
-          if (!shouldAcceptReferenceObservation(cameraFom, odometryFom, selected)) {
-            return;
-          }
-          referenceOdometryFom = cameraFom;
-          Logger.recordOutput("Vision/fusedAccepted", selected.estimate().visionRobotPoseMeters());
-          if (consumer != null) {
-            consumer.accept(
-                selected.estimate().visionRobotPoseMeters(),
-                selected.estimate().timestampSeconds(),
-                selected.estimate().visionMeasurementStdDevs());
-          }
-        });
+    bestEstimate.ifPresent(selected -> {
+      if (!shouldAcceptReferenceObservation(cameraFom, odometryFom, selected)) {
+        return;
+      }
+      referenceOdometryFom = cameraFom;
+      Logger.recordOutput("Vision/fusedAccepted", selected.estimate().visionRobotPoseMeters());
+      if (consumer != null) {
+        consumer.accept(
+            selected.estimate().visionRobotPoseMeters(),
+            selected.estimate().timestampSeconds(),
+            selected.estimate().visionMeasurementStdDevs());
+      }
+    });
 
     Logger.recordOutput("Vision/latencyPeriodicSec", Timer.getTimestamp() - startTime);
   }

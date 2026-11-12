@@ -310,14 +310,13 @@ public final class LogRollover {
     }
     try (Stream<Path> walk = Files.walk(path)) {
       walk.sorted(Comparator.reverseOrder())
-          .forEach(
-              p -> {
-                try {
-                  Files.deleteIfExists(p);
-                } catch (IOException ex) {
-                  throw new RuntimeException(ex);
-                }
-              });
+          .forEach(p -> {
+            try {
+              Files.deleteIfExists(p);
+            } catch (IOException ex) {
+              throw new RuntimeException(ex);
+            }
+          });
     } catch (RuntimeException runtimeEx) {
       if (runtimeEx.getCause() instanceof IOException ioEx) {
         throw ioEx;

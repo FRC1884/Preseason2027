@@ -187,11 +187,10 @@ public class DriveCommands {
 
     return Commands.sequence(
         // Reset data
-        Commands.runOnce(
-            () -> {
-              velocitySamples.clear();
-              voltageSamples.clear();
-            }),
+        Commands.runOnce(() -> {
+          velocitySamples.clear();
+          voltageSamples.clear();
+        }),
 
         // Allow modules to orient
         Commands.run(
@@ -217,27 +216,26 @@ public class DriveCommands {
                 drive)
 
             // When cancelled, calculate and print results
-            .finallyDo(
-                () -> {
-                  int n = velocitySamples.size();
-                  double sumX = 0.0;
-                  double sumY = 0.0;
-                  double sumXY = 0.0;
-                  double sumX2 = 0.0;
-                  for (int i = 0; i < n; i++) {
-                    sumX += velocitySamples.get(i);
-                    sumY += voltageSamples.get(i);
-                    sumXY += velocitySamples.get(i) * voltageSamples.get(i);
-                    sumX2 += velocitySamples.get(i) * velocitySamples.get(i);
-                  }
-                  double kS = (sumY * sumX2 - sumX * sumXY) / (n * sumX2 - sumX * sumX);
-                  double kV = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+            .finallyDo(() -> {
+              int n = velocitySamples.size();
+              double sumX = 0.0;
+              double sumY = 0.0;
+              double sumXY = 0.0;
+              double sumX2 = 0.0;
+              for (int i = 0; i < n; i++) {
+                sumX += velocitySamples.get(i);
+                sumY += voltageSamples.get(i);
+                sumXY += velocitySamples.get(i) * voltageSamples.get(i);
+                sumX2 += velocitySamples.get(i) * velocitySamples.get(i);
+              }
+              double kS = (sumY * sumX2 - sumX * sumXY) / (n * sumX2 - sumX * sumX);
+              double kV = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
 
-                  NumberFormat formatter = new DecimalFormat("#0.00000");
-                  RobotLogging.debug("********** Drive FF Characterization Results **********");
-                  RobotLogging.debug("\tkS: " + formatter.format(kS));
-                  RobotLogging.debug("\tkV: " + formatter.format(kV));
-                }));
+              NumberFormat formatter = new DecimalFormat("#0.00000");
+              RobotLogging.debug("********** Drive FF Characterization Results **********");
+              RobotLogging.debug("\tkS: " + formatter.format(kS));
+              RobotLogging.debug("\tkV: " + formatter.format(kV));
+            }));
   }
 
   /** Measures the robot's wheel radius by spinning in a circle. */
@@ -259,10 +257,9 @@ public class DriveCommands {
         // Drive control sequence
         Commands.sequence(
             // Reset acceleration limiter
-            Commands.runOnce(
-                () -> {
-                  limiter.reset(0.0);
-                }),
+            Commands.runOnce(() -> {
+              limiter.reset(0.0);
+            }),
 
             // Turn in place, accelerating up to full speed
             Commands.run(
@@ -281,12 +278,11 @@ public class DriveCommands {
             Commands.waitSeconds(1.0),
 
             // Record starting measurement
-            Commands.runOnce(
-                () -> {
-                  state.positions = drive.getWheelRadiusCharacterizationPositions();
-                  state.lastAngle = drive.getRotation();
-                  state.gyroDelta = 0.0;
-                }),
+            Commands.runOnce(() -> {
+              state.positions = drive.getWheelRadiusCharacterizationPositions();
+              state.lastAngle = drive.getRotation();
+              state.gyroDelta = 0.0;
+            }),
 
             // Update gyro delta
             Commands.run(
@@ -297,35 +293,32 @@ public class DriveCommands {
                     })
 
                 // When cancelled, calculate and print results
-                .finallyDo(
-                    () -> {
-                      double[] positions = drive.getWheelRadiusCharacterizationPositions();
-                      double wheelDelta = 0.0;
-                      for (int i = 0; i < 4; i++) {
-                        wheelDelta += Math.abs(positions[i] - state.positions[i]) / 4.0;
-                      }
-                      double wheelRadius =
-                          (state.gyroDelta * SwerveConstants.DRIVE_BASE_RADIUS) / wheelDelta;
+                .finallyDo(() -> {
+                  double[] positions = drive.getWheelRadiusCharacterizationPositions();
+                  double wheelDelta = 0.0;
+                  for (int i = 0; i < 4; i++) {
+                    wheelDelta += Math.abs(positions[i] - state.positions[i]) / 4.0;
+                  }
+                  double wheelRadius =
+                      (state.gyroDelta * SwerveConstants.DRIVE_BASE_RADIUS) / wheelDelta;
 
-                      NumberFormat formatter = new DecimalFormat("#0.000");
-                      RobotLogging.debug(
-                          "********** Wheel Radius Characterization Results **********");
-                      RobotLogging.debug(
-                          "\tWheel Delta: " + formatter.format(wheelDelta) + " radians");
-                      RobotLogging.debug(
-                          "\tGyro Delta: " + formatter.format(state.gyroDelta) + " radians");
-                      RobotLogging.debug(
-                          "\tWheel Radius: "
-                              + formatter.format(wheelRadius)
-                              + " meters, "
-                              + formatter.format(Units.metersToInches(wheelRadius))
-                              + " inches");
-                      if (saveResult && Double.isFinite(wheelRadius) && wheelRadius > 0.0) {
-                        SwerveCalibration.setWheelRadiusMeters(wheelRadius);
-                        RobotLogging.debug(
-                            "\tSaved Wheel Radius: " + formatter.format(wheelRadius) + " meters");
-                      }
-                    })));
+                  NumberFormat formatter = new DecimalFormat("#0.000");
+                  RobotLogging.debug("********** Wheel Radius Characterization Results **********");
+                  RobotLogging.debug("\tWheel Delta: " + formatter.format(wheelDelta) + " radians");
+                  RobotLogging.debug(
+                      "\tGyro Delta: " + formatter.format(state.gyroDelta) + " radians");
+                  RobotLogging.debug(
+                      "\tWheel Radius: "
+                          + formatter.format(wheelRadius)
+                          + " meters, "
+                          + formatter.format(Units.metersToInches(wheelRadius))
+                          + " inches");
+                  if (saveResult && Double.isFinite(wheelRadius) && wheelRadius > 0.0) {
+                    SwerveCalibration.setWheelRadiusMeters(wheelRadius);
+                    RobotLogging.debug(
+                        "\tSaved Wheel Radius: " + formatter.format(wheelRadius) + " meters");
+                  }
+                })));
   }
 
   public static Command captureModuleZeroOffsets(SwerveSubsystem drive) {
@@ -381,11 +374,10 @@ public class DriveCommands {
   }
 
   public static Command clearSavedWheelRadius() {
-    return Commands.runOnce(
-        () -> {
-          SwerveCalibration.clearWheelRadiusMeters();
-          RobotLogging.debug("Cleared saved wheel radius override.");
-        });
+    return Commands.runOnce(() -> {
+      SwerveCalibration.clearWheelRadiusMeters();
+      RobotLogging.debug("Cleared saved wheel radius override.");
+    });
   }
 
   private static class WheelRadiusCharacterizationState {

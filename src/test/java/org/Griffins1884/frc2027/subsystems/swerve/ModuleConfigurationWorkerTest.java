@@ -17,13 +17,12 @@ class ModuleConfigurationWorkerTest {
     AtomicInteger calls = new AtomicInteger();
     try (var worker = new ModuleConfigurationWorker(() -> true)) {
       var handle =
-          worker.register(
-              (gains, brake) -> {
-                assertEquals(INITIAL, gains);
-                assertTrue(brake);
-                calls.incrementAndGet();
-                return "";
-              });
+          worker.register((gains, brake) -> {
+            assertEquals(INITIAL, gains);
+            assertTrue(brake);
+            calls.incrementAndGet();
+            return "";
+          });
       handle.initialize(INITIAL);
       handle.request(INITIAL);
       handle.setBrakeMode(true);
@@ -41,14 +40,13 @@ class ModuleConfigurationWorkerTest {
     AtomicInteger calls = new AtomicInteger();
     try (var worker = new ModuleConfigurationWorker(disabled::get)) {
       var handle =
-          worker.register(
-              (gains, brake) -> {
-                if (calls.incrementAndGet() == 2) {
-                  entered.countDown();
-                  release.await();
-                }
-                return "";
-              });
+          worker.register((gains, brake) -> {
+            if (calls.incrementAndGet() == 2) {
+              entered.countDown();
+              release.await();
+            }
+            return "";
+          });
       handle.initialize(INITIAL);
       handle.request(UPDATED);
       assertTrue(entered.await(5, TimeUnit.SECONDS));
@@ -82,11 +80,10 @@ class ModuleConfigurationWorkerTest {
     AtomicInteger calls = new AtomicInteger();
     try (var worker = new ModuleConfigurationWorker(() -> true)) {
       var handle =
-          worker.register(
-              (gains, brake) -> {
-                calls.incrementAndGet();
-                return failure.get() ? "failure" : "";
-              });
+          worker.register((gains, brake) -> {
+            calls.incrementAndGet();
+            return failure.get() ? "failure" : "";
+          });
       handle.initialize(INITIAL);
       assertEquals(5, calls.get());
       assertTrue(handle.status().failed());
@@ -109,14 +106,13 @@ class ModuleConfigurationWorkerTest {
     AtomicInteger calls = new AtomicInteger();
     try (var worker = new ModuleConfigurationWorker(disabled::get)) {
       var handle =
-          worker.register(
-              (gains, brake) -> {
-                if (calls.incrementAndGet() == 2) {
-                  disabled.set(false);
-                  return "interrupted configuration";
-                }
-                return "";
-              });
+          worker.register((gains, brake) -> {
+            if (calls.incrementAndGet() == 2) {
+              disabled.set(false);
+              return "interrupted configuration";
+            }
+            return "";
+          });
       handle.initialize(INITIAL);
       handle.request(UPDATED);
       worker.awaitIdleForTest();
@@ -140,11 +136,10 @@ class ModuleConfigurationWorkerTest {
     var seen = new java.util.concurrent.CopyOnWriteArrayList<String>();
     try (var worker = new ModuleConfigurationWorker(disabled::get)) {
       var handle =
-          worker.register(
-              (gains, brake) -> {
-                seen.add(gains.driveP() + ":" + brake);
-                return "";
-              });
+          worker.register((gains, brake) -> {
+            seen.add(gains.driveP() + ":" + brake);
+            return "";
+          });
       handle.initialize(INITIAL);
       disabled.set(false);
       handle.setBrakeMode(false);
@@ -170,14 +165,13 @@ class ModuleConfigurationWorkerTest {
     AtomicInteger calls = new AtomicInteger();
     var worker = new ModuleConfigurationWorker(() -> true);
     var handle =
-        worker.register(
-            (gains, brake) -> {
-              if (calls.incrementAndGet() == 2) {
-                entered.countDown();
-                new CountDownLatch(1).await();
-              }
-              return "";
-            });
+        worker.register((gains, brake) -> {
+          if (calls.incrementAndGet() == 2) {
+            entered.countDown();
+            new CountDownLatch(1).await();
+          }
+          return "";
+        });
     try {
       handle.initialize(INITIAL);
       handle.request(UPDATED);
@@ -195,12 +189,11 @@ class ModuleConfigurationWorkerTest {
     AtomicInteger calls = new AtomicInteger();
     try (var worker = new ModuleConfigurationWorker(disabled::get)) {
       var handle =
-          worker.register(
-              (gains, brake) -> {
-                if (calls.incrementAndGet() == 1) return "";
-                disabled.set(false);
-                return "enabled during transaction";
-              });
+          worker.register((gains, brake) -> {
+            if (calls.incrementAndGet() == 1) return "";
+            disabled.set(false);
+            return "enabled during transaction";
+          });
       handle.initialize(INITIAL);
       handle.request(UPDATED);
       for (int attempt = 0; attempt < 5; attempt++) {
@@ -223,14 +216,13 @@ class ModuleConfigurationWorkerTest {
     AtomicInteger calls = new AtomicInteger();
     try (var worker = new ModuleConfigurationWorker(() -> true)) {
       var handle =
-          worker.register(
-              (gains, brake) -> {
-                if (calls.incrementAndGet() == 2) {
-                  entered.countDown();
-                  release.await();
-                }
-                return gains.equals(UPDATED) ? "old revision failed" : "";
-              });
+          worker.register((gains, brake) -> {
+            if (calls.incrementAndGet() == 2) {
+              entered.countDown();
+              release.await();
+            }
+            return gains.equals(UPDATED) ? "old revision failed" : "";
+          });
       handle.initialize(INITIAL);
       handle.request(UPDATED);
       assertTrue(entered.await(5, TimeUnit.SECONDS));

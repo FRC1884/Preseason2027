@@ -212,12 +212,11 @@ public final class OperatorBoardDiagnosticBundleWriter {
       if (node.isObject()) {
         ObjectNode normalized = OperatorBoardPersistence.JSON.createObjectNode();
         node.fields()
-            .forEachRemaining(
-                field -> {
-                  if (!field.getKey().toLowerCase(java.util.Locale.ROOT).contains("timestamp")) {
-                    normalized.set(field.getKey(), withoutTimestamps(field.getValue()));
-                  }
-                });
+            .forEachRemaining(field -> {
+              if (!field.getKey().toLowerCase(java.util.Locale.ROOT).contains("timestamp")) {
+                normalized.set(field.getKey(), withoutTimestamps(field.getValue()));
+              }
+            });
         return normalized;
       }
       if (node.isArray()) {
