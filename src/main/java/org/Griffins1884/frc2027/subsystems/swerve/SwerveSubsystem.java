@@ -388,17 +388,24 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
           double[] gyroTimestamps = gyroInputs.odometryYawTimestamps;
 
-          // Empty gyro batches retain the previous heading.
-          if (gyroTimestamps != null && gyroInputs.connected && gyroTimestamps.length > 0) {
-            if (gyroTimestamps.length != sampleCount || gyroPositions.length != sampleCount) {
+          if (gyroInputs.connected) {
+            if (gyroTimestamps == null || gyroPositions == null) {
               validSnapshot = false;
             } else {
-              for (int i = 0; i < sampleCount; i++) {
-                if (!Double.isFinite(gyroTimestamps[i])
-                    || Math.abs(gyroTimestamps[i] - sampleTimestamps[i]) > 1e-9
-                    || gyroPositions[i] == null) {
+              boolean emptyGyroBatch = gyroTimestamps.length == 0 && gyroPositions.length == 0;
+
+              if (!emptyGyroBatch) {
+                if (gyroTimestamps.length != sampleCount || gyroPositions.length != sampleCount) {
                   validSnapshot = false;
-                  break;
+                } else {
+                  for (int i = 0; i < sampleCount; i++) {
+                    if (!Double.isFinite(gyroTimestamps[i])
+                        || Math.abs(gyroTimestamps[i] - sampleTimestamps[i]) > 1e-9
+                        || gyroPositions[i] == null) {
+                      validSnapshot = false;
+                      break;
+                    }
+                  }
                 }
               }
             }
