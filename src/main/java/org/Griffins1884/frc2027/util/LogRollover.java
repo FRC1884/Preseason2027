@@ -1,7 +1,5 @@
 package org.Griffins1884.frc2027.util;
 
-import org.wpilib.system.Filesystem;
-import org.wpilib.system.Timer;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,6 +10,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.system.Filesystem;
+import org.wpilib.system.Timer;
 
 public final class LogRollover {
   private static final String STATUS_READY = "READY";

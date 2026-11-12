@@ -3,15 +3,15 @@ package org.Griffins1884.frc2027.util;
 import static org.wpilib.command2.Commands.defer;
 import static org.wpilib.command2.Commands.run;
 
-import org.wpilib.math.geometry.*;
-import org.wpilib.math.util.Units;
-import org.wpilib.system.Timer;
-import org.wpilib.command2.Command;
-import org.wpilib.command2.ScheduleCommand;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.ScheduleCommand;
+import org.wpilib.math.geometry.*;
+import org.wpilib.math.util.Units;
+import org.wpilib.system.Timer;
 
 /** have fun :) */
 public class GamePieceVisualizer {
@@ -91,7 +91,8 @@ public class GamePieceVisualizer {
                                     defaultLauncherTransform
                                         .getTranslation()
                                         .toTranslation2d()
-                                        .getAngle().get()))
+                                        .getAngle()
+                                        .get()))
                             .getTranslation()))));
   }
 }

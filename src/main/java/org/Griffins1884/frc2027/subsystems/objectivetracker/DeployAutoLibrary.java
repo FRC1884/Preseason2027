@@ -6,9 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
-import org.wpilib.math.geometry.Pose2d;
-import org.wpilib.driverstation.DriverStationErrors;
-import org.wpilib.command2.Command;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,6 +16,9 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import org.json.simple.parser.ParseException;
+import org.wpilib.command2.Command;
+import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.math.geometry.Pose2d;
 
 final class DeployAutoLibrary {
   private static final ObjectMapper JSON =
@@ -68,7 +68,8 @@ final class DeployAutoLibrary {
       return JSON.writeValueAsString(
           new LibraryIndexDto("2026.0", "DeployAutoLibrary", listAutos()));
     } catch (JsonProcessingException ex) {
-      DriverStationErrors.reportError("Failed to serialize deploy auto manifest", ex.getStackTrace());
+      DriverStationErrors.reportError(
+          "Failed to serialize deploy auto manifest", ex.getStackTrace());
       return "{\"autos\":[]}";
     }
   }

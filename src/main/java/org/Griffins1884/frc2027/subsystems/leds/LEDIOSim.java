@@ -1,15 +1,15 @@
 package org.Griffins1884.frc2027.subsystems.leds;
 
-import static org.wpilib.units.Units.Second;
 import static org.Griffins1884.frc2027.subsystems.leds.LEDConstants.LED_LENGTH;
 import static org.Griffins1884.frc2027.subsystems.leds.LEDConstants.LED_PORT;
+import static org.wpilib.units.Units.Second;
 
+import org.littletonrobotics.junction.Logger;
 import org.wpilib.hardware.led.AddressableLED;
 import org.wpilib.hardware.led.AddressableLEDBuffer;
 import org.wpilib.hardware.led.AddressableLEDBufferView;
 import org.wpilib.hardware.led.LEDPattern;
 import org.wpilib.util.Color;
-import org.littletonrobotics.junction.Logger;
 
 /**
  * Contains the methods that dictate simulated behavior for LEDs. <br>

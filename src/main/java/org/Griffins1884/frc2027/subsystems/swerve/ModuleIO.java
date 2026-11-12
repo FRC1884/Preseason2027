@@ -1,9 +1,9 @@
 package org.Griffins1884.frc2027.subsystems.swerve;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-import org.wpilib.math.geometry.Rotation2d;
 import java.util.List;
 import org.littletonrobotics.junction.AutoLog;
+import org.wpilib.math.geometry.Rotation2d;
 
 public interface ModuleIO {
   @AutoLog
@@ -38,7 +38,8 @@ public interface ModuleIO {
   }
 
   public default void updateConfigurationState(boolean disabled) {}
-    default ModuleConfigurationWorker.Status getConfigurationStatus() {
+
+  default ModuleConfigurationWorker.Status getConfigurationStatus() {
     return ModuleConfigurationWorker.Status.READY;
   }
 

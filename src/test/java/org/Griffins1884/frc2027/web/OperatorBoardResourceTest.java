@@ -25,21 +25,20 @@ class OperatorBoardResourceTest {
     CountDownLatch workersStarted = new CountDownLatch(4), release = new CountDownLatch(1);
     List<Socket> queued = new ArrayList<>();
     CountDownLatch started = new CountDownLatch(4);
-    try (
-         var server =
-                 OperatorBoardServer.start(
-                         root,
-                         "127.0.0.1",
-                         0,
-                         () -> {
-                           started.countDown();
-                           try {
-                             release.await();
-                           } catch (InterruptedException e) {
-                             Thread.currentThread().interrupt();
-                             throw new IOException("Transfer interrupted during shutdown", e);
-                           }
-                         })) {
+    try (var server =
+        OperatorBoardServer.start(
+            root,
+            "127.0.0.1",
+            0,
+            () -> {
+              started.countDown();
+              try {
+                release.await();
+              } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IOException("Transfer interrupted during shutdown", e);
+              }
+            })) {
       ThreadPoolExecutor executor = executor(server);
       try {
         for (int i = 0; i < 4; i++)
@@ -115,8 +114,8 @@ class OperatorBoardResourceTest {
         assertEquals(4, snapshot.fileBodyOpens());
         for (Socket socket : slow) socket.close();
         await(
-          () ->
-            server.getMetricsSnapshot().activeTransfers() == 0
+            () ->
+                server.getMetricsSnapshot().activeTransfers() == 0
                     && server.getMetricsSnapshot().ioFailures() >= 4);
         assertEquals(0, server.getMetricsSnapshot().fullResponses());
         assertTrue(server.getMetricsSnapshot().ioFailures() >= 4);
@@ -151,7 +150,10 @@ class OperatorBoardResourceTest {
       int count;
       while ((count = input.read(buffer)) >= 0) received += count;
       assertTrue(received < 16L * 1024 * 1024, "A changed response must not look complete");
-      await(() -> server.getMetricsSnapshot().activeTransfers() == 0);
+      await(
+          () ->
+              server.getMetricsSnapshot().activeTransfers() == 0
+                  && server.getMetricsSnapshot().ioFailures() == 1);
       assertEquals(0, server.getMetricsSnapshot().fullResponses());
       assertEquals(1, server.getMetricsSnapshot().ioFailures());
     }
@@ -188,25 +190,25 @@ class OperatorBoardResourceTest {
     CountDownLatch started = new CountDownLatch(4);
     CountDownLatch release = new CountDownLatch(1);
     var server =
-            OperatorBoardServer.start(
-                    root,
-                    "127.0.0.1",
-                    0,
-                    () -> {
-                      started.countDown();
-                      try {
-                        release.await();
-                      } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        throw new IOException("Transfer interrupted during shutdown", e);
-                      }
-                    });
+        OperatorBoardServer.start(
+            root,
+            "127.0.0.1",
+            0,
+            () -> {
+              started.countDown();
+              try {
+                release.await();
+              } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IOException("Transfer interrupted during shutdown", e);
+              }
+            });
     try {
       for (int i = 0; i < 4; i++) sockets.add(request(server, "/large.bin", true));
       assertTrue(
-              started.await(5, TimeUnit.SECONDS),
-              () -> "latch remaining=" + started.getCount()
-                      + ", metrics=" + server.getMetricsSnapshot());
+          started.await(5, TimeUnit.SECONDS),
+          () ->
+              "latch remaining=" + started.getCount() + ", metrics=" + server.getMetricsSnapshot());
       for (int i = 0; i < 8; i++) sockets.add(request(server, "/large.bin", true));
       await(() -> server.getMetricsSnapshot().queuedTasks() == 8);
       server.close();

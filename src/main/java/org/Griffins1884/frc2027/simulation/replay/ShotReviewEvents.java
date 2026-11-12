@@ -1,7 +1,7 @@
 package org.Griffins1884.frc2027.simulation.replay;
 
-import org.wpilib.system.Timer;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.system.Timer;
 
 /** Records shot-review markers that can be aligned with replay and external video. */
 public final class ShotReviewEvents {

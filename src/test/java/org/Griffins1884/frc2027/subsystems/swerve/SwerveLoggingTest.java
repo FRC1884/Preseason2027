@@ -2,7 +2,6 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.wpilib.math.geometry.Rotation2d;
 import java.lang.reflect.Field;
 import java.util.Set;
 import org.Griffins1884.frc2027.GlobalConstants;
@@ -13,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.math.geometry.Rotation2d;
 
 class SwerveLoggingTest {
   private static final String MODULE = "Swerve/Module0/";
@@ -83,8 +83,7 @@ class SwerveLoggingTest {
       assertArrayEquals(
           new double[] {now}, table.get(MODULE + "OdometryTimestamps", new double[0]));
       assertArrayEquals(
-          new double[] {now * 2.0},
-          table.get(MODULE + "OdometryDrivePositionsRad", new double[0]));
+          new double[] {now * 2.0}, table.get(MODULE + "OdometryDrivePositionsRad", new double[0]));
       assertArrayEquals(
           new double[] {now}, table.get("Swerve/Gyro/OdometryYawTimestamps", new double[0]));
       assertNotNull(table.get("Swerve/Gyro/OdometryYawPositions"));
@@ -95,7 +94,9 @@ class SwerveLoggingTest {
   @Test
   void calibrationRecordsInitiallyAndOnChangeOutsideTelemetryTick() throws Exception {
     LogTable initial = cycle(0.0);
-    assertEquals(radius, Math.round(initial.get("Swerve/Calibration/WheelRadiusMeters", -1.0)*100.0)/100.0);
+    assertEquals(
+        radius,
+        Math.round(initial.get("Swerve/Calibration/WheelRadiusMeters", -1.0) * 100.0) / 100.0);
     assertEquals(0.0, initial.get(MODULE + "ZeroTrimRotations", -1.0));
     assertEquals(0.0, initial.get("Swerve/Calibration/Module0/ZeroTrimRotations", -1.0));
     LogTable unchanged = cycle(0.02);

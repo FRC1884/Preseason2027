@@ -2,8 +2,6 @@ package org.Griffins1884.frc2027.web;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-import org.wpilib.driverstation.DriverStationErrors;
-import org.wpilib.system.Filesystem;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -28,6 +26,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.atomic.LongAdder;
 import org.Griffins1884.frc2027.Config;
+import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.system.Filesystem;
 
 /**
  * Bounded HTTP delivery for the existing dashboard. NetworkTables remains a separate connection.
@@ -82,7 +82,9 @@ public final class OperatorBoardServer implements AutoCloseable {
 
   private final TransferStartHook transferStartHook;
 
-  private OperatorBoardServer(Path contentRoot, String bindAddress, int port, TransferStartHook transferStartHook) throws IOException {
+  private OperatorBoardServer(
+      Path contentRoot, String bindAddress, int port, TransferStartHook transferStartHook)
+      throws IOException {
     assets = new StaticAssetAccess(contentRoot);
     this.transferStartHook = transferStartHook;
     server = HttpServer.create(new InetSocketAddress(bindAddress, port), LISTEN_BACKLOG);
@@ -147,14 +149,13 @@ public final class OperatorBoardServer implements AutoCloseable {
 
   /** A port of zero selects an ephemeral port; tests and benchmarks bind only to loopback. */
   public static OperatorBoardServer start(Path contentRoot, String bindAddress, int port)
-          throws IOException {
+      throws IOException {
     return start(contentRoot, bindAddress, port, () -> {});
   }
 
   static OperatorBoardServer start(
-          Path contentRoot, String bindAddress, int port, TransferStartHook hook) throws IOException {
-    OperatorBoardServer result =
-            new OperatorBoardServer(contentRoot, bindAddress, port, hook);
+      Path contentRoot, String bindAddress, int port, TransferStartHook hook) throws IOException {
+    OperatorBoardServer result = new OperatorBoardServer(contentRoot, bindAddress, port, hook);
     try {
       result.server.start();
       return result;

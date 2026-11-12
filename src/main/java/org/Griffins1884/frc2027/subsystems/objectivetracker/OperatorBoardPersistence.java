@@ -2,9 +2,6 @@ package org.Griffins1884.frc2027.subsystems.objectivetracker;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.wpilib.driverstation.DriverStationErrors;
-import org.wpilib.system.Filesystem;
-import org.wpilib.framework.RobotBase;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -17,6 +14,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.framework.RobotBase;
+import org.wpilib.system.Filesystem;
 
 public final class OperatorBoardPersistence {
   public static final ObjectMapper JSON =

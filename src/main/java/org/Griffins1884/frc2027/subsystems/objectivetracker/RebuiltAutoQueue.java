@@ -3,15 +3,6 @@ package org.Griffins1884.frc2027.subsystems.objectivetracker;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.wpilib.math.geometry.Pose2d;
-import org.wpilib.math.geometry.Rotation2d;
-import org.wpilib.driverstation.MatchState;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.DriverStationErrors;
-import org.wpilib.system.Timer;
-import org.wpilib.command2.Command;
-import org.wpilib.command2.CommandScheduler;
-import org.wpilib.command2.Commands;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -22,6 +13,15 @@ import org.Griffins1884.frc2027.subsystems.Superstructure.SuperState;
 import org.Griffins1884.frc2027.subsystems.objectivetracker.RebuiltSpotLibrary.RebuiltSpot;
 import org.Griffins1884.frc2027.subsystems.swerve.SwerveSubsystem;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.CommandScheduler;
+import org.wpilib.command2.Commands;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.driverstation.MatchState;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.system.Timer;
 
 final class RebuiltAutoQueue {
   private static final ObjectMapper JSON =
@@ -130,7 +130,8 @@ final class RebuiltAutoQueue {
     try {
       return JSON.writeValueAsString(selectedAutoState);
     } catch (JsonProcessingException ex) {
-      DriverStationErrors.reportError("Failed to serialize selected auto state", ex.getStackTrace());
+      DriverStationErrors.reportError(
+          "Failed to serialize selected auto state", ex.getStackTrace());
       return "{}";
     }
   }

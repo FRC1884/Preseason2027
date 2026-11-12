@@ -12,8 +12,8 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import org.wpilib.math.util.Units;
 import org.Griffins1884.frc2027.mechanisms.MechanismDefinition;
+import org.wpilib.math.util.Units;
 
 public class MechanismTurretIOKraken implements MechanismTurretIO {
   private static final double TICKS_PER_ROTATION = 2048.0;

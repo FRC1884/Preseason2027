@@ -4,11 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.wpilib.driverstation.Alliance;
 import java.util.Optional;
 import org.Griffins1884.frc2027.util.HubShiftTracker.HubStatus;
 import org.Griffins1884.frc2027.util.HubShiftTracker.MatchTimeframe;
 import org.junit.jupiter.api.Test;
+import org.wpilib.driverstation.Alliance;
 
 public class HubShiftTrackerTest {
   @Test

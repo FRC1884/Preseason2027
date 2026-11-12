@@ -4,12 +4,12 @@ import static org.Griffins1884.frc2027.subsystems.leds.LEDConstants.BREATHE_SPEE
 import static org.Griffins1884.frc2027.subsystems.leds.LEDConstants.LED_LENGTH;
 import static org.Griffins1884.frc2027.subsystems.leds.LEDConstants.LED_PORT;
 
+import org.littletonrobotics.junction.Logger;
 import org.wpilib.hardware.led.AddressableLED;
 import org.wpilib.hardware.led.AddressableLEDBuffer;
 import org.wpilib.hardware.led.AddressableLEDBufferView;
 import org.wpilib.hardware.led.LEDPattern;
 import org.wpilib.util.Color;
-import org.littletonrobotics.junction.Logger;
 
 /**
  * Contains the methods that dictate simulated behavior for LEDs. <br>
@@ -55,7 +55,7 @@ public class LEDIOPWM implements LEDIO {
       }
 
       ledLocal.setLength(bufferLocal.getLength());
-      ledLocal.setStart(ledLocal.getChannel()); 
+      ledLocal.setStart(ledLocal.getChannel());
     } catch (RuntimeException ex) {
       enabled = false;
       disabledReason = "InitFailure";

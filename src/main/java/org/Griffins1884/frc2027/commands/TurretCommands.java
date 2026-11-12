@@ -4,23 +4,21 @@ import static org.Griffins1884.frc2027.commands.AlignConstants.TurretAutoAim.*;
 import static org.Griffins1884.frc2027.commands.ShooterCommands.getShooterRpm;
 import static org.Griffins1884.frc2027.simV2.simulation.gamepieces.GamePieceProjectile.GRAVITY;
 
-import org.wpilib.math.geometry.Pose2d;
-import org.wpilib.math.geometry.Rotation2d;
-import org.wpilib.math.geometry.Translation2d;
-import org.wpilib.command2.Command;
-import org.wpilib.command2.Commands;
 import java.util.Optional;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-import org.Griffins1884.frc2027.subsystems.Superstructure;
 import org.Griffins1884.frc2027.subsystems.shooter.ShooterConstants;
 import org.Griffins1884.frc2027.subsystems.turret.TurretSubsystem;
 import org.Griffins1884.frc2027.util.RobotLogging;
 import org.Griffins1884.frc2027.util.ShotMath;
 import org.Griffins1884.frc2027.util.TurretUtil;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.Commands;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Translation2d;
 
 @SuppressWarnings("unused")
 public final class TurretCommands {
@@ -243,9 +241,7 @@ public final class TurretCommands {
 
   public static Command turretOpenLoop(TurretSubsystem turret, double percent) {
     if (turret == null) return Commands.none();
-    return Commands.run(
-        () -> turret.setOpenLoop(percent),
-        turret
-    ).finallyDo(() -> turret.stopOpenLoop());
+    return Commands.run(() -> turret.setOpenLoop(percent), turret)
+        .finallyDo(() -> turret.stopOpenLoop());
   }
 }

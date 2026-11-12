@@ -2,22 +2,22 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.wpilib.hardware.hal.HAL;
-import org.wpilib.math.geometry.Pose2d;
-import org.wpilib.networktables.NetworkTableInstance;
-import org.wpilib.simulation.DriverStationSim;
 import java.util.Set;
 import org.Griffins1884.frc2027.GlobalConstants;
 import org.Griffins1884.frc2027.runtime.RuntimeModeManager;
 import org.Griffins1884.frc2027.runtime.RuntimeModeProfile;
-import org.Griffins1884.frc2027.simulation.GenericSimArena;
 import org.Griffins1884.frc2027.sim3d.TerrainAwareSwerveSimulation;
 import org.Griffins1884.frc2027.sim3d.TerrainModel;
 import org.Griffins1884.frc2027.simV2.simulation.SimulatedArena;
 import org.Griffins1884.frc2027.simV2.simulation.drivesims.SwerveDriveSimulation;
+import org.Griffins1884.frc2027.simulation.GenericSimArena;
+import org.Griffins1884.frc2027.simulation.maple.Rebuilt2026FieldModel;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.Griffins1884.frc2027.simulation.maple.Rebuilt2026FieldModel;
+import org.wpilib.hardware.hal.HAL;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.networktables.NetworkTableInstance;
+import org.wpilib.simulation.DriverStationSim;
 
 class SwerveSimulationSnapshotTest {
   @BeforeAll
@@ -37,7 +37,9 @@ class SwerveSimulationSnapshotTest {
     final double[] now = {0.02};
     var drive =
         new SwerveSubsystem(
-            new GyroIOSim(new TerrainAwareSwerveSimulation(simulation, (TerrainModel) Rebuilt2026FieldModel.INSTANCE)),
+            new GyroIOSim(
+                new TerrainAwareSwerveSimulation(
+                    simulation, (TerrainModel) Rebuilt2026FieldModel.INSTANCE)),
             modules[0],
             modules[1],
             modules[2],

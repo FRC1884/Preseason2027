@@ -1,15 +1,36 @@
 package org.Griffins1884.frc2027.subsystems.swerve;
 
+import static org.Griffins1884.frc2027.GlobalConstants.RobotMode.SIM;
 import static org.wpilib.units.Units.Meters;
 import static org.wpilib.units.Units.MetersPerSecond;
 import static org.wpilib.units.Units.Radian;
 import static org.wpilib.units.Units.RadiansPerSecond;
 import static org.wpilib.units.Units.Seconds;
 import static org.wpilib.units.Units.Volts;
-import static org.Griffins1884.frc2027.GlobalConstants.RobotMode.SIM;
 
+import java.util.UUID;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
+import java.util.function.DoubleSupplier;
+import lombok.Getter;
+import org.Griffins1884.frc2027.CanIDConstants;
+import org.Griffins1884.frc2027.GlobalConstants;
+import org.Griffins1884.frc2027.commands.AlignConstants;
 import org.Griffins1884.frc2027.runtime.RuntimeModeManager;
-import org.wpilib.math.linalg.Matrix;
+import org.Griffins1884.frc2027.subsystems.vision.Vision;
+import org.Griffins1884.frc2027.util.LogRollover;
+import org.Griffins1884.frc2027.util.RobotLogging;
+import org.Griffins1884.frc2027.util.swerve.SwerveSetpoint;
+import org.Griffins1884.frc2027.util.swerve.SwerveSetpointGenerator;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.Commands;
+import org.wpilib.command2.SubsystemBase;
+import org.wpilib.command2.sysid.SysIdRoutine;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.RobotState;
 import org.wpilib.math.estimator.SwerveDrivePoseEstimator;
 import org.wpilib.math.filter.LinearFilter;
 import org.wpilib.math.geometry.Pose2d;
@@ -20,39 +41,15 @@ import org.wpilib.math.kinematics.ChassisVelocities;
 import org.wpilib.math.kinematics.SwerveDriveKinematics;
 import org.wpilib.math.kinematics.SwerveModulePosition;
 import org.wpilib.math.kinematics.SwerveModuleVelocity;
+import org.wpilib.math.linalg.Matrix;
 import org.wpilib.math.numbers.N1;
 import org.wpilib.math.numbers.N3;
-import org.wpilib.util.Alert;
-import org.wpilib.util.UsageReporting;
-import org.wpilib.util.Alert.Level;
-import org.wpilib.driverstation.RobotState;
-import org.wpilib.driverstation.Alliance;
+import org.wpilib.sysid.SysIdRoutineLog;
 import org.wpilib.system.RobotController;
 import org.wpilib.system.Timer;
-import org.wpilib.sysid.SysIdRoutineLog;
-import org.wpilib.command2.Command;
-import org.wpilib.command2.Commands;
-import org.wpilib.command2.SubsystemBase;
-import org.wpilib.command2.sysid.SysIdRoutine;
-
-import java.util.UUID;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Consumer;
-import java.util.function.DoubleSupplier;
-
-import lombok.Getter;
-
-import org.Griffins1884.frc2027.CanIDConstants;
-import org.Griffins1884.frc2027.GlobalConstants;
-import org.Griffins1884.frc2027.commands.AlignConstants;
-import org.Griffins1884.frc2027.subsystems.vision.Vision;
-import org.Griffins1884.frc2027.util.LogRollover;
-import org.Griffins1884.frc2027.util.RobotLogging;
-import org.Griffins1884.frc2027.util.swerve.SwerveSetpoint;
-import org.Griffins1884.frc2027.util.swerve.SwerveSetpointGenerator;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
+import org.wpilib.util.Alert;
+import org.wpilib.util.Alert.Level;
+import org.wpilib.util.UsageReporting;
 
 public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsumer {
   private static final double DRIVE_SYS_ID_MAX_VOLTAGE = 40.0;
@@ -69,9 +66,14 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   private final Module[] modules = new Module[4]; // FL, FR, BL, BR
   private final SysIdRoutine driveSysId;
   private final SysIdRoutine turnSysId;
+
   @Getter
   private final Alert gyroDisconnectedAlert =
-      new Alert("Disconnected Gyro "+ UUID.randomUUID(), "Disconnected gyro, using kinematics as fallback.", Level.HIGH);
+      new Alert(
+          "Disconnected Gyro " + UUID.randomUUID(),
+          "Disconnected gyro, using kinematics as fallback.",
+          Level.HIGH);
+
   private final SwerveMusicPlayer musicPlayer;
   private double requestedTranslationalMps = 0.0;
   private double requestedOmegaRadPerSec = 0.0;
@@ -163,7 +165,14 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
       ModuleIO frModuleIO,
       ModuleIO blModuleIO,
       ModuleIO brModuleIO) {
-    this(gyroIO,flModuleIO,frModuleIO,blModuleIO,brModuleIO,Timer::getTimestamp,SwerveConstants::getWheelRadiusMeters);
+    this(
+        gyroIO,
+        flModuleIO,
+        frModuleIO,
+        blModuleIO,
+        brModuleIO,
+        Timer::getTimestamp,
+        SwerveConstants::getWheelRadiusMeters);
   }
 
   SwerveSubsystem(
@@ -182,7 +191,6 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
     modules[2] = new Module(blModuleIO, () -> wheelRadiusMeters, 2);
     modules[3] = new Module(brModuleIO, () -> wheelRadiusMeters, 3);
 
-    
     if (GlobalConstants.MODE != SIM) {
       musicPlayer = new SwerveMusicPlayer(modules, SwerveConstants.SWERVE_MUSIC_FILE);
     } else {
@@ -353,7 +361,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
       } else {
         // Update odometry
         double[] sampleTimestamps =
-                modules[0].getOdometryTimestamps(); // All signals are sampled together
+            modules[0].getOdometryTimestamps(); // All signals are sampled together
         int sampleCount = sampleTimestamps.length;
         int gyroSampleCount = gyroInputs.odometryYawPositions.length;
 
@@ -442,6 +450,22 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
               }
             }
           }
+        }
+
+        if (validSnapshot) {
+          for (int i = 0; i < sampleCount; i++) {
+            // Read wheel positions and deltas from each module
+            SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
+            SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[4];
+            for (int moduleIndex = 0; moduleIndex < 4; moduleIndex++) {
+              modulePositions[moduleIndex] = modules[moduleIndex].getOdometryPositions()[i];
+              moduleDeltas[moduleIndex] =
+                  new SwerveModulePosition(
+                      modulePositions[moduleIndex].distance
+                          - lastModulePositions[moduleIndex].distance,
+                      modulePositions[moduleIndex].angle);
+              lastModulePositions[moduleIndex] = modulePositions[moduleIndex];
+            }
 
 
           if (!validSnapshot) {
@@ -469,7 +493,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
               // Use the real gyro angle
               rawestGyroRotation = gyroInputs.yawPosition;
               rawGyroRotation =
-                      i < gyroSampleCount ? gyroInputs.odometryYawPositions[i] : rawGyroRotation;
+                  i < gyroSampleCount ? gyroInputs.odometryYawPositions[i] : rawGyroRotation;
             } else {
               // Use the angle delta from the kinematics and module deltas
               Twist2d twist = kinematics.toTwist2d(moduleDeltas);
@@ -497,8 +521,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
     ChassisVelocities speeds = getRobotRelativeSpeeds();
 
     Translation2d currentVelocity =
-        new Translation2d(speeds.vx, speeds.vy)
-            .rotateBy(pose.getRotation());
+        new Translation2d(speeds.vx, speeds.vy).rotateBy(pose.getRotation());
 
     if (!Double.isFinite(lastFieldVelTimestamp)) {
       lastFieldVelTimestamp = now;
@@ -551,7 +574,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
     Logger.recordOutput("Swerve/FieldMotionSampleAgeSec", getFieldMotionSampleAgeSec());
 
     if (!hasLoggedCalibration
-            || Double.compare(wheelRadiusMeters, lastLoggedWheelRadiusMeters) != 0) {
+        || Double.compare(wheelRadiusMeters, lastLoggedWheelRadiusMeters) != 0) {
       Logger.recordOutput("Swerve/Calibration/WheelRadiusMeters", wheelRadiusMeters);
       lastLoggedWheelRadiusMeters = wheelRadiusMeters;
     }
@@ -559,17 +582,17 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
     for (int i = 0; i < modules.length; i++) {
       double absoluteAngleDeg = modules[i].getAbsoluteAngle().getDegrees();
       if (!hasLoggedCalibration
-              || Double.compare(absoluteAngleDeg, lastLoggedAbsoluteAnglesDeg[i]) != 0) {
+          || Double.compare(absoluteAngleDeg, lastLoggedAbsoluteAnglesDeg[i]) != 0) {
         Logger.recordOutput(
-                "Swerve/Calibration/Module" + i + "/AbsoluteAngleDeg", absoluteAngleDeg);
+            "Swerve/Calibration/Module" + i + "/AbsoluteAngleDeg", absoluteAngleDeg);
         lastLoggedAbsoluteAnglesDeg[i] = absoluteAngleDeg;
       }
 
       double zeroTrimRotations = modules[i].getZeroTrimRotations();
       if (!hasLoggedCalibration
-              || Double.compare(zeroTrimRotations, lastLoggedZeroTrimRotations[i]) != 0) {
+          || Double.compare(zeroTrimRotations, lastLoggedZeroTrimRotations[i]) != 0) {
         Logger.recordOutput(
-                "Swerve/Calibration/Module" + i + "/ZeroTrimRotations", zeroTrimRotations);
+            "Swerve/Calibration/Module" + i + "/ZeroTrimRotations", zeroTrimRotations);
         lastLoggedZeroTrimRotations[i] = zeroTrimRotations;
       }
     }
@@ -581,8 +604,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
     double commandedTranslationalMps =
         Math.hypot(
-            krakenCurrentSetpoint.chassisSpeeds().vx,
-            krakenCurrentSetpoint.chassisSpeeds().vy);
+            krakenCurrentSetpoint.chassisSpeeds().vx, krakenCurrentSetpoint.chassisSpeeds().vy);
     double measuredTranslationalMps =
         Math.hypot(getChassisVelocities().vx, getChassisVelocities().vy);
     double commandedOmega = krakenCurrentSetpoint.chassisSpeeds().omega;
@@ -616,7 +638,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
       }
     }
 
-    //Adjust based on actual CanPort
+    // Adjust based on actual CanPort
     var canStatus = RobotController.getCANStatus(CanIDConstants.SWERVE);
     Logger.recordOutput("Swerve/Debug/CommandedSpeedMps", commandedTranslationalMps);
     Logger.recordOutput("Swerve/Debug/OverallSpeedRatio", overallSpeedRatio);
@@ -639,13 +661,10 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
     }
 
     boolean publishDerivedTelemetry =
-            derivedTelemetryCycles % 5 == 0
-                    || debug
-                    || driveSysIdActive
-                    || turnSysIdActive;
+        derivedTelemetryCycles % 5 == 0 || debug || driveSysIdActive || turnSysIdActive;
     derivedTelemetryCycles++;
 
-    if (publishDerivedTelemetry){
+    if (publishDerivedTelemetry) {
       Logger.recordOutput("Swerve/FieldVelocityMps", currentVelocity.getNorm());
       Logger.recordOutput("Swerve/Debug/MeasuredSpeedMps", measuredTranslationalMps);
     }
@@ -762,8 +781,8 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
     Logger.recordOutput("Swerve/Observer/CandidateLoops", observerCandidateLoops);
   }
 
-  private void stopAll(){
-    for (Module module:modules){
+  private void stopAll() {
+    for (Module module : modules) {
       module.stop();
     }
   }
@@ -790,7 +809,8 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
     requestedTranslationalMps = Math.hypot(speeds.vx, speeds.vy);
     requestedOmegaRadPerSec = speeds.omega;
     ChassisVelocities discreteSpeeds = speeds.discretize(0.02);
-    SwerveModuleVelocity[] setpointStatesUnoptimized = kinematics.toSwerveModuleVelocities(discreteSpeeds);
+    SwerveModuleVelocity[] setpointStatesUnoptimized =
+        kinematics.toSwerveModuleVelocities(discreteSpeeds);
     krakenCurrentSetpoint =
         krakenSetpointGenerator.generateSetpoint(
             SwerveConstants.KRAKEN_MODULE_LIMITS_FREE, krakenCurrentSetpoint, discreteSpeeds, 0.02);
@@ -1180,7 +1200,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
     }
 
     return new ChassisVelocities(
-            measuredChassisSpeeds.vx, measuredChassisSpeeds.vy, measuredChassisSpeeds.omega);
+        measuredChassisSpeeds.vx, measuredChassisSpeeds.vy, measuredChassisSpeeds.omega);
   }
 
   public Translation2d getFieldAcceleration() {

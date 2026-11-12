@@ -1,28 +1,24 @@
 package org.Griffins1884.frc2027.subsystems.swerve;
 
-import static org.Griffins1884.frc2027.GlobalConstants.isDebugMode;
 import static org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.*;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.DoubleSupplier;
+import lombok.Getter;
 import lombok.Setter;
-import org.Griffins1884.frc2027.GlobalConstants;
-import org.wpilib.math.util.MathUtil;
+import org.Griffins1884.frc2027.runtime.RuntimeModeManager;
+import org.Griffins1884.frc2027.util.LoggedTunableNumber;
+import org.littletonrobotics.junction.Logger;
 import org.wpilib.driverstation.internal.DriverStationBackend;
 import org.wpilib.math.controller.SimpleMotorFeedforward;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.kinematics.SwerveModulePosition;
 import org.wpilib.math.kinematics.SwerveModuleVelocity;
 import org.wpilib.math.system.DCMotor;
+import org.wpilib.math.util.MathUtil;
 import org.wpilib.util.Alert;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.DoubleSupplier;
-
-import lombok.Getter;
-
-import org.Griffins1884.frc2027.runtime.RuntimeModeManager;
-import org.Griffins1884.frc2027.util.LoggedTunableNumber;
-import org.littletonrobotics.junction.Logger;
 
 public class Module {
   private static final double ANGLE_JUMP_THRESHOLD_RAD = Math.toRadians(35.0);
@@ -54,8 +50,7 @@ public class Module {
     krakenTurnkD.initDefault(KRAKEN_TURN_TORQUE_GAINS.kD().get());
   }
 
-  @Getter
-  private final ModuleIO io;
+  @Getter private final ModuleIO io;
   private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
   private final int index;
   private SimpleMotorFeedforward krakenFfModel =
@@ -83,15 +78,14 @@ public class Module {
   private int callsToPeriodic = 0;
   private boolean lastDebugMode;
   private boolean characterizationActive;
-  @Setter
-  private boolean sysIdActive;
+  @Setter private boolean sysIdActive;
 
   private boolean hasLoggedZeroTrim;
   private double lastLoggedZeroTrimRotations;
 
   private DoubleSupplier wheelRadius;
 
-    /** -- GETTER -- Returns the module positions received this cycle. */
+  /** -- GETTER -- Returns the module positions received this cycle. */
   @Getter private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
 
   public Module(ModuleIO io, DoubleSupplier wheelRadius, int index) {
@@ -105,9 +99,15 @@ public class Module {
     advanceGainChecks();
     io.initializeConfiguration(desiredConfiguration);
     driveDisconnectedAlert =
-        new Alert("Drive Module Disconnect" + index +" "+ UUID.randomUUID(), "Disconnected drive motor on module " + index + ".", Alert.Level.HIGH);
+        new Alert(
+            "Drive Module Disconnect" + index + " " + UUID.randomUUID(),
+            "Disconnected drive motor on module " + index + ".",
+            Alert.Level.HIGH);
     turnDisconnectedAlert =
-        new Alert("Turn Module Disconnect" + index +" "+ UUID.randomUUID(), "Disconnected turn motor on module " + index + ".", Alert.Level.HIGH);
+        new Alert(
+            "Turn Module Disconnect" + index + " " + UUID.randomUUID(),
+            "Disconnected turn motor on module " + index + ".",
+            Alert.Level.HIGH);
   }
 
   private boolean advanceGainChecks() {
@@ -141,8 +141,7 @@ public class Module {
     io.updateInputs(inputs, timestamp);
 
     double zeroTrimRotations = inputs.turnZeroTrimRotations;
-    if (!hasLoggedZeroTrim
-            || Double.compare(zeroTrimRotations, lastLoggedZeroTrimRotations) != 0) {
+    if (!hasLoggedZeroTrim || Double.compare(zeroTrimRotations, lastLoggedZeroTrimRotations) != 0) {
       Logger.recordOutput("Swerve/Module" + index + "/ZeroTrimRotations", zeroTrimRotations);
       lastLoggedZeroTrimRotations = zeroTrimRotations;
       hasLoggedZeroTrim = true;
@@ -181,12 +180,11 @@ public class Module {
       Logger.recordOutput("Swerve/Module" + index + "/DesiredAngleRad", desiredAngle.getRadians());
       Logger.recordOutput("Swerve/Module" + index + "/ActualAngleRad", getAngle().getRadians());
       Logger.recordOutput(
-              "Swerve/Module" + index + "/AbsoluteAngleRad", inputs.turnAbsolutePosition.getRadians());
+          "Swerve/Module" + index + "/AbsoluteAngleRad", inputs.turnAbsolutePosition.getRadians());
       Logger.recordOutput(
-              "Swerve/Module" + index + "/ZeroTrimRotations", inputs.turnZeroTrimRotations);
+          "Swerve/Module" + index + "/ZeroTrimRotations", inputs.turnZeroTrimRotations);
       Logger.recordOutput("Swerve/Module" + index + "/AngleErrorRad", angleErrorRad);
       Logger.recordOutput("Swerve/Module" + index + "/LastAngleDeltaRad", lastAngleDeltaRad);
-
     }
     Logger.recordOutput("Swerve/Module" + index + "/AngleJumpDetected", angleJumpDetected);
     Logger.recordOutput("Swerve/Module" + index + "/AngleJumpCount", angleJumpCount);
@@ -199,15 +197,15 @@ public class Module {
 
     int sampleCount = timestamps == null ? 0 : timestamps.length;
     if (drivePositions == null
-            || turnPositions == null
-            || drivePositions.length != sampleCount
-            || turnPositions.length != sampleCount) {
+        || turnPositions == null
+        || drivePositions.length != sampleCount
+        || turnPositions.length != sampleCount) {
       odometryPositions = new SwerveModulePosition[0];
     } else {
       odometryPositions = new SwerveModulePosition[sampleCount];
       for (int i = 0; i < sampleCount; i++) {
         double positionMeters =
-                getCompensatedDrivePositionRad(drivePositions[i], i) * getWheelRadiusMeters();
+            getCompensatedDrivePositionRad(drivePositions[i], i) * getWheelRadiusMeters();
         odometryPositions[i] = new SwerveModulePosition(positionMeters, turnPositions[i]);
       }
     }

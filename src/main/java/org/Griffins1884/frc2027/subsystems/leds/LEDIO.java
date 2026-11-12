@@ -1,7 +1,7 @@
 package org.Griffins1884.frc2027.subsystems.leds;
 
-import org.wpilib.hardware.led.LEDPattern;
 import org.littletonrobotics.junction.AutoLog;
+import org.wpilib.hardware.led.LEDPattern;
 
 /**
  * This class contains "common" behavior between real and simulated LEDs. Stuff we want to see in

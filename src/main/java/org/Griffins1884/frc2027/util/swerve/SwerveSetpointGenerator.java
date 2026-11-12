@@ -2,12 +2,6 @@ package org.Griffins1884.frc2027.util.swerve;
 
 import static org.Griffins1884.frc2027.util.EqualsUtil.*;
 
-import org.wpilib.math.geometry.Rotation2d;
-import org.wpilib.math.geometry.Translation2d;
-import org.wpilib.math.geometry.Twist2d;
-import org.wpilib.math.kinematics.ChassisVelocities;
-import org.wpilib.math.kinematics.SwerveDriveKinematics;
-import org.wpilib.math.kinematics.SwerveModuleVelocity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +10,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
 import org.Griffins1884.frc2027.util.EqualsUtil;
 import org.Griffins1884.frc2027.util.GeomUtil;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Translation2d;
+import org.wpilib.math.geometry.Twist2d;
+import org.wpilib.math.kinematics.ChassisVelocities;
+import org.wpilib.math.kinematics.SwerveDriveKinematics;
+import org.wpilib.math.kinematics.SwerveModuleVelocity;
 
 /**
  * "Inspired" by FRC team 254. See the license file in the root directory of this project.
@@ -175,7 +175,9 @@ public class SwerveSetpointGenerator {
     SwerveModuleVelocity[] desiredModuleState = kinematics.toSwerveModuleVelocities(desiredState);
     // Make sure desiredState respects velocity limits.
     if (limits.maxDriveVelocity() > 0.0) {
-      desiredModuleState = SwerveDriveKinematics.desaturateWheelVelocities(desiredModuleState, limits.maxDriveVelocity());
+      desiredModuleState =
+          SwerveDriveKinematics.desaturateWheelVelocities(
+              desiredModuleState, limits.maxDriveVelocity());
       desiredState = kinematics.toChassisVelocities(desiredModuleState);
     }
 
@@ -201,19 +203,15 @@ public class SwerveSetpointGenerator {
     boolean all_modules_should_flip = true;
     for (int i = 0; i < modules.length; ++i) {
       prev_vx[i] =
-          prevSetpoint.moduleStates()[i].angle.getCos()
-              * prevSetpoint.moduleStates()[i].velocity;
+          prevSetpoint.moduleStates()[i].angle.getCos() * prevSetpoint.moduleStates()[i].velocity;
       prev_vy[i] =
-          prevSetpoint.moduleStates()[i].angle.getSin()
-              * prevSetpoint.moduleStates()[i].velocity;
+          prevSetpoint.moduleStates()[i].angle.getSin() * prevSetpoint.moduleStates()[i].velocity;
       prev_heading[i] = prevSetpoint.moduleStates()[i].angle;
       if (prevSetpoint.moduleStates()[i].velocity < 0.0) {
         prev_heading[i] = prev_heading[i].rotateBy(Rotation2d.fromRadians(Math.PI));
       }
-      desired_vx[i] =
-          desiredModuleState[i].angle.getCos() * desiredModuleState[i].velocity;
-      desired_vy[i] =
-          desiredModuleState[i].angle.getSin() * desiredModuleState[i].velocity;
+      desired_vx[i] = desiredModuleState[i].angle.getCos() * desiredModuleState[i].velocity;
+      desired_vy[i] = desiredModuleState[i].angle.getSin() * desiredModuleState[i].velocity;
       desired_heading[i] = desiredModuleState[i].angle;
       if (desiredModuleState[i].velocity < 0.0) {
         desired_heading[i] = desired_heading[i].rotateBy(Rotation2d.fromRadians(Math.PI));
@@ -244,8 +242,7 @@ public class SwerveSetpointGenerator {
     // limit is exceeded.
     double dx = desiredState.vx - prevSetpoint.chassisSpeeds().vx;
     double dy = desiredState.vy - prevSetpoint.chassisSpeeds().vy;
-    double dtheta =
-        desiredState.omega - prevSetpoint.chassisSpeeds().omega;
+    double dtheta = desiredState.omega - prevSetpoint.chassisSpeeds().omega;
 
     // 's' interpolates between start and goal. At 0, we are at prevState and at 1,
     // we are at

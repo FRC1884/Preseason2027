@@ -2,10 +2,10 @@ package org.Griffins1884.frc2027.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.Test;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Translation2d;
-import org.junit.jupiter.api.Test;
 
 class ShotMathTest {
   private static final double EPSILON = 1e-6;

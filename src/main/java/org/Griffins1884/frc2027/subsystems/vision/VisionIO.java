@@ -1,9 +1,9 @@
 package org.Griffins1884.frc2027.subsystems.vision;
 
+import org.littletonrobotics.junction.AutoLog;
 import org.wpilib.math.geometry.Pose3d;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Transform3d;
-import org.littletonrobotics.junction.AutoLog;
 
 public interface VisionIO {
   /**

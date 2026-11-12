@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.Griffins1884.frc2027.mechanisms.RobotMechanismDefinitions;
 import org.Griffins1884.frc2027.mechanisms.arms.PositionArmMechanism;
-import org.Griffins1884.frc2027.util.LoggedTunableNumber;
 import org.Griffins1884.frc2027.mechanisms.arms.PositionArmMechanism.PivotGoal;
+import org.Griffins1884.frc2027.util.LoggedTunableNumber;
 
 @Setter
 @Getter

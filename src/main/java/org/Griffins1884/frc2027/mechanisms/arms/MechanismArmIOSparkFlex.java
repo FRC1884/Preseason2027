@@ -2,8 +2,6 @@ package org.Griffins1884.frc2027.mechanisms.arms;
 
 import static com.revrobotics.spark.config.SparkBaseConfig.IdleMode.*;
 
-import org.wpilib.hardware.bus.CANPort;
-
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
@@ -12,6 +10,7 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import org.wpilib.hardware.bus.CANPort;
 
 public class MechanismArmIOSparkFlex implements MechanismArmIO {
   private final SparkFlex[] motors;
@@ -23,7 +22,12 @@ public class MechanismArmIOSparkFlex implements MechanismArmIO {
   private final CANPort canPort;
 
   public MechanismArmIOSparkFlex(
-      int[] ids, int currentLimitAmps, boolean brake, double forwardLimit, double reverseLimit, CANPort canPort) {
+      int[] ids,
+      int currentLimitAmps,
+      boolean brake,
+      double forwardLimit,
+      double reverseLimit,
+      CANPort canPort) {
     this(ids, currentLimitAmps, brake, forwardLimit, reverseLimit, 1.0, canPort);
   }
 
@@ -33,9 +37,10 @@ public class MechanismArmIOSparkFlex implements MechanismArmIO {
       boolean brake,
       double forwardLimit,
       double reverseLimit,
-      double positionCoefficient, CANPort canPort) {
+      double positionCoefficient,
+      CANPort canPort) {
     this.positionCoefficient = positionCoefficient;
-    this.canPort=canPort;
+    this.canPort = canPort;
 
     motors = new SparkFlex[ids.length];
     config =
@@ -70,9 +75,13 @@ public class MechanismArmIOSparkFlex implements MechanismArmIO {
         inputs.connected[i] = true;
       }
       double positionRotations =
-          (absoluteEncoder != null) ? absoluteEncoder.getPosition().get() : relativeEncoder.getPosition().get();
+          (absoluteEncoder != null)
+              ? absoluteEncoder.getPosition().get()
+              : relativeEncoder.getPosition().get();
       double velocityRpm =
-          (absoluteEncoder != null) ? absoluteEncoder.getVelocity().get() : relativeEncoder.getVelocity().get();
+          (absoluteEncoder != null)
+              ? absoluteEncoder.getVelocity().get()
+              : relativeEncoder.getVelocity().get();
       inputs.encoderPosition = positionRotations * positionCoefficient;
       inputs.velocity = velocityRpm * positionCoefficient / 60.0;
       inputs.appliedVoltage = leader.getAppliedOutput().get() * leader.getBusVoltage().get();

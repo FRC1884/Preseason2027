@@ -1,7 +1,7 @@
 package org.Griffins1884.frc2027.simulation.visualization;
 
-import org.wpilib.math.geometry.Pose3d;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.math.geometry.Pose3d;
 
 /** Publishes projectile and shot-arc poses for AdvantageScope. */
 public final class GamePiecePosePublisher {

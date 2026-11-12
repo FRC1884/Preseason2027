@@ -13,7 +13,6 @@ import java.nio.file.SecureDirectoryStream;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -236,14 +235,13 @@ final class StaticAssetAccess {
                 : readAttributes(directory, relativePath.getFileName());
         Object savedKey = attributes.fileKey();
         Object currentKey = current.fileKey();
-        boolean sameFile =
-                savedKey == null ? currentKey == null : savedKey.equals(currentKey);
+        boolean sameFile = savedKey == null ? currentKey == null : savedKey.equals(currentKey);
 
         return current.isRegularFile()
-                && sameFile
-                && attributes.size() == current.size()
-                && attributes.lastModifiedTime().equals(current.lastModifiedTime())
-                && attributes.creationTime().equals(current.creationTime());
+            && sameFile
+            && attributes.size() == current.size()
+            && attributes.lastModifiedTime().equals(current.lastModifiedTime())
+            && attributes.creationTime().equals(current.creationTime());
       } catch (NoSuchFileException ex) {
         return false;
       }

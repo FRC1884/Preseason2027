@@ -2,9 +2,9 @@ package org.Griffins1884.frc2027.util;
 
 import static java.lang.Math.PI;
 
+import org.Griffins1884.frc2027.subsystems.turret.TurretConstants;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Translation2d;
-import org.Griffins1884.frc2027.subsystems.turret.TurretConstants;
 
 public final class TurretUtil {
   private TurretUtil() {}

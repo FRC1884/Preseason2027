@@ -2,11 +2,6 @@ package org.Griffins1884.frc2027.subsystems.swerve;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.wpilib.hardware.hal.HAL;
-import org.wpilib.math.geometry.Rotation2d;
-import org.wpilib.math.kinematics.ChassisVelocities;
-import org.wpilib.driverstation.internal.DriverStationBackend;
-import org.wpilib.simulation.DriverStationSim;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +14,11 @@ import org.Griffins1884.frc2027.runtime.RuntimeModeProfile;
 import org.Griffins1884.frc2027.util.LoggedTunableNumber;
 import org.junit.jupiter.api.*;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
+import org.wpilib.driverstation.internal.DriverStationBackend;
+import org.wpilib.hardware.hal.HAL;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.kinematics.ChassisVelocities;
+import org.wpilib.simulation.DriverStationSim;
 
 class ModuleConfigurationIntegrationTest {
   private RuntimeModeProfile previousProfile;

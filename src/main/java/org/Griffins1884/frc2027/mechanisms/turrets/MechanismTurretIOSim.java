@@ -2,8 +2,8 @@ package org.Griffins1884.frc2027.mechanisms.turrets;
 
 import static org.wpilib.math.system.Models.singleJointedArmFromPhysicalConstants;
 
-import org.wpilib.math.system.DCMotor;
 import org.wpilib.driverstation.RobotState;
+import org.wpilib.math.system.DCMotor;
 import org.wpilib.simulation.DCMotorSim;
 
 public class MechanismTurretIOSim implements MechanismTurretIO {
@@ -17,7 +17,9 @@ public class MechanismTurretIOSim implements MechanismTurretIO {
   }
 
   public MechanismTurretIOSim(DCMotor motorModel, double gearRatio, double moi, boolean inverted) {
-    sim = new DCMotorSim(singleJointedArmFromPhysicalConstants(motorModel, moi, gearRatio), motorModel);
+    sim =
+        new DCMotorSim(
+            singleJointedArmFromPhysicalConstants(motorModel, moi, gearRatio), motorModel);
     invertSign = inverted ? -1.0 : 1.0;
   }
 

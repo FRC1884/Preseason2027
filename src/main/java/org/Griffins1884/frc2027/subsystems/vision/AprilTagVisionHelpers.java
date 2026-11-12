@@ -1,10 +1,10 @@
 package org.Griffins1884.frc2027.subsystems.vision;
 
+import org.Griffins1884.frc2027.subsystems.vision.VisionIO.CameraType;
+import org.Griffins1884.frc2027.subsystems.vision.VisionIO.PoseObservation;
 import org.wpilib.math.linalg.Matrix;
 import org.wpilib.math.numbers.N1;
 import org.wpilib.math.numbers.N3;
-import org.Griffins1884.frc2027.subsystems.vision.VisionIO.CameraType;
-import org.Griffins1884.frc2027.subsystems.vision.VisionIO.PoseObservation;
 
 /**
  * This class provides utility methods and record classes for vision-related operations,

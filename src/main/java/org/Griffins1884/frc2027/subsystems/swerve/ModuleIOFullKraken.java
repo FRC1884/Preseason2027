@@ -17,21 +17,20 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import org.wpilib.math.geometry.Rotation2d;
-import org.wpilib.units.measure.Angle;
-import org.wpilib.units.measure.AngularVelocity;
-import org.wpilib.units.measure.Current;
-import org.wpilib.units.measure.Voltage;
-import org.wpilib.system.Timer;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
 import org.Griffins1884.frc2027.CanIDConstants;
 import org.Griffins1884.frc2027.GlobalConstants;
 import org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.ModuleConstants;
 import org.Griffins1884.frc2027.util.PhoenixUtil;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.system.Timer;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.AngularVelocity;
+import org.wpilib.units.measure.Current;
+import org.wpilib.units.measure.Voltage;
 
 /** Module IO implementation for Kraken X60 drive motors with Neo 550 turn motors. */
 public class ModuleIOFullKraken implements ModuleIO {
@@ -153,7 +152,11 @@ public class ModuleIOFullKraken implements ModuleIO {
     softwareZeroTrimRotations = SwerveCalibration.getModuleZeroTrimRotations(calibrationKey);
     driveMotor = new TalonFX(moduleConstants.driveID(), SwerveConstants.canBus);
     turnMotor = new TalonFX(moduleConstants.rotatorID(), SwerveConstants.canBus);
-    turnEncoder = hasCancoder ? new CANcoder(moduleConstants.cancoderID(), new CANBus(CanIDConstants.MODULE_IO_FULL_KRAKEN)) : null;
+    turnEncoder =
+        hasCancoder
+            ? new CANcoder(
+                moduleConstants.cancoderID(), new CANBus(CanIDConstants.MODULE_IO_FULL_KRAKEN))
+            : null;
     if (hasCancoder) {
       var cancoderConfig = new CANcoderConfiguration();
       // Match Mechanical Advantage: apply zeroRotation as the CANCoder magnet offset.

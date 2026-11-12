@@ -14,8 +14,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import org.wpilib.math.util.Units;
 import org.Griffins1884.frc2027.mechanisms.MechanismDefinition;
+import org.wpilib.math.util.Units;
 
 public class MechanismRollerIOKraken implements MechanismRollerIO {
   private static final double DEFAULT_CLOSED_LOOP_RAMP_SECONDS = 0.02;

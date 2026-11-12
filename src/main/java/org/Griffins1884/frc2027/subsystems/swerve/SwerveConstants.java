@@ -1,24 +1,24 @@
 package org.Griffins1884.frc2027.subsystems.swerve;
 
+import static java.lang.Math.PI;
+import static org.Griffins1884.frc2027.GlobalConstants.ROBOT;
+import static org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.ROBOT_MASS;
 import static org.wpilib.units.Units.KilogramSquareMeters;
 import static org.wpilib.units.Units.Kilograms;
 import static org.wpilib.units.Units.Meters;
 import static org.wpilib.units.Units.Volts;
-import static java.lang.Math.PI;
-import static org.Griffins1884.frc2027.GlobalConstants.ROBOT;
-import static org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.ROBOT_MASS;
 
 import com.ctre.phoenix6.CANBus;
+import org.Griffins1884.frc2027.CanIDConstants;
+import org.Griffins1884.frc2027.GlobalConstants.Gains;
+import org.Griffins1884.frc2027.simV2.simulation.drivesims.COTS;
+import org.Griffins1884.frc2027.simV2.simulation.drivesims.configs.DriveTrainSimulationConfig;
+import org.Griffins1884.frc2027.simV2.simulation.drivesims.configs.SwerveModuleSimulationConfig;
+import org.Griffins1884.frc2027.util.swerve.ModuleLimits;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.math.system.DCMotor;
 import org.wpilib.math.util.Units;
-import org.Griffins1884.frc2027.CanIDConstants;
-import org.Griffins1884.frc2027.GlobalConstants.Gains;
-import org.Griffins1884.frc2027.util.swerve.ModuleLimits;
-import org.Griffins1884.frc2027.simV2.simulation.drivesims.COTS;
-import org.Griffins1884.frc2027.simV2.simulation.drivesims.configs.DriveTrainSimulationConfig;
-import org.Griffins1884.frc2027.simV2.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 
 @SuppressWarnings("unused")
 public final class SwerveConstants {
@@ -101,13 +101,12 @@ public final class SwerveConstants {
   private static final int BLR_CANCODER_ID = CanIDConstants.BLR_CANCODER_ID;
 
   // Zeroed rotation values for each module, see setup instructions
-  private static final Rotation2d COMPBOT_FLR_ZERO =
-      Rotation2d.fromRadians(0.482421875 * (2 * PI));
+  private static final Rotation2d COMPBOT_FLR_ZERO = Rotation2d.fromRadians(0.482421875 * (2 * PI));
   private static final Rotation2d COMPBOT_FRR_ZERO =
-      Rotation2d.fromRadians(-0.1123046875* (2 * PI));
-  private static final Rotation2d COMPBOT_BLR_ZERO = Rotation2d.fromRadians(-0.277099609375 * (2 * PI));
-  private static final Rotation2d COMPBOT_BRR_ZERO =
-      Rotation2d.fromRadians(0.431640625 * (2 * PI));
+      Rotation2d.fromRadians(-0.1123046875 * (2 * PI));
+  private static final Rotation2d COMPBOT_BLR_ZERO =
+      Rotation2d.fromRadians(-0.277099609375 * (2 * PI));
+  private static final Rotation2d COMPBOT_BRR_ZERO = Rotation2d.fromRadians(0.431640625 * (2 * PI));
 
   private static final Rotation2d FLR_ZERO =
       switch (ROBOT) {

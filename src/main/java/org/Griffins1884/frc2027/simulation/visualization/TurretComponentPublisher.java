@@ -1,5 +1,6 @@
 package org.Griffins1884.frc2027.simulation.visualization;
 
+import org.Griffins1884.frc2027.simulation.shooter.ShotSimulationConfig;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Pose3d;
 import org.wpilib.math.geometry.Rotation2d;
@@ -7,7 +8,6 @@ import org.wpilib.math.geometry.Rotation3d;
 import org.wpilib.math.geometry.Transform3d;
 import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.math.geometry.Translation3d;
-import org.Griffins1884.frc2027.simulation.shooter.ShotSimulationConfig;
 
 /** Builds field-space turret component poses for AdvantageScope visualization. */
 public final class TurretComponentPublisher {

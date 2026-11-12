@@ -5,15 +5,6 @@ import static org.wpilib.units.Units.RadiansPerSecond;
 import static org.wpilib.units.Units.Seconds;
 import static org.wpilib.units.Units.Volts;
 
-import org.wpilib.math.controller.ArmFeedforward;
-import org.wpilib.math.controller.PIDController;
-import org.wpilib.util.Alert;
-import org.wpilib.driverstation.RobotState;
-import org.wpilib.system.Timer;
-import org.wpilib.sysid.SysIdRoutineLog;
-import org.wpilib.command2.Command;
-import org.wpilib.command2.SubsystemBase;
-import org.wpilib.command2.sysid.SysIdRoutine;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
@@ -25,6 +16,15 @@ import org.Griffins1884.frc2027.mechanisms.MechanismTelemetry;
 import org.Griffins1884.frc2027.runtime.RuntimeModeManager;
 import org.Griffins1884.frc2027.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.SubsystemBase;
+import org.wpilib.command2.sysid.SysIdRoutine;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.math.controller.ArmFeedforward;
+import org.wpilib.math.controller.PIDController;
+import org.wpilib.sysid.SysIdRoutineLog;
+import org.wpilib.system.Timer;
+import org.wpilib.util.Alert;
 
 /** Mechanism-backed replacement for the old generic position arm base. */
 public abstract class PositionArmMechanism<G extends PositionArmMechanism.PivotGoal>
@@ -141,7 +141,11 @@ public abstract class PositionArmMechanism<G extends PositionArmMechanism.PivotG
             new SysIdRoutine.Mechanism(
                 voltage -> io.setVoltage(voltage.in(Volts)), sysIdLog, this));
 
-    disconnected = new Alert("Arm Motor Disconnect" + name, "Motor(s) disconnected on arm: " + name + "!", Alert.Level.HIGH);
+    disconnected =
+        new Alert(
+            "Arm Motor Disconnect" + name,
+            "Motor(s) disconnected on arm: " + name + "!",
+            Alert.Level.HIGH);
     stateTimer.start();
     recordConfigSnapshot();
   }
@@ -271,10 +275,9 @@ public abstract class PositionArmMechanism<G extends PositionArmMechanism.PivotG
   }
 
   public void stopOpenLoop() {
-      openLoopPercent = 0.0;
-      setOpenLoop(0.0);
-      goalPosition = getPosition(); // hold wherever we stopped
-      
+    openLoopPercent = 0.0;
+    setOpenLoop(0.0);
+    goalPosition = getPosition(); // hold wherever we stopped
   }
 
   public boolean isAtGoal() {

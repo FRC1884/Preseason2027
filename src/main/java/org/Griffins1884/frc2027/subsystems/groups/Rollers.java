@@ -6,8 +6,6 @@ import static org.Griffins1884.frc2027.Config.Subsystems.SHOOTER_ENABLED;
 import static org.Griffins1884.frc2027.Config.Subsystems.SPINDEXER_ENABLED;
 import static org.Griffins1884.frc2027.Config.Subsystems.TOOTH_ROLLOUT_ENABLED;
 
-import org.wpilib.math.system.DCMotor;
-import org.wpilib.command2.SubsystemBase;
 import org.Griffins1884.frc2027.GlobalConstants;
 import org.Griffins1884.frc2027.subsystems.indexer.IndexerIOKraken;
 import org.Griffins1884.frc2027.subsystems.indexer.IndexerIOSim;
@@ -18,6 +16,8 @@ import org.Griffins1884.frc2027.subsystems.intake.IntakeIOSim;
 import org.Griffins1884.frc2027.subsystems.intake.IntakeSubsystem;
 import org.Griffins1884.frc2027.subsystems.intake.ToothRolloutSubsystem;
 import org.Griffins1884.frc2027.subsystems.shooter.*;
+import org.wpilib.command2.SubsystemBase;
+import org.wpilib.math.system.DCMotor;
 
 public class Rollers extends SubsystemBase {
   public IntakeSubsystem intake =

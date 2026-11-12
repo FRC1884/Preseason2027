@@ -1,20 +1,20 @@
 package org.Griffins1884.frc2027.subsystems.vision;
 
-import org.wpilib.system.Timer;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.wpilib.math.geometry.Pose2d;
-import org.wpilib.math.geometry.Transform3d;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Transform3d;
+import org.wpilib.system.Timer;
 
 class VisionMeasurementTest {
   @Test
   void acceptsGenericAprilTagPoseAndHonorsExclusiveTagFilter() {
     AtomicInteger acceptedCount = new AtomicInteger();
     FakeVisionIO io = new FakeVisionIO();
-    Vision vision = new Vision(
+    Vision vision =
+        new Vision(
             (pose, timestamp, stdDevs) -> acceptedCount.incrementAndGet(),
             Pose2d::new,
             () -> 0.0,

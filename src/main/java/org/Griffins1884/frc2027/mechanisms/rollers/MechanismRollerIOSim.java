@@ -2,8 +2,8 @@ package org.Griffins1884.frc2027.mechanisms.rollers;
 
 import static org.wpilib.math.system.Models.singleJointedArmFromPhysicalConstants;
 
-import org.wpilib.math.system.DCMotor;
 import org.wpilib.driverstation.RobotState;
+import org.wpilib.math.system.DCMotor;
 import org.wpilib.math.util.Units;
 import org.wpilib.simulation.DCMotorSim;
 
@@ -12,7 +12,9 @@ public class MechanismRollerIOSim implements MechanismRollerIO {
   private double appliedVoltage = 0.0;
 
   public MechanismRollerIOSim(DCMotor motorModel, double reduction, double moi) {
-    sim = new DCMotorSim(singleJointedArmFromPhysicalConstants(motorModel, moi, reduction), motorModel);
+    sim =
+        new DCMotorSim(
+            singleJointedArmFromPhysicalConstants(motorModel, moi, reduction), motorModel);
   }
 
   @Override

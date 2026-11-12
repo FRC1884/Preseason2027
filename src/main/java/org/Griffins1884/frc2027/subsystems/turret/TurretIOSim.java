@@ -1,7 +1,7 @@
 package org.Griffins1884.frc2027.subsystems.turret;
 
-import org.wpilib.math.system.DCMotor;
 import org.Griffins1884.frc2027.mechanisms.turrets.MechanismTurretIOSim;
+import org.wpilib.math.system.DCMotor;
 
 public class TurretIOSim extends MechanismTurretIOSim implements TurretIO {
   public TurretIOSim() {
