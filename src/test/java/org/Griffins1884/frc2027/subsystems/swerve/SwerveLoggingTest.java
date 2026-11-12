@@ -21,6 +21,8 @@ class SwerveLoggingTest {
   private boolean originalRunning;
   private Field outputTableField;
   private Field runningField;
+  private Field entryField;
+  private Object originalEntry;
   private SwerveSubsystem subsystem;
   private final FakeModule module = new FakeModule();
   private double now;
@@ -47,6 +49,10 @@ class SwerveLoggingTest {
             new FakeModule(),
             () -> now,
             () -> radius);
+
+    entryField = Logger.class.getDeclaredField("entry");
+    entryField.setAccessible(true);
+    originalEntry = entryField.get(null);
   }
 
   @AfterEach
@@ -56,6 +62,7 @@ class SwerveLoggingTest {
     outputTableField.set(null, originalOutputTable);
     runningField.setBoolean(null, originalRunning);
     RuntimeModeManager.setActiveProfile(originalProfile);
+    entryField.set(null, originalEntry);
   }
 
   @Test
@@ -72,17 +79,15 @@ class SwerveLoggingTest {
         derivedPublications++;
         assertEquals(module.velocity * radius, table.get(MODULE + "ActualSpeedMps", -1.0), 1e-12);
       }
-      assertEquals(module.velocity, table.get(MODULE + "Inputs/DriveVelocityRadPerSec", -1.0));
+      assertEquals(module.velocity, table.get(MODULE + "DriveVelocityRadPerSec", -1.0));
       assertArrayEquals(
-          new double[] {now}, table.get(MODULE + "Inputs/OdometryTimestamps", new double[0]));
+          new double[] {now}, table.get(MODULE + "OdometryTimestamps", new double[0]));
       assertArrayEquals(
           new double[] {now * 2.0},
-          table.get(MODULE + "Inputs/OdometryDrivePositionsRad", new double[0]));
+          table.get(MODULE + "OdometryDrivePositionsRad", new double[0]));
       assertArrayEquals(
           new double[] {now}, table.get("Swerve/Gyro/OdometryYawTimestamps", new double[0]));
       assertNotNull(table.get("Swerve/Gyro/OdometryYawPositions"));
-      assertNotNull(table.get("SwerveStates/Measured"));
-      assertNotNull(table.get("SwerveChassisSpeeds/Measured"));
     }
     assertEquals(5, derivedPublications);
   }
@@ -115,11 +120,12 @@ class SwerveLoggingTest {
     assertNull(fault.get(MODULE + "ActualSpeedMps"));
     assertTrue(fault.get(MODULE + "AngleJumpDetected", false));
     assertEquals(1, fault.get(MODULE + "AngleJumpCount", -1));
-    assertFalse(fault.get(MODULE + "Inputs/DriveConnected", true));
+    assertNotNull(fault.get(MODULE + "DriveConnected"));
+    assertFalse(fault.get(MODULE + "DriveConnected", true));
     module.connected = true;
     LogTable recovered = cycle(0.04);
     assertFalse(recovered.get(MODULE + "AngleJumpDetected", true));
-    assertTrue(recovered.get(MODULE + "Inputs/DriveConnected", false));
+    assertTrue(recovered.get(MODULE + "DriveConnected", false));
   }
 
   @Test
@@ -136,9 +142,9 @@ class SwerveLoggingTest {
       subsystem.runCharacterization(0.0);
       LogTable characterization = cycle(0.12 + i * 0.02);
       assertNotNull(characterization.get(MODULE + "ActualSpeedMps"));
-      assertNotNull(characterization.get(MODULE + "Inputs/DriveAppliedVolts"));
-      assertNotNull(characterization.get(MODULE + "Inputs/DrivePositionRad"));
-      assertNotNull(characterization.get(MODULE + "Inputs/DriveVelocityRadPerSec"));
+      assertNotNull(characterization.get(MODULE + "DriveAppliedVolts"));
+      assertNotNull(characterization.get(MODULE + "DrivePositionRad"));
+      assertNotNull(characterization.get(MODULE + "DriveVelocityRadPerSec"));
     }
   }
 
@@ -156,7 +162,7 @@ class SwerveLoggingTest {
       assertTrue(active.get("Swerve/SysId/DriveActive", false));
       assertEquals("SINGLE_DYN_FWD", active.get("Swerve/SysId/DrivePhase", ""));
       assertNotNull(active.get(MODULE + "ActualSpeedMps"));
-      assertNotNull(active.get(MODULE + "Inputs/DriveAppliedVolts"));
+      assertNotNull(active.get(MODULE + "DriveAppliedVolts"));
     }
     phase.invoke(subsystem, "DONE", false);
     LogTable completed = cycle(0.12);
@@ -177,6 +183,7 @@ class SwerveLoggingTest {
   private LogTable cycle(double timestamp) throws Exception {
     now = timestamp;
     LogTable table = new LogTable((long) (timestamp * 1e6));
+    entryField.set(null, table);
     outputTableField.set(null, table);
     runningField.setBoolean(null, true);
     try {

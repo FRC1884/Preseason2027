@@ -20,10 +20,26 @@ class OperatorBoardResourceTest {
 
   @Test
   void saturatedExecutorBoundsQueuedWorkClosesExcessAndRecovers() throws Exception {
+
     Files.writeString(root.resolve("index.js"), "streamable");
     CountDownLatch workersStarted = new CountDownLatch(4), release = new CountDownLatch(1);
     List<Socket> queued = new ArrayList<>();
-    try (var server = OperatorBoardServer.start(root, "127.0.0.1", 0)) {
+    CountDownLatch started = new CountDownLatch(4);
+    try (
+         var server =
+                 OperatorBoardServer.start(
+                         root,
+                         "127.0.0.1",
+                         0,
+                         () -> {
+                           started.countDown();
+                           try {
+                             release.await();
+                           } catch (InterruptedException e) {
+                             Thread.currentThread().interrupt();
+                             throw new IOException("Transfer interrupted during shutdown", e);
+                           }
+                         })) {
       ThreadPoolExecutor executor = executor(server);
       try {
         for (int i = 0; i < 4; i++)
@@ -166,10 +182,28 @@ class OperatorBoardResourceTest {
   void closeUnblocksAnActiveSlowTransferAndDiscardsQueuedConnections() throws Exception {
     largeFile();
     List<Socket> sockets = new ArrayList<>();
-    var server = OperatorBoardServer.start(root, "127.0.0.1", 0);
+    CountDownLatch started = new CountDownLatch(4);
+    CountDownLatch release = new CountDownLatch(1);
+    var server =
+            OperatorBoardServer.start(
+                    root,
+                    "127.0.0.1",
+                    0,
+                    () -> {
+                      started.countDown();
+                      try {
+                        release.await();
+                      } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        throw new IOException("Transfer interrupted during shutdown", e);
+                      }
+                    });
     try {
       for (int i = 0; i < 4; i++) sockets.add(request(server, "/large.bin", true));
-      await(() -> server.getMetricsSnapshot().activeTransfers() == 4);
+      assertTrue(
+              started.await(5, TimeUnit.SECONDS),
+              () -> "latch remaining=" + started.getCount()
+                      + ", metrics=" + server.getMetricsSnapshot());
       for (int i = 0; i < 8; i++) sockets.add(request(server, "/large.bin", true));
       await(() -> server.getMetricsSnapshot().queuedTasks() == 8);
       server.close();
@@ -179,6 +213,7 @@ class OperatorBoardResourceTest {
     } finally {
       for (Socket socket : sockets) socket.close();
       server.close();
+      release.countDown();
     }
   }
 

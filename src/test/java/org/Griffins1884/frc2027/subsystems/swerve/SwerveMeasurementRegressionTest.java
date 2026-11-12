@@ -64,8 +64,8 @@ class SwerveMeasurementRegressionTest {
   @Test
   void characterizationAndStopKeepImmediateOutputs() {
     FakeModule io = new FakeModule();
-    Module module = new Module(io, 0);
-    module.periodic();
+    Module module = new Module(io, SwerveConstants::getWheelRadiusMeters, 0);
+    module.periodic(io.timestamp);
     module.runCharacterization(3.25);
     assertEquals(3.25, io.driveOutput);
     assertEquals(Rotation2d.ZERO, io.turnTarget);

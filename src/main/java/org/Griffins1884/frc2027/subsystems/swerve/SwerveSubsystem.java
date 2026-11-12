@@ -8,6 +8,7 @@ import static org.wpilib.units.Units.Seconds;
 import static org.wpilib.units.Units.Volts;
 import static org.Griffins1884.frc2027.GlobalConstants.RobotMode.SIM;
 
+import org.Griffins1884.frc2027.runtime.RuntimeModeManager;
 import org.wpilib.math.linalg.Matrix;
 import org.wpilib.math.estimator.SwerveDrivePoseEstimator;
 import org.wpilib.math.filter.LinearFilter;
@@ -59,6 +60,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   private static final double SYS_ID_IDLE_WAIT_SECONDS = 0.5;
 
   private long measuredKinematicsCount;
+  private ChassisVelocities measuredChassisSpeeds = new ChassisVelocities();
 
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
@@ -126,6 +128,8 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   private String turnSysIdLastCompletedPhase = "NONE";
   private Runnable odometryResetListener = () -> {};
 
+  private long measuredWheelRadiusRevision = -1;
+
   private Translation2d fieldAcceleration = new Translation2d();
   private Translation2d lastFieldVelocity = new Translation2d();
   private double lastFieldVelTimestamp = Double.NaN;
@@ -140,6 +144,14 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
   private final String[] calibrationAngleKeys = new String[4];
   private final String[] calibrationTrimKeys = new String[4];
+
+  private boolean hasLoggedCalibration;
+  private double lastLoggedWheelRadiusMeters;
+  private final double[] lastLoggedAbsoluteAnglesDeg = new double[4];
+  private final double[] lastLoggedZeroTrimRotations = new double[4];
+
+  private int derivedTelemetryCycles;
+  private boolean lastTelemetryDebugEnabled;
 
   public SwerveSubsystem(
       GyroIO gyroIO,
@@ -161,10 +173,10 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
     this.controlClock = controlClock;
     this.radiusSupplier = radiusSupplier;
     this.gyroIO = gyroIO;
-    modules[0] = new Module(flModuleIO, 0);
-    modules[1] = new Module(frModuleIO, 1);
-    modules[2] = new Module(blModuleIO, 2);
-    modules[3] = new Module(brModuleIO, 3);
+    modules[0] = new Module(flModuleIO,radiusSupplier, 0);
+    modules[1] = new Module(frModuleIO,radiusSupplier, 1);
+    modules[2] = new Module(blModuleIO,radiusSupplier, 2);
+    modules[3] = new Module(brModuleIO,radiusSupplier, 3);
 
     
     if (GlobalConstants.MODE != SIM) {
@@ -283,14 +295,17 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   public void periodic() {
     odometryLock.lock(); // Prevents odometry updates while reading data
     try {
-      gyroIO.updateInputs(gyroInputs);
+      double timestamp = controlClock.getAsDouble();
+      gyroIO.updateInputs(gyroInputs, timestamp);
       Logger.processInputs("Swerve/Gyro", gyroInputs);
       for (var module : modules) {
-        module.periodic();
+        module.setSysIdActive(driveSysIdActive || turnSysIdActive);
+        module.periodic(timestamp);
       }
+      measuredChassisSpeeds = kinematics.toChassisVelocities(getModuleStates());
+      measuredKinematicsCount++;
+      measuredWheelRadiusRevision = SwerveCalibration.getWheelRadiusRevision();
       if (GlobalConstants.isDebugMode()) {
-        Logger.recordOutput("Swerve/SysId/DrivePhase", driveSysIdPhase);
-        Logger.recordOutput("Swerve/SysId/DriveActive", driveSysIdActive);
         Logger.recordOutput("Swerve/SysId/DriveLastCompleted", driveSysIdLastCompleted);
         Logger.recordOutput("Swerve/SysId/DriveLastCompletedPhase", driveSysIdLastCompletedPhase);
         Logger.recordOutput("Swerve/SysId/TurnPhase", turnSysIdPhase);
@@ -298,8 +313,16 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
         Logger.recordOutput("Swerve/SysId/TurnLastCompleted", turnSysIdLastCompleted);
         Logger.recordOutput("Swerve/SysId/TurnLastCompletedPhase", turnSysIdLastCompletedPhase);
       }
+
+      Logger.recordOutput("Swerve/SysId/DrivePhase", driveSysIdPhase);
+      Logger.recordOutput("Swerve/SysId/DriveActive", driveSysIdActive);
+
     } finally {
       odometryLock.unlock();
+    }
+
+    for (var module: modules){
+      module.updateConfiguration(RobotState.isDisabled());
     }
 
     // Stop moving when disabled
@@ -410,21 +433,36 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
     Logger.recordOutput("Swerve/FieldVelocity", currentVelocity);
     Logger.recordOutput("Swerve/FieldAcceleration", fieldAcceleration);
-    Logger.recordOutput("Swerve/FieldVelocityMps", currentVelocity.getNorm());
     Logger.recordOutput("Swerve/FieldAccelerationMps2", fieldAcceleration.getNorm());
     Logger.recordOutput("Swerve/FieldMotionSampleValid", fieldMotionSampleValid);
     Logger.recordOutput("Swerve/FieldMotionSampleDtSec", fieldMotionSampleDtSec);
     Logger.recordOutput("Swerve/FieldMotionSampleAgeSec", getFieldMotionSampleAgeSec());
-    Logger.recordOutput(
-        "Swerve/Calibration/WheelRadiusMeters", SwerveConstants.getWheelRadiusMeters());
-    for (int i = 0; i < modules.length; i++) {
-      Logger.recordOutput(
-          "Swerve/Calibration/Module" + i + "/AbsoluteAngleDeg",
-          modules[i].getAbsoluteAngle().getDegrees());
-      Logger.recordOutput(
-          "Swerve/Calibration/Module" + i + "/ZeroTrimRotations",
-          modules[i].getZeroTrimRotations());
+
+    double wheelRadiusMeters = radiusSupplier.getAsDouble();
+    if (!hasLoggedCalibration
+            || Double.compare(wheelRadiusMeters, lastLoggedWheelRadiusMeters) != 0) {
+      Logger.recordOutput("Swerve/Calibration/WheelRadiusMeters", wheelRadiusMeters);
+      lastLoggedWheelRadiusMeters = wheelRadiusMeters;
     }
+
+    for (int i = 0; i < modules.length; i++) {
+      double absoluteAngleDeg = modules[i].getAbsoluteAngle().getDegrees();
+      if (!hasLoggedCalibration
+              || Double.compare(absoluteAngleDeg, lastLoggedAbsoluteAnglesDeg[i]) != 0) {
+        Logger.recordOutput(
+                "Swerve/Calibration/Module" + i + "/AbsoluteAngleDeg", absoluteAngleDeg);
+        lastLoggedAbsoluteAnglesDeg[i] = absoluteAngleDeg;
+      }
+
+      double zeroTrimRotations = modules[i].getZeroTrimRotations();
+      if (!hasLoggedCalibration
+              || Double.compare(zeroTrimRotations, lastLoggedZeroTrimRotations[i]) != 0) {
+        Logger.recordOutput(
+                "Swerve/Calibration/Module" + i + "/ZeroTrimRotations", zeroTrimRotations);
+        lastLoggedZeroTrimRotations[i] = zeroTrimRotations;
+      }
+    }
+    hasLoggedCalibration = true;
 
     if (!krakenVelocityMode) {
       krakenCurrentSetpoint = new SwerveSetpoint(getChassisVelocities(), getModuleStates());
@@ -470,7 +508,6 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
     //Adjust based on actual CanPort
     var canStatus = RobotController.getCANStatus(CanIDConstants.SWERVE);
     Logger.recordOutput("Swerve/Debug/CommandedSpeedMps", commandedTranslationalMps);
-    Logger.recordOutput("Swerve/Debug/MeasuredSpeedMps", measuredTranslationalMps);
     Logger.recordOutput("Swerve/Debug/OverallSpeedRatio", overallSpeedRatio);
     Logger.recordOutput("Swerve/Debug/CommandedOmegaRadPerSec", commandedOmega);
     Logger.recordOutput("Swerve/Debug/MeasuredOmegaRadPerSec", measuredOmega);
@@ -483,6 +520,24 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
     Logger.recordOutput("Swerve/Debug/BadModule", badModule);
     Logger.recordOutput("Swerve/Debug/BadModuleReason", badReason);
     Logger.recordOutput("Swerve/Debug/BadModuleScore", worstScore);
+
+    boolean debug = RuntimeModeManager.isDebugEnabled();
+    if (debug != lastTelemetryDebugEnabled) {
+      derivedTelemetryCycles = 0;
+      lastTelemetryDebugEnabled = debug;
+    }
+
+    boolean publishDerivedTelemetry =
+            derivedTelemetryCycles % 5 == 0
+                    || debug
+                    || driveSysIdActive
+                    || turnSysIdActive;
+    derivedTelemetryCycles++;
+
+    if (publishDerivedTelemetry){
+      Logger.recordOutput("Swerve/FieldVelocityMps", currentVelocity.getNorm());
+      Logger.recordOutput("Swerve/Debug/MeasuredSpeedMps", measuredTranslationalMps);
+    }
 
     updateObserver(
         commandedTranslationalMps,
@@ -596,12 +651,30 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
     Logger.recordOutput("Swerve/Observer/CandidateLoops", observerCandidateLoops);
   }
 
+  private void stopAll(){
+    for (Module module:modules){
+      module.stop();
+    }
+  }
+
+  private boolean ensureConfigurationReady() {
+    for (Module module : modules) {
+      if (!module.getIo().isConfigurationReady()) {
+        stopAll();
+        return false;
+      }
+    }
+    return true;
+  }
+
   /**
    * Runs the drive at the desired velocity.
    *
    * @param speeds Speeds in meters/sec
    */
   public void runVelocity(ChassisVelocities speeds) {
+    if (!ensureConfigurationReady()) return;
+
     krakenVelocityMode = true;
     requestedTranslationalMps = Math.hypot(speeds.vx, speeds.vy);
     requestedOmegaRadPerSec = speeds.omega;
@@ -625,6 +698,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
   /** Runs the drive in a straight line with the specified drive output. */
   public void runCharacterization(double output) {
+    if (!ensureConfigurationReady()) return;
     krakenVelocityMode = false;
     for (int i = 0; i < 4; i++) {
       modules[i].runCharacterization(output);
@@ -633,6 +707,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
   /** Runs the turn motors open-loop for SysId and tuning. */
   public void runTurnCharacterization(double output) {
+    if (!ensureConfigurationReady()) return;
     krakenVelocityMode = false;
     for (int i = 0; i < 4; i++) {
       modules[i].runTurnCharacterization(output);
@@ -729,6 +804,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
    * return to their normal orientations the next time a nonzero velocity is requested.
    */
   public void stopWithX() {
+    if (!ensureConfigurationReady()) return;
     Rotation2d[] headings = new Rotation2d[4];
     for (int i = 0; i < 4; i++) {
       headings[i] = SwerveConstants.MODULE_TRANSLATIONS[i].getAngle().get();
@@ -971,7 +1047,24 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   /** Returns the measured chassis speeds of the robot. */
   @AutoLogOutput(key = "SwerveChassisVelocities/Measured")
   private ChassisVelocities getChassisVelocities() {
-    return kinematics.toChassisVelocities(getModuleStates());
+    long revision = SwerveCalibration.getWheelRadiusRevision();
+
+    if (revision != measuredWheelRadiusRevision) {
+      odometryLock.lock();
+      try {
+        revision = SwerveCalibration.getWheelRadiusRevision();
+        if (revision != measuredWheelRadiusRevision) {
+          measuredChassisSpeeds = kinematics.toChassisVelocities(getModuleStates());
+          measuredKinematicsCount++;
+          measuredWheelRadiusRevision = revision;
+        }
+      } finally {
+        odometryLock.unlock();
+      }
+    }
+
+    return new ChassisVelocities(
+            measuredChassisSpeeds.vx, measuredChassisSpeeds.vy, measuredChassisSpeeds.omega);
   }
 
   public Translation2d getFieldAcceleration() {
