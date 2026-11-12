@@ -223,7 +223,10 @@ enum DriverControllerLayout {
 
   private record PovSpec(int angleDegrees) {
     private boolean isPressed(GenericHID hid) {
-      return hid.getPOV().getAngle().get().getDegrees() == angleDegrees;
+      if (hid.getPOV().getAngle().isPresent()){
+        return hid.getPOV().getAngle().get().getDegrees() == angleDegrees;
+      }
+      return false;
     }
   }
 }

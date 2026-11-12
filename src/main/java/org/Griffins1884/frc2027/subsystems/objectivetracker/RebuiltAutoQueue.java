@@ -32,6 +32,7 @@ final class RebuiltAutoQueue {
   private final Superstructure superstructure;
   private final SwerveSubsystem drive;
   private final DeployAutoLibrary autoLibrary;
+  private boolean selectedAutoRunning = false;
 
   private final List<QueueStep> queueSteps = new ArrayList<>();
   private final List<NoGoZone> noGoZones = new ArrayList<>();
@@ -149,26 +150,27 @@ final class RebuiltAutoQueue {
       return null;
     }
     return selectedAutoCommand
-        .get()
-        .beforeStarting(
-            () -> {
-              queueRunning = true;
-              phase = QueuePhase.RUNNING;
-              activeLabel = selectedAutoState.name();
-              queueMessage = "Running " + selectedAutoState.name() + ".";
-              recordAction("AUTO_RUN", true, queueMessage);
-            })
-        .finallyDo(
-            interrupted -> {
-              queueRunning = false;
-              activeLabel = "";
-              phase = interrupted ? QueuePhase.READY : QueuePhase.COMPLETE;
-              queueMessage =
-                  interrupted
-                      ? "Autonomous was interrupted."
-                      : "Completed " + selectedAutoState.name() + ".";
-              recordAction("AUTO_RUN", !interrupted, queueMessage);
-            });
+            .get()
+            .beforeStarting(
+                    () -> {
+                      stopQueue("Selected autonomous is running.");
+                      selectedAutoRunning = true;
+                      phase = QueuePhase.RUNNING;
+                      activeLabel = selectedAutoState.name();
+                      queueMessage = "Running " + selectedAutoState.name() + ".";
+                      recordAction("AUTO_RUN", true, queueMessage);
+                    })
+            .finallyDo(
+                    interrupted -> {
+                      selectedAutoRunning = false;
+                      activeLabel = "";
+                      phase = interrupted ? QueuePhase.READY : QueuePhase.COMPLETE;
+                      queueMessage =
+                              interrupted
+                                      ? "Autonomous was interrupted."
+                                      : "Completed " + selectedAutoState.name() + ".";
+                      recordAction("AUTO_RUN", !interrupted, queueMessage);
+                    });
   }
 
   private void applyQueueSpec(String raw) {
@@ -262,6 +264,10 @@ final class RebuiltAutoQueue {
   }
 
   private boolean startQueue() {
+    if (selectedAutoRunning) {
+      queueMessage = "Cannot start the manual queue while selected autonomous is running.";
+      return false;
+    }
     if (drive == null) {
       queueMessage = "Drive unavailable.";
       queueRunning = false;
@@ -407,6 +413,9 @@ final class RebuiltAutoQueue {
   }
 
   private void updateQueueExecution() {
+    if (selectedAutoRunning) {
+      return;
+    }
     if (queueRunning && activeCommand == null) {
       startNextStep();
       return;

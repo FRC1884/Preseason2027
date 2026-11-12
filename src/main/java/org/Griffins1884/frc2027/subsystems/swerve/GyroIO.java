@@ -24,6 +24,8 @@ public interface GyroIO {
 
   public default void close() {}
 
+  public default void clearOdometrySamples() {}
+
   default void updateInputs(GyroIOInputs inputs, double acquisitionTimestampSeconds) {
     updateInputs(inputs);
   }
