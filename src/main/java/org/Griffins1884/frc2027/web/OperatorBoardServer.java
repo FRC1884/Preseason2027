@@ -112,14 +112,13 @@ public final class OperatorBoardServer implements AutoCloseable {
               throw new RejectedExecutionException("Operator board HTTP capacity exhausted");
             });
     try {
-      server.setExecutor(
-          task -> {
-            try {
-              executor.execute(task);
-            } finally {
-              queueHighWater.accumulateAndGet(executor.getQueue().size(), Math::max);
-            }
-          });
+      server.setExecutor(task -> {
+        try {
+          executor.execute(task);
+        } finally {
+          queueHighWater.accumulateAndGet(executor.getQueue().size(), Math::max);
+        }
+      });
       server.createContext("/", this::handle);
     } catch (RuntimeException | Error exception) {
       server.stop(0);
@@ -320,15 +319,14 @@ public final class OperatorBoardServer implements AutoCloseable {
             "application/json",
             "png",
             "image/png");
-    fallback.forEach(
-        (extension, type) -> {
-          try {
-            String detected = Files.probeContentType(Path.of("asset." + extension));
-            types.put(extension, detected != null ? detected : type);
-          } catch (IOException exception) {
-            types.put(extension, type);
-          }
-        });
+    fallback.forEach((extension, type) -> {
+      try {
+        String detected = Files.probeContentType(Path.of("asset." + extension));
+        types.put(extension, detected != null ? detected : type);
+      } catch (IOException exception) {
+        types.put(extension, type);
+      }
+    });
     return Map.copyOf(types);
   }
 

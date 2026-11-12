@@ -150,27 +150,25 @@ final class RebuiltAutoQueue {
       return null;
     }
     return selectedAutoCommand
-            .get()
-            .beforeStarting(
-                    () -> {
-                      stopQueue("Selected autonomous is running.");
-                      selectedAutoRunning = true;
-                      phase = QueuePhase.RUNNING;
-                      activeLabel = selectedAutoState.name();
-                      queueMessage = "Running " + selectedAutoState.name() + ".";
-                      recordAction("AUTO_RUN", true, queueMessage);
-                    })
-            .finallyDo(
-                    interrupted -> {
-                      selectedAutoRunning = false;
-                      activeLabel = "";
-                      phase = interrupted ? QueuePhase.READY : QueuePhase.COMPLETE;
-                      queueMessage =
-                              interrupted
-                                      ? "Autonomous was interrupted."
-                                      : "Completed " + selectedAutoState.name() + ".";
-                      recordAction("AUTO_RUN", !interrupted, queueMessage);
-                    });
+        .get()
+        .beforeStarting(() -> {
+          stopQueue("Selected autonomous is running.");
+          selectedAutoRunning = true;
+          phase = QueuePhase.RUNNING;
+          activeLabel = selectedAutoState.name();
+          queueMessage = "Running " + selectedAutoState.name() + ".";
+          recordAction("AUTO_RUN", true, queueMessage);
+        })
+        .finallyDo(interrupted -> {
+          selectedAutoRunning = false;
+          activeLabel = "";
+          phase = interrupted ? QueuePhase.READY : QueuePhase.COMPLETE;
+          queueMessage =
+              interrupted
+                  ? "Autonomous was interrupted."
+                  : "Completed " + selectedAutoState.name() + ".";
+          recordAction("AUTO_RUN", !interrupted, queueMessage);
+        });
   }
 
   private void applyQueueSpec(String raw) {
@@ -632,11 +630,9 @@ final class RebuiltAutoQueue {
         for (PoseSpec waypoint : step.routeWaypoints) {
           waypoint
               .resolvePose(spotLibrary, alliance)
-              .ifPresent(
-                  pose ->
-                      routeWaypoints.add(
-                          new PoseState(
-                              pose.getX(), pose.getY(), pose.getRotation().getDegrees())));
+              .ifPresent(pose ->
+                  routeWaypoints.add(
+                      new PoseState(pose.getX(), pose.getY(), pose.getRotation().getDegrees())));
         }
         steps.add(
             new QueueStateStep(
@@ -1054,14 +1050,13 @@ final class RebuiltAutoQueue {
       return spotLibrary
           .getSpot(spotId)
           .map(RebuiltSpot::toPose)
-          .map(
-              pose ->
-                  alliance == Alliance.RED
-                      ? new Pose2d(
-                          spotLibrary.getFieldLengthMeters() - pose.getX(),
-                          pose.getY(),
-                          headingDegrees(mirrorHeading(pose.getRotation().getDegrees())))
-                      : pose);
+          .map(pose ->
+              alliance == Alliance.RED
+                  ? new Pose2d(
+                      spotLibrary.getFieldLengthMeters() - pose.getX(),
+                      pose.getY(),
+                      headingDegrees(mirrorHeading(pose.getRotation().getDegrees())))
+                  : pose);
     }
 
     Optional<SuperState> resolveRequestedState() {
@@ -1084,11 +1079,10 @@ final class RebuiltAutoQueue {
       }
       return spotLibrary
           .getSpot(spotId)
-          .map(
-              spot ->
-                  requestedStateName == null
-                      ? spot.displayLabel()
-                      : spot.displayLabel() + " • " + requestedStateName)
+          .map(spot ->
+              requestedStateName == null
+                  ? spot.displayLabel()
+                  : spot.displayLabel() + " • " + requestedStateName)
           .orElse(spotId);
     }
   }

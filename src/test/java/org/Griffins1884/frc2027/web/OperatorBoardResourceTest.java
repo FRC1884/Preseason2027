@@ -42,16 +42,15 @@ class OperatorBoardResourceTest {
       ThreadPoolExecutor executor = executor(server);
       try {
         for (int i = 0; i < 4; i++)
-          executor.execute(
-              () -> {
-                assertEquals(Thread.NORM_PRIORITY, Thread.currentThread().getPriority());
-                workersStarted.countDown();
-                try {
-                  release.await();
-                } catch (InterruptedException e) {
-                  Thread.currentThread().interrupt();
-                }
-              });
+          executor.execute(() -> {
+            assertEquals(Thread.NORM_PRIORITY, Thread.currentThread().getPriority());
+            workersStarted.countDown();
+            try {
+              release.await();
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+            }
+          });
         assertTrue(workersStarted.await(5, TimeUnit.SECONDS));
         for (int i = 0; i < 8; i++) queued.add(request(server, "/index.js", false));
         await(() -> server.getMetricsSnapshot().queuedTasks() == 8);
@@ -104,19 +103,17 @@ class OperatorBoardResourceTest {
     try (var server = OperatorBoardServer.start(root, "127.0.0.1", 0)) {
       try {
         for (int i = 0; i < 4; i++) slow.add(request(server, "/large.bin", true));
-        await(
-            () ->
-                server.getMetricsSnapshot().activeTransfers() == 4
-                    && server.getMetricsSnapshot().bodyBytes() > 0);
+        await(() ->
+            server.getMetricsSnapshot().activeTransfers() == 4
+                && server.getMetricsSnapshot().bodyBytes() > 0);
         var snapshot = server.getMetricsSnapshot();
         assertEquals(4, snapshot.transferHighWater());
         assertEquals(0, snapshot.fullResponses());
         assertEquals(4, snapshot.fileBodyOpens());
         for (Socket socket : slow) socket.close();
-        await(
-            () ->
-                server.getMetricsSnapshot().activeTransfers() == 0
-                    && server.getMetricsSnapshot().ioFailures() >= 4);
+        await(() ->
+            server.getMetricsSnapshot().activeTransfers() == 0
+                && server.getMetricsSnapshot().ioFailures() >= 4);
         assertEquals(0, server.getMetricsSnapshot().fullResponses());
         assertTrue(server.getMetricsSnapshot().ioFailures() >= 4);
         Files.writeString(root.resolve("index.html"), "recovered");
@@ -136,10 +133,9 @@ class OperatorBoardResourceTest {
     Path file = largeFile();
     try (var server = OperatorBoardServer.start(root, "127.0.0.1", 0);
         Socket socket = request(server, "/large.bin", false)) {
-      await(
-          () ->
-              server.getMetricsSnapshot().activeTransfers() == 1
-                  && server.getMetricsSnapshot().bodyBytes() > 0);
+      await(() ->
+          server.getMetricsSnapshot().activeTransfers() == 1
+              && server.getMetricsSnapshot().bodyBytes() > 0);
       Files.delete(file);
       InputStream input = socket.getInputStream();
       String headers = readHeaders(input);
@@ -150,10 +146,9 @@ class OperatorBoardResourceTest {
       int count;
       while ((count = input.read(buffer)) >= 0) received += count;
       assertTrue(received < 16L * 1024 * 1024, "A changed response must not look complete");
-      await(
-          () ->
-              server.getMetricsSnapshot().activeTransfers() == 0
-                  && server.getMetricsSnapshot().ioFailures() == 1);
+      await(() ->
+          server.getMetricsSnapshot().activeTransfers() == 0
+              && server.getMetricsSnapshot().ioFailures() == 1);
       assertEquals(0, server.getMetricsSnapshot().fullResponses());
       assertEquals(1, server.getMetricsSnapshot().ioFailures());
     }

@@ -221,15 +221,14 @@ public class AprilTagVisionIONorthstar implements VisionIO {
             .orElse(new TargetObservation(new Rotation2d(), new Rotation2d()));
     inputs.fiducialObservations =
         tagObservations.stream()
-            .map(
-                observation ->
-                    new FiducialObservation(
-                        observation.tagId(),
-                        observation.targetObservation().tx().getRadians(),
-                        observation.targetObservation().ty().getRadians(),
-                        selection.ambiguity(),
-                        Double.NaN,
-                        observation.distanceMeters()))
+            .map(observation ->
+                new FiducialObservation(
+                    observation.tagId(),
+                    observation.targetObservation().tx().getRadians(),
+                    observation.targetObservation().ty().getRadians(),
+                    selection.ambiguity(),
+                    Double.NaN,
+                    observation.distanceMeters()))
             .toArray(FiducialObservation[]::new);
 
     double avgTagDist =

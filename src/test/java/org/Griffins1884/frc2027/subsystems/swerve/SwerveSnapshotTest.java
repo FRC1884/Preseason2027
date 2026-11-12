@@ -166,11 +166,10 @@ class SwerveSnapshotTest {
       CountDownLatch resetting = new CountDownLatch(1);
       Pose2d target = new Pose2d(3.0, 2.0, Rotation2d.ZERO);
       Future<?> reset =
-          executor.submit(
-              () -> {
-                resetting.countDown();
-                drive.resetOdometry(target);
-              });
+          executor.submit(() -> {
+            resetting.countDown();
+            drive.resetOdometry(target);
+          });
       assertTrue(resetting.await(5, TimeUnit.SECONDS));
       release.countDown();
       periodic.get(5, TimeUnit.SECONDS);

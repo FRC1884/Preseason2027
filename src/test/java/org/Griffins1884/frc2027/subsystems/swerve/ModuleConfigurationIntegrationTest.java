@@ -118,15 +118,14 @@ class ModuleConfigurationIntegrationTest {
       assertEquals(1, release.getCount());
       assertTrue(
           executor
-              .submit(
-                  () -> {
-                    SwerveSubsystem.odometryLock.lock();
-                    try {
-                      return true;
-                    } finally {
-                      SwerveSubsystem.odometryLock.unlock();
-                    }
-                  })
+              .submit(() -> {
+                SwerveSubsystem.odometryLock.lock();
+                try {
+                  return true;
+                } finally {
+                  SwerveSubsystem.odometryLock.unlock();
+                }
+              })
               .get(5, TimeUnit.SECONDS));
       enabled(true);
       drive.periodic();
@@ -253,11 +252,10 @@ class ModuleConfigurationIntegrationTest {
 
     FakeIO(ModuleConfigurationWorker worker, ModuleConfigurationWorker.Backend backend) {
       handle =
-          worker.register(
-              (gains, brake) -> {
-                applied.add(gains);
-                return backend.apply(gains, brake);
-              });
+          worker.register((gains, brake) -> {
+            applied.add(gains);
+            return backend.apply(gains, brake);
+          });
     }
 
     @Override

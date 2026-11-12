@@ -1,8 +1,7 @@
 package org.Griffins1884.frc2027.subsystems.swerve;
 
-import org.wpilib.preferences.Preferences;
-
 import java.util.concurrent.atomic.AtomicLong;
+import org.wpilib.preferences.Preferences;
 
 public final class SwerveCalibration {
   private static final String WHEEL_RADIUS_KEY = "Swerve/Calibration/WheelRadiusMeters";

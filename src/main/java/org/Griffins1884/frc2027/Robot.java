@@ -3,13 +3,6 @@ package org.Griffins1884.frc2027;
 import static org.Griffins1884.frc2027.Config.Subsystems.AUTONOMOUS_ENABLED;
 import static org.Griffins1884.frc2027.GlobalConstants.MODE;
 
-import org.Griffins1884.frc2027.subsystems.Superstructure;
-import org.wpilib.system.DataLogManager;
-import org.wpilib.hardware.hal.ThreadsJNI;
-import org.wpilib.driverstation.DriverStation;
-import org.wpilib.system.Filesystem;
-import org.wpilib.command2.Command;
-import org.wpilib.command2.CommandScheduler;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,6 +18,12 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.CommandScheduler;
+import org.wpilib.driverstation.DriverStation;
+import org.wpilib.hardware.hal.ThreadsJNI;
+import org.wpilib.system.DataLogManager;
+import org.wpilib.system.Filesystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to

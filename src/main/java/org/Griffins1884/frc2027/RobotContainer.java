@@ -113,68 +113,64 @@ public class RobotContainer implements AutoCloseable {
     characterizationChooser.addDefault("None", characterizationIdleCommand);
 
     if (DRIVETRAIN_ENABLED) {
-      drive = switch (MODE) {
-        case REAL:
-          swerveConfigurationWorker = new ModuleConfigurationWorker(RobotState::isDisabled);
-          // Real robot, instantiate hardware IO implementations
-          yield new SwerveSubsystem(
-              switch (GYRO_TYPE) {
-                case PIGEON -> new GyroIOPigeon2();
-                case ADIS -> new GyroIO() {
-                };
-              },
-              new ModuleIOFullKraken(FRONT_LEFT, swerveConfigurationWorker),
-              new ModuleIOFullKraken(FRONT_RIGHT, swerveConfigurationWorker),
-              new ModuleIOFullKraken(BACK_LEFT, swerveConfigurationWorker),
-              new ModuleIOFullKraken(BACK_RIGHT, swerveConfigurationWorker));
-        case SIM:
-          MapleArenaSetup.ensure2026RebuiltArena();
-          this.driveSimulation = requireCommandableDriveSimulation(
-              DriveSimulationFactories.mapleTerrainAware(
-                  new SwerveDriveSimulation(
-                      SwerveConstants.MAPLE_SIM_CONFIG, new Pose2d(3, 3, new Rotation2d())),
-                  Rebuilt2026FieldModel.contactModel(),
-                  Rebuilt2026FieldModel.CHASSIS_FOOTPRINT,
-                  Rebuilt2026FieldModel.CHASSIS_MASS_PROPERTIES));
-          this.mapleDriveSimulation = requireMapleTerrainAwareSimulation(driveSimulation);
-          // Add the simulated drivetrain to the simulation field
-          SimulatedArena.getInstance()
-              .addDriveTrainSimulation(mapleDriveSimulation.mapleSimulation());
+      drive =
+          switch (MODE) {
+            case REAL:
+              swerveConfigurationWorker = new ModuleConfigurationWorker(RobotState::isDisabled);
+              // Real robot, instantiate hardware IO implementations
+              yield new SwerveSubsystem(
+                  switch (GYRO_TYPE) {
+                    case PIGEON -> new GyroIOPigeon2();
+                    case ADIS -> new GyroIO() {};
+                  },
+                  new ModuleIOFullKraken(FRONT_LEFT, swerveConfigurationWorker),
+                  new ModuleIOFullKraken(FRONT_RIGHT, swerveConfigurationWorker),
+                  new ModuleIOFullKraken(BACK_LEFT, swerveConfigurationWorker),
+                  new ModuleIOFullKraken(BACK_RIGHT, swerveConfigurationWorker));
+            case SIM:
+              MapleArenaSetup.ensure2026RebuiltArena();
+              this.driveSimulation =
+                  requireCommandableDriveSimulation(
+                      DriveSimulationFactories.mapleTerrainAware(
+                          new SwerveDriveSimulation(
+                              SwerveConstants.MAPLE_SIM_CONFIG, new Pose2d(3, 3, new Rotation2d())),
+                          Rebuilt2026FieldModel.contactModel(),
+                          Rebuilt2026FieldModel.CHASSIS_FOOTPRINT,
+                          Rebuilt2026FieldModel.CHASSIS_MASS_PROPERTIES));
+              this.mapleDriveSimulation = requireMapleTerrainAwareSimulation(driveSimulation);
+              // Add the simulated drivetrain to the simulation field
+              SimulatedArena.getInstance()
+                  .addDriveTrainSimulation(mapleDriveSimulation.mapleSimulation());
 
-          // Sim robot, instantiate physics sim IO implementations
-          yield new SwerveSubsystem(
-              new GyroIOSim(mapleDriveSimulation),
-              new ModuleIOSim(
-                  mapleDriveSimulation,
-                  SwerveCorner.FRONT_LEFT,
-                  mapleDriveSimulation.getModules()[0]),
-              new ModuleIOSim(
-                  mapleDriveSimulation,
-                  SwerveCorner.FRONT_RIGHT,
-                  mapleDriveSimulation.getModules()[1]),
-              new ModuleIOSim(
-                  mapleDriveSimulation,
-                  SwerveCorner.REAR_LEFT,
-                  mapleDriveSimulation.getModules()[2]),
-              new ModuleIOSim(
-                  mapleDriveSimulation,
-                  SwerveCorner.REAR_RIGHT,
-                  mapleDriveSimulation.getModules()[3]));
+              // Sim robot, instantiate physics sim IO implementations
+              yield new SwerveSubsystem(
+                  new GyroIOSim(mapleDriveSimulation),
+                  new ModuleIOSim(
+                      mapleDriveSimulation,
+                      SwerveCorner.FRONT_LEFT,
+                      mapleDriveSimulation.getModules()[0]),
+                  new ModuleIOSim(
+                      mapleDriveSimulation,
+                      SwerveCorner.FRONT_RIGHT,
+                      mapleDriveSimulation.getModules()[1]),
+                  new ModuleIOSim(
+                      mapleDriveSimulation,
+                      SwerveCorner.REAR_LEFT,
+                      mapleDriveSimulation.getModules()[2]),
+                  new ModuleIOSim(
+                      mapleDriveSimulation,
+                      SwerveCorner.REAR_RIGHT,
+                      mapleDriveSimulation.getModules()[3]));
 
-        default:
-          // Replayed robot, disable IO implementations
-          yield new SwerveSubsystem(
-              new GyroIO() {
-              },
-              new ModuleIO() {
-              },
-              new ModuleIO() {
-              },
-              new ModuleIO() {
-              },
-              new ModuleIO() {
-              });
-      };
+            default:
+              // Replayed robot, disable IO implementations
+              yield new SwerveSubsystem(
+                  new GyroIO() {},
+                  new ModuleIO() {},
+                  new ModuleIO() {},
+                  new ModuleIO() {},
+                  new ModuleIO() {});
+          };
       superstructure = new Superstructure(drive);
 
     } else {
@@ -523,11 +519,10 @@ public class RobotContainer implements AutoCloseable {
     }
 
     getQueuedAutonomousStartPose()
-        .ifPresent(
-            pose -> {
-              resetRobotToPose(pose, MODE == RobotMode.SIM);
-              Logger.recordOutput("Autonomous/QueuedStartPoseApplied", pose);
-            });
+        .ifPresent(pose -> {
+          resetRobotToPose(pose, MODE == RobotMode.SIM);
+          Logger.recordOutput("Autonomous/QueuedStartPoseApplied", pose);
+        });
   }
 
   public Command getCharacterizationCommand() {
@@ -640,6 +635,6 @@ public class RobotContainer implements AutoCloseable {
   @Override
   public void close() {
     CommandScheduler.getInstance().cancelAll();
-    if (swerveConfigurationWorker!=null) swerveConfigurationWorker.close();
+    if (swerveConfigurationWorker != null) swerveConfigurationWorker.close();
   }
 }

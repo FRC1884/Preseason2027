@@ -72,12 +72,11 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
   private final OperatorBoardPersistence persistence;
   private final OperatorBoardDiagnosticBundleWriter diagnosticBundleWriter;
   private final ExecutorService diagnosticWriterExecutor =
-      Executors.newSingleThreadExecutor(
-          task -> {
-            Thread thread = new Thread(task, "OperatorBoardDiagnosticWriter");
-            thread.setDaemon(true);
-            return thread;
-          });
+      Executors.newSingleThreadExecutor(task -> {
+        Thread thread = new Thread(task, "OperatorBoardDiagnosticWriter");
+        thread.setDaemon(true);
+        return thread;
+      });
   private final AtomicReference<OperatorBoardDiagnosticBundleWriter.OperatorBoardDiagnosticSnapshot>
       pendingDiagnosticSnapshot = new AtomicReference<>();
   private final AtomicBoolean diagnosticWriteScheduled = new AtomicBoolean();
@@ -940,27 +939,24 @@ public class OperatorBoardTracker extends SubsystemBase implements AutoCloseable
     var canStatus = RobotController.getCANStatus(CANPort.CAN_S0);
     ArrayList<PublishTopicSnapshot> hotTopics = new ArrayList<>();
     sampledPublishTopics.values().stream()
-        .filter(
-            stat ->
-                stat.lastWindowBytesPerSec > 0.0
-                    || stat.lastWindowPublishesPerSec > 0.0
-                    || stat.totalPublishes > 0)
-        .sorted(
-            (left, right) ->
-                Double.compare(right.lastWindowBytesPerSec, left.lastWindowBytesPerSec))
+        .filter(stat ->
+            stat.lastWindowBytesPerSec > 0.0
+                || stat.lastWindowPublishesPerSec > 0.0
+                || stat.totalPublishes > 0)
+        .sorted((left, right) ->
+            Double.compare(right.lastWindowBytesPerSec, left.lastWindowBytesPerSec))
         .limit(5)
-        .forEach(
-            stat ->
-                hotTopics.add(
-                    new PublishTopicSnapshot(
-                        stat.topic,
-                        stat.totalPublishes,
-                        stat.totalBytes,
-                        stat.lastWindowPublishesPerSec,
-                        stat.lastWindowBytesPerSec,
-                        stat.peakPublishesPerSec,
-                        stat.peakBytesPerSec,
-                        stat.lastPayloadBytes)));
+        .forEach(stat ->
+            hotTopics.add(
+                new PublishTopicSnapshot(
+                    stat.topic,
+                    stat.totalPublishes,
+                    stat.totalBytes,
+                    stat.lastWindowPublishesPerSec,
+                    stat.lastWindowBytesPerSec,
+                    stat.peakPublishesPerSec,
+                    stat.peakBytesPerSec,
+                    stat.lastPayloadBytes)));
     return writeJson(
         new NtDiagnosticsState(
             Timer.getTimestamp(),

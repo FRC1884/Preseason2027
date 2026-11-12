@@ -84,11 +84,10 @@ public class ModuleIOFullKraken implements ModuleIO {
   private final Queue<Double> timestampQueue;
 
   @Override
-  public void clearOdometrySamples(){
+  public void clearOdometrySamples() {
     timestampQueue.clear();
     turnPositionQueue.clear();
     drivePositionQueue.clear();
-
   }
 
   private ModuleConfigurationWorker.Handle configurationHandle;
@@ -98,8 +97,7 @@ public class ModuleIOFullKraken implements ModuleIO {
       driveConfig.Slot0.kP = configuration.driveP();
       driveConfig.Slot0.kI = configuration.driveI();
       driveConfig.Slot0.kD = configuration.driveD();
-      driveConfig.MotorOutput.NeutralMode =
-              brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
+      driveConfig.MotorOutput.NeutralMode = brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
 
       var status = driveMotor.getConfigurator().apply(driveConfig, 0.25);
       if (!status.isOK()) return "Drive configuration failed: " + status;
@@ -109,8 +107,7 @@ public class ModuleIOFullKraken implements ModuleIO {
       turnConfig.Slot0.kP = configuration.turnP();
       turnConfig.Slot0.kI = configuration.turnI();
       turnConfig.Slot0.kD = configuration.turnD();
-      turnConfig.MotorOutput.NeutralMode =
-              brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
+      turnConfig.MotorOutput.NeutralMode = brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
 
       var status = turnMotor.getConfigurator().apply(turnConfig, 0.25);
       if (!status.isOK()) return "Turn configuration failed: " + status;
@@ -438,22 +435,20 @@ public class ModuleIOFullKraken implements ModuleIO {
 
   @Override
   public void setBrakeMode(boolean enabled) {
-    brakeModeExecutor.execute(
-        () -> {
-          synchronized (driveConfig) {
-            driveConfig.MotorOutput.NeutralMode =
-                enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast;
-            tryUntilOk(5, () -> driveMotor.getConfigurator().apply(driveConfig, 0.25));
-          }
-        });
-    brakeModeExecutor.execute(
-        () -> {
-          synchronized (turnConfig) {
-            turnConfig.MotorOutput.NeutralMode =
-                enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast;
-            tryUntilOk(5, () -> turnMotor.getConfigurator().apply(turnConfig, 0.25));
-          }
-        });
+    brakeModeExecutor.execute(() -> {
+      synchronized (driveConfig) {
+        driveConfig.MotorOutput.NeutralMode =
+            enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast;
+        tryUntilOk(5, () -> driveMotor.getConfigurator().apply(driveConfig, 0.25));
+      }
+    });
+    brakeModeExecutor.execute(() -> {
+      synchronized (turnConfig) {
+        turnConfig.MotorOutput.NeutralMode =
+            enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast;
+        tryUntilOk(5, () -> turnMotor.getConfigurator().apply(turnConfig, 0.25));
+      }
+    });
   }
 
   @Override

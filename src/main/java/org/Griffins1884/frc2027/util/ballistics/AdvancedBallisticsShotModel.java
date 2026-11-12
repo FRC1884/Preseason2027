@@ -168,17 +168,16 @@ public final class AdvancedBallisticsShotModel implements ShotModel {
                         candidate -> -candidate.prediction().clearanceMarginMeters())
                     .thenComparingDouble(candidate -> -candidate.prediction().launchAngleDegrees())
                     .thenComparingDouble(candidate -> candidate.prediction().timeOfFlightSeconds()))
-            .orElseGet(
-                () ->
-                    new ShotCandidate(
+            .orElseGet(() ->
+                new ShotCandidate(
+                    new ShotModel.LaunchCommand(
+                        config.flywheel().minWheelRpm(),
+                        config.pivotCalibration().minLaunchAngleDegrees()),
+                    predict(
+                        scenario,
                         new ShotModel.LaunchCommand(
                             config.flywheel().minWheelRpm(),
-                            config.pivotCalibration().minLaunchAngleDegrees()),
-                        predict(
-                            scenario,
-                            new ShotModel.LaunchCommand(
-                                config.flywheel().minWheelRpm(),
-                                config.pivotCalibration().minLaunchAngleDegrees()))));
+                            config.pivotCalibration().minLaunchAngleDegrees()))));
 
     return new ShotSolution(best.launchCommand(), best.prediction(), evaluations);
   }

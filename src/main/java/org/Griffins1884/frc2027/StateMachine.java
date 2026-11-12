@@ -352,7 +352,7 @@ public abstract class StateMachine<E extends Enum<E>> extends SubsystemBase {
    */
   public final Command transitionCommand(E state) {
     return new FunctionalCommand(
-        () -> requestTransition(state), () -> {}, (interrupted) -> {}, () -> getState() == state);
+        () -> requestTransition(state), () -> {}, interrupted -> {}, () -> getState() == state);
   }
 
   /**
@@ -367,7 +367,7 @@ public abstract class StateMachine<E extends Enum<E>> extends SubsystemBase {
     return new FunctionalCommand(
         () -> requestTransition(state, command),
         () -> {},
-        (interrupted) -> {},
+        interrupted -> {},
         () -> getState() == state);
   }
 

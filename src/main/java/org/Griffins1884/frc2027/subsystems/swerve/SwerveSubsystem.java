@@ -209,7 +209,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
     PhoenixOdometryThread.getInstance().start();
 
     Consumer<SysIdRoutineLog> sysIdLogCallbackDrive =
-        (log) -> {
+        log -> {
           // Log per-module telemetry in linear units (meters, m/s).
           for (int i = 0; i < 4; i++) {
             Module module = modules[i];
@@ -221,7 +221,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
         };
 
     Consumer<SysIdRoutineLog> sysIdLogCallbackTurn =
-        (log) -> {
+        log -> {
           // Log per-module telemetry in angular units (radians, rad/s).
           for (int i = 0; i < 4; i++) {
             Module module = modules[i];
@@ -239,11 +239,11 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
                 null,
                 null,
                 Seconds.of(2.5),
-                (state) -> {
+                state -> {
                   Logger.recordOutput("Drive/SysIdState", state.toString());
                 }),
             new SysIdRoutine.Mechanism(
-                (voltage) -> runDriveSysIdVoltage(voltage.in(Volts)), sysIdLogCallbackDrive, this));
+                voltage -> runDriveSysIdVoltage(voltage.in(Volts)), sysIdLogCallbackDrive, this));
 
     // Configure turn SysId
     turnSysId =
@@ -252,11 +252,11 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
                 null,
                 null,
                 Seconds.of(2.5),
-                (state) -> {
+                state -> {
                   Logger.recordOutput("Drive/TurnSysIdState", state.toString());
                 }),
             new SysIdRoutine.Mechanism(
-                (voltage) -> runTurnSysIdVoltage(voltage.in(Volts)), sysIdLogCallbackTurn, this));
+                voltage -> runTurnSysIdVoltage(voltage.in(Volts)), sysIdLogCallbackTurn, this));
   }
 
   public void close() {
@@ -281,15 +281,6 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
   long discardedSnapshotCount() {
     return discardedSnapshotCount;
-  public void resetHeadingToAllianceForward(Alliance alliance) {
-    Rotation2d heading = getAllianceForwardRotation(alliance);
-    resetOdometry(new Pose2d(getPose().getTranslation(), heading), true);
-    Logger.recordOutput("Odometry/AllianceForwardReset/HeadingDeg", heading.getDegrees());
-    Logger.recordOutput("Odometry/AllianceForwardReset/Alliance", alliance.name());
-  }
-
-  public static Rotation2d getAllianceForwardRotation(Alliance alliance) {
-    return alliance == Alliance.RED ? Rotation2d.fromDegrees(180.0) : new Rotation2d();
   }
 
   public void resetHeadingToAllianceForward(Alliance alliance) {
@@ -337,7 +328,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
       odometryLock.unlock();
     }
 
-    for (var module: modules){
+    for (var module : modules) {
       module.updateConfiguration(RobotState.isDisabled());
     }
 
@@ -373,59 +364,21 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
             SwerveModulePosition[] positions = module.getOdometryPositions();
 
             if (timestamps == null
-                    || positions == null
-                    || timestamps.length != sampleCount
-                    || positions.length != sampleCount) {
-              validSnapshot = false;
-              break;
-            }
-
-
-        int sampleCount = 0;
-        int gyroSampleCount = 0;
-
-        if (sampleTimestamps == null || gyroInputs.odometryYawTimestamps == null || gyroInputs.odometryYawPositions == null){
-          invalidSnapshotCount++;
-        }
-        else{
-          sampleCount = sampleTimestamps.length;
-          gyroSampleCount = gyroInputs.odometryYawPositions.length;
-        }
-
-        boolean validSnapshot = true;
-
-        if (sampleCount > 0) {
-          for (Module module : modules) {
-            double[] timestamps = module.getOdometryTimestamps();
-            SwerveModulePosition[] positions = module.getOdometryPositions();
-
-            if (timestamps == null
-                    || positions == null
-                    || timestamps.length != sampleCount
-                    || positions.length != sampleCount) {
+                || positions == null
+                || timestamps.length != sampleCount
+                || positions.length != sampleCount) {
               validSnapshot = false;
               break;
             }
 
             for (int i = 0; i < sampleCount; i++) {
               if (!Double.isFinite(timestamps[i])
-                      || Math.abs(timestamps[i] - sampleTimestamps[i]) > 1e-9
-                      || positions[i] == null) {
+                  || Math.abs(timestamps[i] - sampleTimestamps[i]) > 1e-9
+                  || positions[i] == null) {
                 validSnapshot = false;
                 break;
               }
             }
-
-            if (!validSnapshot) {
-              break;
-            }
-          }
-
-          double[] gyroTimestamps = gyroInputs.odometryYawTimestamps;
-          Rotation2d[] gyroPositions = gyroInputs.odometryYawPositions;
-
-          // Empty gyro batches retain the previous heading.
-          if (gyroInputs.connected && gyroTimestamps.length > 0) {
 
             if (!validSnapshot) {
               break;
@@ -442,8 +395,8 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
             } else {
               for (int i = 0; i < sampleCount; i++) {
                 if (!Double.isFinite(gyroTimestamps[i])
-                        || Math.abs(gyroTimestamps[i] - sampleTimestamps[i]) > 1e-9
-                        || gyroPositions[i] == null) {
+                    || Math.abs(gyroTimestamps[i] - sampleTimestamps[i]) > 1e-9
+                    || gyroPositions[i] == null) {
                   validSnapshot = false;
                   break;
                 }
@@ -467,27 +420,6 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
               lastModulePositions[moduleIndex] = modulePositions[moduleIndex];
             }
 
-
-          if (!validSnapshot) {
-            invalidSnapshotCount++;
-          }
-        }
-
-        if (validSnapshot) {
-          for (int i = 0; i < sampleCount; i++) {
-            // Read wheel positions and deltas from each module
-            SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
-            SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[4];
-            for (int moduleIndex = 0; moduleIndex < 4; moduleIndex++) {
-              modulePositions[moduleIndex] = modules[moduleIndex].getOdometryPositions()[i];
-              moduleDeltas[moduleIndex] =
-                      new SwerveModulePosition(
-                              modulePositions[moduleIndex].distance
-                                      - lastModulePositions[moduleIndex].distance,
-                              modulePositions[moduleIndex].angle);
-              lastModulePositions[moduleIndex] = modulePositions[moduleIndex];
-            }
-
             // Update gyro angle
             if (gyroInputs.connected) {
               // Use the real gyro angle
@@ -503,6 +435,9 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
             // Apply update
             poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
           }
+        }
+        if (!validSnapshot) {
+          invalidSnapshotCount++;
         }
       }
     } finally {
@@ -1178,18 +1113,13 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   /** Returns the measured chassis speeds of the robot. */
   @AutoLogOutput(key = "SwerveChassisVelocities/Measured")
   private ChassisVelocities getChassisVelocities() {
-    long currentRevision = SwerveCalibration.getWheelRadiusRevision();
-    if (currentRevision != wheelRadiusRevision) {
-      wheelRadiusMeters = radiusSupplier.getAsDouble();
-      measuredChassisSpeeds = kinematics.toChassisVelocities(getModuleStates());
-      wheelRadiusRevision = currentRevision;
     long revision = SwerveCalibration.getWheelRadiusRevision();
-
     if (revision != measuredWheelRadiusRevision) {
       odometryLock.lock();
       try {
         revision = SwerveCalibration.getWheelRadiusRevision();
         if (revision != measuredWheelRadiusRevision) {
+          wheelRadiusMeters = radiusSupplier.getAsDouble();
           measuredChassisSpeeds = kinematics.toChassisVelocities(getModuleStates());
           measuredKinematicsCount++;
           measuredWheelRadiusRevision = revision;
