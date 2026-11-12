@@ -353,10 +353,11 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
         // Update odometry
         double[] sampleTimestamps =
             modules[0].getOdometryTimestamps(); // All signals are sampled together
-        int sampleCount = sampleTimestamps.length;
-        int gyroSampleCount = gyroInputs.odometryYawPositions.length;
+        Rotation2d[] gyroPositions = gyroInputs.odometryYawPositions;
 
-        boolean validSnapshot = true;
+        boolean validSnapshot = sampleTimestamps != null && gyroPositions != null;
+        int sampleCount = validSnapshot ? sampleTimestamps.length : 0;
+        int gyroSampleCount = validSnapshot ? gyroPositions.length : 0;
 
         if (sampleCount > 0) {
           for (Module module : modules) {
@@ -386,7 +387,6 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
           }
 
           double[] gyroTimestamps = gyroInputs.odometryYawTimestamps;
-          Rotation2d[] gyroPositions = gyroInputs.odometryYawPositions;
 
           // Empty gyro batches retain the previous heading.
           if (gyroTimestamps != null && gyroInputs.connected && gyroTimestamps.length > 0) {
@@ -424,8 +424,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
             if (gyroInputs.connected) {
               // Use the real gyro angle
               rawestGyroRotation = gyroInputs.yawPosition;
-              rawGyroRotation =
-                  i < gyroSampleCount ? gyroInputs.odometryYawPositions[i] : rawGyroRotation;
+              rawGyroRotation = i < gyroSampleCount ? gyroPositions[i] : rawGyroRotation;
             } else {
               // Use the angle delta from the kinematics and module deltas
               Twist2d twist = kinematics.toTwist2d(moduleDeltas);
