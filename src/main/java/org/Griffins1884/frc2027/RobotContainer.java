@@ -222,19 +222,25 @@ public class RobotContainer implements AutoCloseable {
                     },
                     LEFT_CAM_ENABLED
                         ? (IS_LIMELIGHT
-                            ? new AprilTagVisionIOLimelight(LEFT_CAM_CONSTANTS, drive)
+                            ? MODE.equals(GlobalConstants.RobotMode.REAL)
+                                ? (new AprilTagVisionIOLimelight(LEFT_CAM_CONSTANTS, drive))
+                                : (new VisionIOSim(LEFT_CAM_CONSTANTS, drive))
                             : new AprilTagVisionIONorthstar(
                                 LEFT_CAM_CONSTANTS, LEFT_CAM_NORTHSTAR_CONFIG, drive))
                         : new VisionIO() {},
                     RIGHT_CAM_ENABLED
                         ? (IS_LIMELIGHT
-                            ? new AprilTagVisionIOLimelight(RIGHT_CAM_CONSTANTS, drive)
+                            ? MODE.equals(GlobalConstants.RobotMode.REAL)
+                                ? (new AprilTagVisionIOLimelight(RIGHT_CAM_CONSTANTS, drive))
+                                : (new VisionIOSim(RIGHT_CAM_CONSTANTS, drive))
                             : new AprilTagVisionIONorthstar(
                                 RIGHT_CAM_CONSTANTS, RIGHT_CAM_NORTHSTAR_CONFIG, drive))
                         : new VisionIO() {},
                     MIDDLE_RIGHT_CAM_ENABLED
                         ? (IS_LIMELIGHT
-                            ? new AprilTagVisionIOLimelight(MIDDLE_RIGHT_CAM_CONSTANTS, drive)
+                            ? MODE.equals(GlobalConstants.RobotMode.REAL)
+                                ? (new AprilTagVisionIOLimelight(MIDDLE_RIGHT_CAM_CONSTANTS, drive))
+                                : (new VisionIOSim(MIDDLE_RIGHT_CAM_CONSTANTS, drive))
                             : new AprilTagVisionIONorthstar(
                                 MIDDLE_RIGHT_CAM_CONSTANTS,
                                 MIDDLE_RIGHT_CAM_NORTHSTAR_CONFIG,
