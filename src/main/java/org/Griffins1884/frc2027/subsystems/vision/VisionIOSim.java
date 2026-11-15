@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.Griffins1884.frc2027.subsystems.swerve.SwerveSubsystem;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -49,7 +50,7 @@ public class VisionIOSim extends AprilTagVisionIOLimelight {
     SimCameraProperties cameraProp = new SimCameraProperties();
     cameraProp.setCalibration(960, 720, Rotation2d.fromDegrees(90)); // Resolution & diagonal FOV
     cameraProp.setCalibError(0.25, 0.08); // Average & std dev pixel noise
-    cameraProp.setFPS(30);
+    cameraProp.setFPS(50); // 50 FPS so it should keep up with the sim
     cameraProp.setAvgLatencyMs(35);
     cameraProp.setLatencyStdDevMs(5);
 
@@ -67,9 +68,6 @@ public class VisionIOSim extends AprilTagVisionIOLimelight {
     inputs.connected =
         camera.isConnected(); // Since it's a simulation, I'll assume they are connected
     inputs.standardDeviations = AprilTagVisionConstants.getLimelightStandardDeviations();
-    inputs.megatagCount = 0;
-    inputs.pose3d = null;
-    inputs.megatagPoseEstimate = null;
 
     // It's only supposed to be updated once per robot loop
     double now = Timer.getTimestamp();
@@ -78,20 +76,27 @@ public class VisionIOSim extends AprilTagVisionIOLimelight {
       lastSimUpdateTimestamp = now;
     }
 
-    // if (!camera.getAllUnreadResults().isEmpty()) {
-    inputs.seesTarget = false;
-    // }
+    var results = camera.getAllUnreadResults();
+
+    if (!results.isEmpty()) {
+      inputs.seesTarget = false;
+      inputs.megatagCount = 0;
+      inputs.pose3d = null;
+      inputs.megatagPoseEstimate = null;
+    }
+
+    Logger.recordOutput("VisionSim/" + camera.getName() + "/ResultCount", results.size());
 
     List<PoseObservation> poseObservations = new ArrayList<>();
     Set<Integer> tagIds = new HashSet<>();
 
-    for (PhotonPipelineResult result : camera.getAllUnreadResults()) {
+    for (PhotonPipelineResult result : results) {
       Optional<EstimatedRobotPose> visionEst = poseEstimator.estimateCoprocMultiTagPose(result);
       if (visionEst.isEmpty()) {
         visionEst = poseEstimator.estimateLowestAmbiguityPose(result);
       }
 
-      inputs.seesTarget = result.hasTargets();
+      if (result.hasTargets()) inputs.seesTarget = true;
 
       if (result.hasTargets()) {
         var bestTarget = result.getBestTarget();
