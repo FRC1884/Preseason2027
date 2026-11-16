@@ -4,7 +4,8 @@ import org.wpilib.math.system.DCMotor;
 import org.wpilib.simulation.ElevatorSim;
 
 public class ElevatorIOSim implements ElevatorIO {
-
+  private ElevatorSim sim;
+  private double appliedVoltsDemand = 0.0;
   public ElevatorIOSim(
       double kV,
       double kA,
@@ -14,15 +15,35 @@ public class ElevatorIOSim implements ElevatorIO {
       double maxVelocity,
       double startingHeight,
       boolean simulateGravity) {
-    ElevatorSim sim =
+    sim =
         new ElevatorSim(
+            kV,
+            kA,
             gearbox,
             minHeight,
             maxHeight,
-            maxVelocity,
-            startingHeight,
-            simulateGravity);
+            simulateGravity,
+            startingHeight,0);
   }
 
-  public void updateInputs(ElevatorIOInputs inputs) {}
+  public void updateInputs(ElevatorIOInputs inputs) {
+    double clampedVolts = Math.clamp(appliedVoltsDemand, -12.0, 12.0);
+    sim.setInputVoltage(clampedVolts);
+    inputs.positionMeters = sim.getPosition();
+    inputs.velocityMeterPerSecond = sim.getVelocity();
+    inputs.appliedVolts = clampedVolts;
+    inputs.statorCurrentAmps = Math.abs(sim.getCurrentDraw());
+    inputs.supplyCurrentAmps = Math.abs(sim.getCurrentDraw());
+
+    inputs.atLowerLimit = (inputs.positionMeters <= ElevatorConstants.minHeight);
+    inputs.atUpperLimit = (inputs.positionMeters >= ElevatorConstants.maxHeight);
+  }
+
+    public void setVoltage(double volts) {
+        appliedVoltsDemand = volts;
+    }
+
+    public void stopActuators() {
+        setVoltage(0.0);
+    }
 }
