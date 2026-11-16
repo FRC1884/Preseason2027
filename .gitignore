@@ -21,10 +21,3 @@ test-evidence/
 /logs
 /ctre_sim
 libs/
-*.log
-simgui.json
-simgui-window.json
-simgui-ds.json
-networktables.json
-.Glass/glass.json
-.Glass/glass-window.json
