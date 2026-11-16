@@ -63,11 +63,26 @@ function buildRow(name, canID, control, input, isEnabled){
         <tr>
             <td>${name}</td>
             <td>${canID}</td>
-            <td><input type="button" value="${control}"></td>
-            <td><input id = "${canID}" min = "${control == "Voltage" ? -12.0 : -1.0}" max = "${control == "Velocity" ? 12.0 : 1.0}" value = "0" /></td>
-            <td><input type="button" value="${isEnabled ? 'Enabled' : 'Disabled'}"></td>
+            <td><input id = "ControlToggle${canID}" type="button" value="${control}" onclick="this.value=(this.value === 'Voltage' ? 'Throttle' : 'Voltage'); updateInputs('ControlToggle', '${name}', ${canID}, this.value);"></td>
+            <td><input id = "Input${canID}" min = "${control === "Voltage" ? -12.0 : -1.0}" max = "${control === "Velocity" ? 12.0 : 1.0}" value = "0" onchange="updateInputs('ControlToggle', '${name}', ${canID}, this.value);" /></td>
+            <td><input id = "State${canID}" type="button" value="${isEnabled ? 'Enabled' : 'Disabled'}" onclick="this.value=(this.value === 'Enabled' ? 'Disabled' : 'Enabled'); updateInputs('State', '${name}', ${canID}, this.value);"></td>
         </tr>
     `
+}
+
+
+function updateInputs(type, name, canID, value){
+    switch(type){
+        case "ControlToggle":
+            controlMap.set(name, value);
+            break;
+        case "Input":
+            valueMap.set(name, value);
+            break;
+        case "State":
+            stateMap.set(name, value === "Enabled");
+            break;
+    }
 }
 
 function updateTable() {
@@ -81,7 +96,6 @@ function updateTable() {
         </tr>
     `
     canIDMap.forEach((canID,name) => {
-        console.log(name);
         const control = controlMap.get(name);
         const input = valueMap.get(name);
         const isEnabled = stateMap.get(name);
@@ -99,3 +113,5 @@ function resolveNtConnectionParams(params) {
     const port = Number.isFinite(portParsed) ? portParsed : defaultNt4Port;
     return {host, port};
 }
+
+window.updateInputs = updateInputs;
