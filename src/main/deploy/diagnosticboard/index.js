@@ -1,31 +1,36 @@
-import {NT4_Client} from "./NT4";
+import {NT4_Client} from "./NT4.js";
 
 const canIDMap = new Map();
 const stateMap = new Map();
 const controlMap = new Map();
 const valueMap = new Map();
 
+const defaultNt4Port = 5810;
+
 const queryParams = new URLSearchParams(window.location.search);
-const { host: ntHost, port: ntPort } = resolveNtConnectionParams(queryParams);
+const {host: ntHost, port: ntPort} = resolveNtConnectionParams(queryParams);
 
 let ntConnected = false;
 
 const ntClient = new NT4_Client(
     ntHost,
     "OperatorBoard",
-    () => {},
-    () => {},
+    () => {
+    },
+    () => {
+    },
     (topic, _, value) => handleTopicUpdate(topic, value),
     () => {
         ntConnected = true;
-        updateChips();
     },
     () => {
         ntConnected = false;
-        updateChips();
     },
-    { port: ntPort }
+    {port: ntPort}
 );
+
+ntClient.subscribe(["/MotorData/"], true, false, 0.05);
+ntClient.connect();
 
 const MOTOR_TABLE_PREFIX = "/MotorData/";
 const CAN_KEY = "CAN/"
@@ -33,27 +38,58 @@ const STATES_KEY = "States/"
 const CONTROL_KEY = "ControlMode/"
 const VALUE_KEY = "Value/"
 
-function handleTopicUpdate(topic, value){
-    if (topic.name.startsWith(`${MOTOR_TABLE_PREFIX}${CAN_KEY}`)){
-        const key = topic.name.slice(MOTOR_TABLE_PREFIX.length+CAN_KEY.length);
-
+function handleTopicUpdate(topic, value) {
+    if (topic.name.startsWith(`${MOTOR_TABLE_PREFIX}${CAN_KEY}`)) {
+        const key = topic.name.slice(MOTOR_TABLE_PREFIX.length + CAN_KEY.length);
         canIDMap.set(key, value);
     }
-    if (topic.name.startsWith(`${MOTOR_TABLE_PREFIX}${STATES_KEY}`)){
-        const key = topic.name.slice(MOTOR_TABLE_PREFIX.length+STATES_KEY.length);
-
+    if (topic.name.startsWith(`${MOTOR_TABLE_PREFIX}${STATES_KEY}`)) {
+        const key = topic.name.slice(MOTOR_TABLE_PREFIX.length + STATES_KEY.length);
         stateMap.set(key, value);
     }
-    if (topic.name.startsWith(`${MOTOR_TABLE_PREFIX}${CONTROL_KEY}`)){
-        const key = topic.name.slice(MOTOR_TABLE_PREFIX.length+CONTROL_KEY.length);
-
+    if (topic.name.startsWith(`${MOTOR_TABLE_PREFIX}${CONTROL_KEY}`)) {
+        const key = topic.name.slice(MOTOR_TABLE_PREFIX.length + CONTROL_KEY.length);
         controlMap.set(key, value);
     }
-    if (topic.name.startsWith(`${MOTOR_TABLE_PREFIX}${VALUE_KEY}`)){
-        const key = topic.name.slice(MOTOR_TABLE_PREFIX.length+VALUE_KEY.length);
-
+    if (topic.name.startsWith(`${MOTOR_TABLE_PREFIX}${VALUE_KEY}`)) {
+        const key = topic.name.slice(MOTOR_TABLE_PREFIX.length + VALUE_KEY.length);
         valueMap.set(key, value);
     }
+    updateTable();
+}
+
+function buildRow(name, canID, control, input, isEnabled){
+    return `
+        <tr>
+            <td>${name}</td>
+            <td>${canID}</td>
+            <td><input type="button" value="${control}"></td>
+            <td><input id = "${canID}" min = "${control == "Voltage" ? -12.0 : -1.0}" max = "${control == "Velocity" ? 12.0 : 1.0}" value = "0" /></td>
+            <td><input type="button" value="${isEnabled ? 'Enabled' : 'Disabled'}"></td>
+        </tr>
+    `
+}
+
+function updateTable() {
+    let rowsHtml = `
+        <tr>
+            <th>Name</th>
+            <th>CAN ID</th>
+            <th>Control Mode (Voltage/Throttle)</th>
+            <th>Input</th>
+            <th>Enabled/Disabled</th>
+        </tr>
+    `
+    canIDMap.forEach((canID,name) => {
+        console.log(name);
+        const control = controlMap.get(name);
+        const input = valueMap.get(name);
+        const isEnabled = stateMap.get(name);
+
+        rowsHtml += buildRow(name, canID, control, input, isEnabled);
+    })
+
+    document.getElementById("data-table").innerHTML=rowsHtml;
 }
 
 function resolveNtConnectionParams(params) {
@@ -61,14 +97,5 @@ function resolveNtConnectionParams(params) {
     const portRaw = params.get("ntPort") || params.get("port");
     const portParsed = portRaw ? Number(portRaw) : NaN;
     const port = Number.isFinite(portParsed) ? portParsed : defaultNt4Port;
-    return { host, port };
-}
-
-function updateChips() {
-    const now = Date.now();
-    const stale = now - lastAnyData > STALE_MS;
-
-    setChip(ui.chipNt, ntConnected ? "NT OK" : "NT OFF", ntConnected ? "ok" : "bad");
-    setChip(ui.chipData, stale ? "DATA STALE" : "DATA OK", stale ? "warn" : "ok");
-    setChip(ui.chipMode, state.dsMode ? state.dsMode : "MODE", "none");
+    return {host, port};
 }
