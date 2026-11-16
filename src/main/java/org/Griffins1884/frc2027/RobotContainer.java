@@ -224,7 +224,10 @@ public class RobotContainer implements AutoCloseable {
                         ? (IS_LIMELIGHT
                             ? MODE.equals(GlobalConstants.RobotMode.REAL)
                                 ? (new AprilTagVisionIOLimelight(LEFT_CAM_CONSTANTS, drive))
-                                : (new VisionIOSim(LEFT_CAM_CONSTANTS, drive))
+                                : (new VisionIOSim(
+                                    LEFT_CAM_CONSTANTS,
+                                    drive::getPose,
+                                    mapleDriveSimulation::getSimulatedDriveTrainPose))
                             : new AprilTagVisionIONorthstar(
                                 LEFT_CAM_CONSTANTS, LEFT_CAM_NORTHSTAR_CONFIG, drive))
                         : new VisionIO() {},
@@ -232,7 +235,10 @@ public class RobotContainer implements AutoCloseable {
                         ? (IS_LIMELIGHT
                             ? MODE.equals(GlobalConstants.RobotMode.REAL)
                                 ? (new AprilTagVisionIOLimelight(RIGHT_CAM_CONSTANTS, drive))
-                                : (new VisionIOSim(RIGHT_CAM_CONSTANTS, drive))
+                                : (new VisionIOSim(
+                                    RIGHT_CAM_CONSTANTS,
+                                    drive::getPose,
+                                    mapleDriveSimulation::getSimulatedDriveTrainPose))
                             : new AprilTagVisionIONorthstar(
                                 RIGHT_CAM_CONSTANTS, RIGHT_CAM_NORTHSTAR_CONFIG, drive))
                         : new VisionIO() {},
@@ -240,7 +246,10 @@ public class RobotContainer implements AutoCloseable {
                         ? (IS_LIMELIGHT
                             ? MODE.equals(GlobalConstants.RobotMode.REAL)
                                 ? (new AprilTagVisionIOLimelight(MIDDLE_RIGHT_CAM_CONSTANTS, drive))
-                                : (new VisionIOSim(MIDDLE_RIGHT_CAM_CONSTANTS, drive))
+                                : (new VisionIOSim(
+                                    MIDDLE_RIGHT_CAM_CONSTANTS,
+                                    drive::getPose,
+                                    mapleDriveSimulation::getSimulatedDriveTrainPose))
                             : new AprilTagVisionIONorthstar(
                                 MIDDLE_RIGHT_CAM_CONSTANTS,
                                 MIDDLE_RIGHT_CAM_NORTHSTAR_CONFIG,
