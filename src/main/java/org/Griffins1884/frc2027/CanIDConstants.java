@@ -2,7 +2,6 @@ package org.Griffins1884.frc2027;
 
 import com.ctre.phoenix6.CANBus;
 import org.Griffins1884.frc2027.GlobalConstants.RobotType;
-import org.wpilib.hardware.bus.CAN;
 import org.wpilib.hardware.bus.CANPort;
 
 public class CanIDConstants {
