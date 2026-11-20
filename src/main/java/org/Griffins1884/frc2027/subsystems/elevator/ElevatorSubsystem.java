@@ -30,9 +30,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         ));
     }
 
-
-
-
     public void setGoalHeight(double targetHeightSetpoint) {
         targetHeightSetpoint =
                 Math.clamp(
@@ -94,8 +91,5 @@ public class ElevatorSubsystem extends SubsystemBase {
     public boolean isAtUpperLimit() {
         return inputs.atUpperLimit;
     }
-
-
-
 
 }
