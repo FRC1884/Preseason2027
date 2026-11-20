@@ -36,19 +36,19 @@ public class ElevatorSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         ioBridge.updateInputs(inputs);
-    }
-    TrapezoidProfile.State currentProfileState = profiledController.getSetpoint();
-    double feedforwardVoltage = feedforwardModel.calculate(currentProfileState.velocity);
 
-    private double feedbackVoltage;
-    double totalDemandVoltage = feedbackVoltage + feedforwardVoltage;
+        TrapezoidProfile.State currentProfileState = profiledController.getSetpoint();
+        double feedforwardVoltage = feedforwardModel.calculate(currentProfileState.velocity);
 
-    if (inputs.positionMeters <= ElevatorConstants.MIN_HEIGHT
-        && totalDemandVoltage < 0.0) {
-        totalDemandVoltage = 0.0;
-    } else if (inputs.positionMeters >= ElevatorConstants.MAX_HEIGHT
-        && totalDemandVoltage > 0.0) {
-        totalDemandVoltage = 0.0;
+        double feedbackVoltage = 0;
+        double totalDemandVoltage = feedbackVoltage + feedforwardVoltage;
+
+        if (inputs.positionMeters <= ElevatorConstants.MIN_HEIGHT && totalDemandVoltage < 0.0) {
+            totalDemandVoltage = 0.0;
+        } else if (inputs.positionMeters >= ElevatorConstants.MAX_HEIGHT
+                && totalDemandVoltage > 0.0) {
+            totalDemandVoltage = 0.0;
+        }
     }
 
 
