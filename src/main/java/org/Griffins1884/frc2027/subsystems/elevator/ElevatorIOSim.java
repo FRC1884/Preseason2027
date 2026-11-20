@@ -10,8 +10,8 @@ public class ElevatorIOSim implements ElevatorIO {
       double kV,
       double kA,
       DCMotor gearbox,
-      double MIN_HEIGHT,
-      double MAX_HEIGHT,
+      double minHeight,
+      double maxHeight,
       double startingHeight,
       boolean simulateGravity) {
     sim =
@@ -19,8 +19,8 @@ public class ElevatorIOSim implements ElevatorIO {
             kV,
             kA,
             gearbox,
-            MIN_HEIGHT,
-            MAX_HEIGHT,
+            minHeight,
+            maxHeight,
             simulateGravity,
             startingHeight,0);
   }
@@ -34,8 +34,8 @@ public class ElevatorIOSim implements ElevatorIO {
     inputs.statorCurrentAmps = Math.abs(sim.getCurrentDraw());
     inputs.supplyCurrentAmps = Math.abs(sim.getCurrentDraw());
 
-    inputs.atLowerLimit = (inputs.positionMeters <= ElevatorConstants.minHeight);
-    inputs.atUpperLimit = (inputs.positionMeters >= ElevatorConstants.maxHeight);
+    inputs.atLowerLimit = (inputs.positionMeters <= ElevatorConstants.MIN_HEIGHT);
+    inputs.atUpperLimit = (inputs.positionMeters >= ElevatorConstants.MAX_HEIGHT);
   }
 
     public void setVoltage(double volts) {
