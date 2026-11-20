@@ -10,8 +10,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final ElevatorIO ioBridge;
     private final ElevatorIO.ElevatorIOInputs inputs = new ElevatorIO.ElevatorIOInputs();
 
-    private ProfiledPIDController profiledController = null;
-    private ElevatorFeedforward feedforwardModel = null;
+    private ProfiledPIDController profiledController;
+    private ElevatorFeedforward feedforwardModel;
 
     private double targetHeightSetpoint = 0.0;
     private boolean profileSeeded = false;
@@ -21,8 +21,17 @@ public class ElevatorSubsystem extends SubsystemBase {
         this.ioBridge = ioBridge;
         this.profiledController = profiledController;
         this.feedforwardModel = feedforwardModel;
-
     }
+
+    public ProfiledPIDController getProfiledController(double kP, double kI, double kD) {
+        return new ProfiledPIDController(kP, kI, kD, new TrapezoidProfile.Constraints(
+                ElevatorConstants.MAX_VELOCITY,
+                ElevatorConstants.MAX_ACCELERATION
+        ));
+    }
+
+
+
 
     public void setGoalHeight(double targetHeightSetpoint) {
         targetHeightSetpoint =
@@ -49,6 +58,14 @@ public class ElevatorSubsystem extends SubsystemBase {
                 && totalDemandVoltage > 0.0) {
             totalDemandVoltage = 0.0;
         }
+
+        totalDemandVoltage =
+                Math.clamp(
+                        totalDemandVoltage,
+                        -ElevatorConstants.MAX_MOTOR_VOLTS,
+                        ElevatorConstants.MAX_MOTOR_VOLTS);
+        ioBridge.setVoltage(totalDemandVoltage);
+
     }
 
 

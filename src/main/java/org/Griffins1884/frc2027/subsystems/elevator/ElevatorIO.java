@@ -18,7 +18,7 @@ public interface ElevatorIO {
 
   // Populate mutable telemetry container with latest sensor and electrical state
 
-  public default void setVoltage(int demandVolts) {}
+  public default void setVoltage(double demandVolts) {}
 
   // Command output potential across motor drives [-12.0 to +12.0]
 
