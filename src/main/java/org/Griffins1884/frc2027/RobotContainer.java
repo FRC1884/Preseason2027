@@ -30,6 +30,7 @@ import org.Griffins1884.frc2027.commands.AutoCommands;
 import org.Griffins1884.frc2027.commands.DriveCommands;
 import org.Griffins1884.frc2027.commands.ShooterCommands;
 import org.Griffins1884.frc2027.commands.TurretCommands;
+import org.Griffins1884.frc2027.diagnostics.DiagnosticServer;
 import org.Griffins1884.frc2027.mechanisms.RobotMechanismDefinitions;
 import org.Griffins1884.frc2027.sim3d.CommandableDriveSimulationAdapter;
 import org.Griffins1884.frc2027.sim3d.DriveSimulationAdapter;
@@ -591,6 +592,7 @@ public class RobotContainer implements AutoCloseable {
       PPLibTelemetry.setCurrentPose(drive.getPose());
     }
     robotStateVisualizer.periodic();
+    DiagnosticServer.periodic();
 
     if (drive != null) {
       superstructure.setupSim();

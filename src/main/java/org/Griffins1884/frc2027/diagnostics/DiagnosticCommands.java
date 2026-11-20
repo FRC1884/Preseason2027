@@ -22,10 +22,14 @@ public class DiagnosticCommands {
     return activeMotor;
   }
 
-  public String getCanStatus(TalonFX motor) {
+  public static String getCanStatus(TalonFX motor) {
     StatusCode status = motor.getSupplyVoltage().refresh().getStatus();
 
     return status.getDescription();
+  }
+
+  public static double getEncoderPosition(TalonFX activeMotor){
+    return activeMotor.getPosition().getValueAsDouble();
   }
 
   public static void runMotorVoltage(TalonFX activeMotor, double volts) {
