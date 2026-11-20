@@ -95,4 +95,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         return inputs.atUpperLimit;
     }
 
+    public boolean isAtTarget() {
+        return inputs.atTarget;
+    }
+
 }
