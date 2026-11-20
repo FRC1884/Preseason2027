@@ -3,14 +3,15 @@ package org.Griffins1884.frc2027.subsystems.elevator;
 import org.wpilib.command2.SubsystemBase;
 import org.wpilib.math.controller.ElevatorFeedforward;
 import org.wpilib.math.controller.ProfiledPIDController;
+import org.wpilib.math.trajectory.TrapezoidProfile;
 
 public class ElevatorSubsystem extends SubsystemBase {
     ElevatorIO elevatorIO;
     private final ElevatorIO ioBridge;
     private final ElevatorIO.ElevatorIOInputs inputs = new ElevatorIO.ElevatorIOInputs();
 
-    private final ProfiledPIDController profiledController;
-    private final ElevatorFeedforward feedforwardModel;
+    private ProfiledPIDController profiledController = null;
+    private ElevatorFeedforward feedforwardModel = null;
 
     private double targetHeightSetpoint = 0.0;
     private boolean profileSeeded = false;
@@ -36,6 +37,20 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void periodic() {
         ioBridge.updateInputs(inputs);
     }
+    TrapezoidProfile.State currentProfileState = profiledController.getSetpoint();
+    double feedforwardVoltage = feedforwardModel.calculate(currentProfileState.velocity);
+
+    private double feedbackVoltage;
+    double totalDemandVoltage = feedbackVoltage + feedforwardVoltage;
+
+    if (inputs.positionMeters <= ElevatorConstants.MIN_HEIGHT
+        && totalDemandVoltage < 0.0) {
+        totalDemandVoltage = 0.0;
+    } else if (inputs.positionMeters >= ElevatorConstants.MAX_HEIGHT
+        && totalDemandVoltage > 0.0) {
+        totalDemandVoltage = 0.0;
+    }
+
 
 
 }
