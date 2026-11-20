@@ -10,9 +10,8 @@ public class ElevatorIOSim implements ElevatorIO {
       double kV,
       double kA,
       DCMotor gearbox,
-      double minHeight,
-      double maxHeight,
-      double maxVelocity,
+      double MIN_HEIGHT,
+      double MAX_HEIGHT,
       double startingHeight,
       boolean simulateGravity) {
     sim =
@@ -20,8 +19,8 @@ public class ElevatorIOSim implements ElevatorIO {
             kV,
             kA,
             gearbox,
-            minHeight,
-            maxHeight,
+            MIN_HEIGHT,
+            MAX_HEIGHT,
             simulateGravity,
             startingHeight,0);
   }
