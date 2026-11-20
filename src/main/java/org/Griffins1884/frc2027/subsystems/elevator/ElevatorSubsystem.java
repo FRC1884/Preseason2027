@@ -27,8 +27,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         targetHeightSetpoint =
                 Math.clamp(
                         targetHeightSetpoint,
-                        ElevatorConstants.minHeight,
-                        ElevatorConstants.maxHeight);
+                        ElevatorConstants.MIN_HEIGHT,
+                        ElevatorConstants.MAX_HEIGHT);
         profiledController.setGoal(targetHeightSetpoint);
     }
 
