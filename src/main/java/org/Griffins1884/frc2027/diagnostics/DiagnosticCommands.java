@@ -28,7 +28,7 @@ public class DiagnosticCommands {
     return status.getDescription();
   }
 
-  public static double getEncoderPosition(TalonFX activeMotor){
+  public static double getEncoderPosition(TalonFX activeMotor) {
     return activeMotor.getPosition().getValueAsDouble();
   }
 
