@@ -12,6 +12,7 @@ public interface ElevatorIO {
     public double supplyCurrentAmps = 0;
     public boolean atLowerLimit = false;
     public boolean atUpperLimit = false;
+    public double velocityMetersPerSec = 0; //TODO;
   }
 
   public default void updateInputs(ElevatorIOInputs inputs) {}

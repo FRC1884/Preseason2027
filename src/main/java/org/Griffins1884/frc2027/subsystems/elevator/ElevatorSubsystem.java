@@ -65,8 +65,36 @@ public class ElevatorSubsystem extends SubsystemBase {
                         -ElevatorConstants.MAX_MOTOR_VOLTS,
                         ElevatorConstants.MAX_MOTOR_VOLTS);
         ioBridge.setVoltage(totalDemandVoltage);
-
     }
+
+    public double getTargetHeightMeters() {
+        return targetHeightSetpoint;
+    }
+
+    public double getPositionMeters() {
+        return inputs.positionMeters;
+    }
+
+    public double getVelocityMetersPerSec() {
+        return inputs.velocityMetersPerSec;
+    }
+
+    public double getAppliedVolts() {
+        return inputs.appliedVolts;
+    }
+
+    public double getSupplyCurrentAmps() {
+        return inputs.supplyCurrentAmps;
+    }
+
+    public boolean isAtLowerLimit() {
+        return inputs.atLowerLimit;
+    }
+
+    public boolean isAtUpperLimit() {
+        return inputs.atUpperLimit;
+    }
+
 
 
 
