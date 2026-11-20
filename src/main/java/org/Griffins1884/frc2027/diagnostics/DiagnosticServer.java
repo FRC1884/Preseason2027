@@ -4,6 +4,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.hardware.TalonFX;
 import java.util.*;
 import org.Griffins1884.frc2027.CanIDConstants;
+import org.wpilib.drivers.motor.Talon;
 import org.wpilib.networktables.*;
 
 public class DiagnosticServer {
@@ -18,6 +19,8 @@ public class DiagnosticServer {
   private static Map<String, BooleanPublisher> statePublishers = new HashMap<>();
   private static Map<String, StringPublisher> controlModePublishers = new HashMap<>();
   private static Map<String, DoublePublisher> valuePublishers = new HashMap<>();
+  private static Map<String, DoublePublisher> encoderPublishers = new HashMap<>();
+  private static Map<String, StringPublisher> canFaultPublishers = new HashMap<>();
 
   private static NetworkTable table = NetworkTableInstance.getDefault().getTable("MotorData");
 
@@ -25,6 +28,13 @@ public class DiagnosticServer {
   private static NetworkTable stateSubTable = table.getSubTable("States");
   private static NetworkTable controlModeSubTable = table.getSubTable("ControlMode");
   private static NetworkTable valueSubTable = table.getSubTable("Value");
+  private static NetworkTable encoderPositionSubTable = table.getSubTable("Encoder");
+  private static NetworkTable canFaultSubTable = table.getSubTable("CANFaults");
+
+  private static Map<String, StringSubscriber> controlModeSubs = new HashMap<>();
+  private static Map<String, BooleanSubscriber> stateSubs = new HashMap<>();
+  private static Map<String, DoubleSubscriber> valueSubs = new HashMap<>();
+
 
   public static void publishMotorData() {
     data.put(
@@ -95,32 +105,91 @@ public class DiagnosticServer {
       values.put(name, 0.0);
     });
 
+    publishData();
+  }
+
+  public static void publishData(){
     for (Map.Entry<String, Integer> entry : canIDs.entrySet()) {
       IntegerPublisher pub =
-          canIDPublishers.computeIfAbsent(
-              entry.getKey(), key -> canSubTable.getIntegerTopic(key).publish());
+              canIDPublishers.computeIfAbsent(
+                      entry.getKey(), key -> canSubTable.getIntegerTopic(key).publish());
       pub.set(entry.getValue());
     }
 
     for (Map.Entry<String, Boolean> entry : states.entrySet()) {
       BooleanPublisher pub =
-          statePublishers.computeIfAbsent(
-              entry.getKey(), key -> stateSubTable.getBooleanTopic(key).publish());
+              statePublishers.computeIfAbsent(
+                      entry.getKey(), key -> stateSubTable.getBooleanTopic(key).publish());
       pub.set(entry.getValue());
     }
 
     for (Map.Entry<String, String> entry : controlModes.entrySet()) {
       StringPublisher pub =
-          controlModePublishers.computeIfAbsent(
-              entry.getKey(), key -> controlModeSubTable.getStringTopic(key).publish());
+              controlModePublishers.computeIfAbsent(
+                      entry.getKey(), key -> controlModeSubTable.getStringTopic(key).publish());
       pub.set(entry.getValue());
     }
 
     for (Map.Entry<String, Double> entry : values.entrySet()) {
       DoublePublisher pub =
-          valuePublishers.computeIfAbsent(
-              entry.getKey(), key -> valueSubTable.getDoubleTopic(key).publish());
+              valuePublishers.computeIfAbsent(
+                      entry.getKey(), key -> valueSubTable.getDoubleTopic(key).publish());
       pub.set(entry.getValue());
     }
+
+    for (Map.Entry<String, TalonFX> entry: data.entrySet()){
+      DoublePublisher pub = encoderPublishers.computeIfAbsent(entry.getKey(), key -> encoderPositionSubTable.getDoubleTopic(key).publish());
+      pub.set(DiagnosticCommands.getEncoderPosition(entry.getValue()));
+
+      StringPublisher pub2 = canFaultPublishers.computeIfAbsent(entry.getKey(), key -> canFaultSubTable.getStringTopic(key).publish());
+      pub2.set(DiagnosticCommands.getCanStatus(entry.getValue()));
+    }
+  }
+
+  public static void initSubscribers(){
+    for (String key : data.keySet()){
+      StringSubscriber controlModeSub = controlModeSubTable.getStringTopic(key).subscribe("Voltage");
+      BooleanSubscriber stateSub = stateSubTable.getBooleanTopic(key).subscribe(false);
+      DoubleSubscriber valueSub = valueSubTable.getDoubleTopic(key).subscribe(0.0);
+
+      controlModeSubs.put(key, controlModeSub);
+      stateSubs.put(key, stateSub);
+      valueSubs.put(key, valueSub);
+    }
+  }
+
+  public static void updateMotorStates(String key){
+    String requestedControlMode = controlModes.get(key);
+    Boolean requestedState = states.get(key);
+    Double requestedValue = values.get(key);
+    TalonFX motor = data.get(key);
+
+    if (!requestedState){
+      DiagnosticCommands.stopMotor(motor);
+      return;
+    }
+    if ("Voltage".equals(requestedControlMode)){
+      DiagnosticCommands.runMotorVoltage(motor, Math.clamp(requestedValue, -12.0, 12.0));
+      System.out.println(DiagnosticCommands.getEncoderPosition(motor));
+    }
+    else if ("Velocity".equals(requestedControlMode)){
+      DiagnosticCommands.runMotorThrottle(motor, Math.clamp(requestedValue, -1.0, 1.0));
+    }
+  }
+
+  public static void periodic(){
+    for (Map.Entry<String, StringSubscriber> entry : controlModeSubs.entrySet()){
+      controlModes.put(entry.getKey(), entry.getValue().get());
+    }
+    for (Map.Entry<String, BooleanSubscriber> entry : stateSubs.entrySet()){
+      states.put(entry.getKey(), entry.getValue().get());
+    }
+    for (Map.Entry<String, DoubleSubscriber> entry : valueSubs.entrySet()){
+      values.put(entry.getKey(), entry.getValue().get());
+    }
+    for (Map.Entry<String, TalonFX> entry : data.entrySet()){
+      updateMotorStates(entry.getKey());
+    }
+    publishData();
   }
 }
