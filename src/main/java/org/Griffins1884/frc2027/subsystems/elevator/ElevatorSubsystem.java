@@ -1,6 +1,7 @@
 package org.Griffins1884.frc2027.subsystems.elevator;
 
 import org.wpilib.command2.SubsystemBase;
+import org.Griffins1884.frc2027.subsystems.elevator.ElevatorConstants.*;
 import org.wpilib.math.controller.ElevatorFeedforward;
 import org.wpilib.math.controller.ProfiledPIDController;
 import org.wpilib.math.trajectory.TrapezoidProfile;
@@ -46,7 +47,9 @@ public class ElevatorSubsystem extends SubsystemBase {
         TrapezoidProfile.State currentProfileState = profiledController.getSetpoint();
         double feedforwardVoltage = feedforwardModel.calculate(currentProfileState.velocity);
 
-        double feedbackVoltage = 0;
+        double feedbackVoltage = ((ElevatorConstants.kS).getAsDouble() * Math.signum(currentProfileState.velocity))
+                + (ElevatorConstants.kG).getAsDouble() + (((ElevatorConstants.kV).getAsDouble()
+                + (ElevatorConstants.kA).getAsDouble()) * currentProfileState.velocity);
         double totalDemandVoltage = feedbackVoltage + feedforwardVoltage;
 
         if (inputs.positionMeters <= ElevatorConstants.MIN_HEIGHT && totalDemandVoltage < 0.0) {
