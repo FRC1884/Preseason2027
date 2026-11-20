@@ -17,7 +17,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private boolean profileSeeded = false;
 
 
-    public ElevatorSubsystem(ElevatorIO ioBridge, ProfiledPIDController profiledController, ElevatorFeedforward feedforwardModel) {
+    public ElevatorSubsystem(ElevatorIO ioBridge) {
         this.ioBridge = ioBridge;
         this.profiledController = profiledController;
         this.feedforwardModel = feedforwardModel;
