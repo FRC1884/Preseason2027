@@ -22,8 +22,11 @@ public class ElevatorSubsystem extends SubsystemBase {
         this.ioBridge = ioBridge;
         this.profiledController = getProfiledController((ElevatorConstants.kP).getAsDouble(),
                 (ElevatorConstants.kI).getAsDouble(),
-                (kD).getAsDouble());
-        this.feedforwardModel = feedforwardModel;
+                (ElevatorConstants.kD).getAsDouble());
+        this.feedforwardModel = getMotionProfileConstraints((ElevatorConstants.kS).getAsDouble(),
+                (ElevatorConstants.kV).getAsDouble(),
+                (ElevatorConstants.kA).getAsDouble(),
+                (ElevatorConstants.kG).getAsDouble());
     }
 
     public ProfiledPIDController getProfiledController(double kP, double kI, double kD) {
