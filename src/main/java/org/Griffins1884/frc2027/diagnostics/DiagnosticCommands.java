@@ -43,12 +43,4 @@ public class DiagnosticCommands {
   public static void stopMotor(TalonFX activeMotor) {
     activeMotor.stopMotor();
   }
-
-  public static Pose2d getRobotPose(SwerveSubsystem swerve) {
-    return swerve.getPose();
-  }
-
-  public static MotorGroup createMotorGroup(int[] canIDs, boolean[] active, CANBus bus) {
-    return new MotorGroup(canIDs, active, bus);
-  }
 }
