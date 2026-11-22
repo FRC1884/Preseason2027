@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.Optional;
 import org.Griffins1884.frc2027.GlobalConstants.RobotMode;
 import org.Griffins1884.frc2027.OI.DriverMap;
+import org.Griffins1884.frc2027.commands.AutoAlignToPoseCommand;
 import org.Griffins1884.frc2027.commands.AutoCommands;
 import org.Griffins1884.frc2027.commands.DriveCommands;
 import org.Griffins1884.frc2027.commands.ShooterCommands;
@@ -404,6 +405,13 @@ public class RobotContainer implements AutoCloseable {
 
       // Held override: robot-relative drive with the robot front/back and rotation
       // flipped.
+      // For testing purposes it's just the depot pose.
+      Pose2d targetPose = new Pose2d(0.7, 5.94, Rotation2d.fromDegrees(0.0));
+      driver
+          .autoAlign()
+          .onTrue(
+              new AutoAlignToPoseCommand(drive, targetPose)); // Right now it's just to the depot
+
       driver
           .alignWithBall()
           .whileTrue(

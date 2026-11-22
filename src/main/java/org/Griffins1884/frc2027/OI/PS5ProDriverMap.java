@@ -65,6 +65,11 @@ public class PS5ProDriverMap extends CommandNiDsPS5Controller implements DriverM
   }
 
   @Override
+  public Trigger autoAlign() {
+    return square();
+  }
+
+  @Override
   public Trigger leftBackButton() {
     return new InternalButton();
   }

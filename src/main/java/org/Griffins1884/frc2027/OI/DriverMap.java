@@ -17,6 +17,8 @@ public interface DriverMap {
 
   Trigger alignWithBall();
 
+  Trigger autoAlign();
+
   // Placeholder mapping for "start/stop shooting" control.
   Trigger shootToggle();
 

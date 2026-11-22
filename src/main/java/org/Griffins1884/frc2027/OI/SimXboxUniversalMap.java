@@ -84,6 +84,11 @@ public class SimXboxUniversalMap extends CommandXboxController implements Driver
     return startEnd(() -> generateParallelGroup(1), () -> generateParallelGroup(0));
   }
 
+  @Override
+  public Trigger autoAlign() {
+    return x();
+  }
+
   public Trigger shooterPivotUp() {
     return y();
   }
