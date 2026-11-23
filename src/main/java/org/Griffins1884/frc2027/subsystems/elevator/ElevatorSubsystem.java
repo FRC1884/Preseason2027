@@ -7,7 +7,7 @@ import org.wpilib.math.trajectory.TrapezoidProfile;
 
 public class ElevatorSubsystem extends SubsystemBase {
     ElevatorIO elevatorIO;
-    private final ElevatorIO ioBridge;
+    private ElevatorIO ioBridge;
     private final ElevatorIO.ElevatorIOInputs inputs = new ElevatorIO.ElevatorIOInputs();
 
     private ProfiledPIDController profiledController;
