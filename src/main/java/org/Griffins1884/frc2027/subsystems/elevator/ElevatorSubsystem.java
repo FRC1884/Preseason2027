@@ -5,6 +5,8 @@ import org.wpilib.math.controller.ElevatorFeedforward;
 import org.wpilib.math.controller.ProfiledPIDController;
 import org.wpilib.math.trajectory.TrapezoidProfile;
 
+import static org.Griffins1884.frc2027.subsystems.elevator.ElevatorConstants.MAX_HEIGHT;
+
 public class ElevatorSubsystem extends SubsystemBase {
     private ElevatorIO ioBridge;
     private final ElevatorIO.ElevatorIOInputs inputs = new ElevatorIO.ElevatorIOInputs();
@@ -43,7 +45,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                 Math.clamp(
                         targetHeightSetpoint,
                         ElevatorConstants.MIN_HEIGHT,
-                        ElevatorConstants.MAX_HEIGHT);
+                        MAX_HEIGHT);
         profiledController.setGoal(targetHeightSetpoint);
     }
 
@@ -54,14 +56,15 @@ public class ElevatorSubsystem extends SubsystemBase {
         TrapezoidProfile.State currentProfileState = profiledController.getSetpoint();
         double feedBackVoltage = feedforwardModel.calculate(currentProfileState.velocity);
 
-        double feedForwardVoltage = (ElevatorConstants.kS.getAsDouble() * Math.signum(currentProfileState.velocity))
-                + ElevatorConstants.kG.getAsDouble() + ((ElevatorConstants.kV.getAsDouble()
-                + ElevatorConstants.kA.getAsDouble()) * currentProfileState.velocity);
+        double feedForwardVoltage;
+        feedForwardVoltage = (ElevatorConstants.kS.getAsDouble() * Math.signum(currentProfileState.velocity))
+                + ElevatorConstants.kG.getAsDouble() + (ElevatorConstants.kV.getAsDouble()
+                + ElevatorConstants.kA.getAsDouble()) * currentProfileState.velocity;
         double totalDemandVoltage = feedBackVoltage + feedForwardVoltage;
 
         if (inputs.positionMeters <= ElevatorConstants.MIN_HEIGHT && totalDemandVoltage < 0.0) {
             totalDemandVoltage = 0.0;
-        } else if (inputs.positionMeters >= ElevatorConstants.MAX_HEIGHT
+        } else if (inputs.positionMeters >= MAX_HEIGHT
                 && totalDemandVoltage > 0.0) {
             totalDemandVoltage = 0.0;
         }
@@ -95,15 +98,15 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public boolean isAtLowerLimit() {
-        return true;
+        return Math.abs(ElevatorConstants.MIN_HEIGHT - getPositionMeters()) <= ElevatorConstants.POSITION_TOLERANCE;
     }
 
     public boolean isAtUpperLimit() {
-        return true;
+        return Math.abs(getPositionMeters() - ElevatorConstants.MAX_HEIGHT) <= ElevatorConstants.POSITION_TOLERANCE;
     }
 
     public boolean isAtTarget() {
-        return true;
+        return Math.abs(getPositionMeters() - getTargetHeightMeters()) <= ElevatorConstants.POSITION_TOLERANCE;
     }
 
 }
