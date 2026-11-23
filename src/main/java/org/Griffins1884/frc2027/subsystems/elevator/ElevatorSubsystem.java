@@ -11,12 +11,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     private ElevatorIO ioBridge;
     private final ElevatorIO.ElevatorIOInputs inputs = new ElevatorIO.ElevatorIOInputs();
 
-    private ProfiledPIDController profiledController;
-    private ElevatorFeedforward feedforwardModel;
+    private final ProfiledPIDController profiledController;
+    private final ElevatorFeedforward feedforwardModel;
 
-    private double targetHeightSetpoint = 0.0;
-    private boolean profileSeeded = false;
-
+    private final double targetHeightSetpoint = 0.0;
 
     public ElevatorSubsystem(ElevatorIO ioBridge) {
         this.ioBridge = ioBridge;

@@ -34,8 +34,6 @@ public class ElevatorIOSim implements ElevatorIO {
     inputs.statorCurrentAmps = Math.abs(sim.getCurrentDraw());
     inputs.supplyCurrentAmps = Math.abs(sim.getCurrentDraw());
 
-    inputs.atLowerLimit = (inputs.positionMeters <= ElevatorConstants.MIN_HEIGHT);
-    inputs.atUpperLimit = (inputs.positionMeters >= ElevatorConstants.MAX_HEIGHT);
   }
 
     public void setVoltage(double volts) {
