@@ -6,7 +6,6 @@ import org.wpilib.math.controller.ProfiledPIDController;
 import org.wpilib.math.trajectory.TrapezoidProfile;
 
 public class ElevatorSubsystem extends SubsystemBase {
-    ElevatorIO elevatorIO;
     private ElevatorIO ioBridge;
     private final ElevatorIO.ElevatorIOInputs inputs = new ElevatorIO.ElevatorIOInputs();
 
@@ -20,12 +19,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     public ElevatorSubsystem(ElevatorIO ioBridge) {
         this.ioBridge = ioBridge;
         this.profiledController = getProfiledController((ElevatorConstants.kP).getAsDouble(),
-                (ElevatorConstants.kI).getAsDouble(),
-                (ElevatorConstants.kD).getAsDouble());
+                ElevatorConstants.kI.getAsDouble(),
+                ElevatorConstants.kD.getAsDouble());
         this.feedforwardModel = getMotionProfileConstraints((ElevatorConstants.kS).getAsDouble(),
-                (ElevatorConstants.kV).getAsDouble(),
-                (ElevatorConstants.kA).getAsDouble(),
-                (ElevatorConstants.kG).getAsDouble());
+                ElevatorConstants.kV.getAsDouble(),
+                ElevatorConstants.kA.getAsDouble(),
+                ElevatorConstants.kG.getAsDouble());
     }
 
     public ProfiledPIDController getProfiledController(double kP, double kI, double kD) {
@@ -96,15 +95,15 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public boolean isAtLowerLimit() {
-        return isAtLowerLimit();
+        return true;
     }
 
     public boolean isAtUpperLimit() {
-        return inputs.atUpperLimit;
+        return true;
     }
 
     public boolean isAtTarget() {
-        return inputs.atTarget;
+        return true;
     }
 
 }

@@ -10,9 +10,6 @@ public interface ElevatorIO {
     public double appliedVolts = 0;
     public double statorCurrentAmps = 0;
     public double supplyCurrentAmps = 0;
-    public boolean atLowerLimit = false;
-    public boolean atUpperLimit = false;
-    public boolean atTarget = false;
     public double velocityMetersPerSec = 0; //TODO;
   }
 
