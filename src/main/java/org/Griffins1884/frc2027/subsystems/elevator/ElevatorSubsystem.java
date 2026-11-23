@@ -104,7 +104,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public boolean isAtTarget() {
-        return Math.abs(getPositionMeters() - getTargetHeightMeters()) <= ElevatorConstants.POSITION_TOLERANCE;
+        return Math.abs(getTargetHeightMeters() - getPositionMeters()) <= ElevatorConstants.POSITION_TOLERANCE;
     }
 
 }
