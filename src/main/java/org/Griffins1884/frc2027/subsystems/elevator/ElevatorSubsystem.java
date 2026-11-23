@@ -4,7 +4,6 @@ import org.wpilib.command2.SubsystemBase;
 import org.wpilib.math.controller.ElevatorFeedforward;
 import org.wpilib.math.controller.ProfiledPIDController;
 import org.wpilib.math.trajectory.TrapezoidProfile;
-import static org.Griffins1884.frc2027.subsystems.elevator.ElevatorConstants.*;
 
 public class ElevatorSubsystem extends SubsystemBase {
     ElevatorIO elevatorIO;
@@ -97,7 +96,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public boolean isAtLowerLimit() {
-        return inputs.atLowerLimit;
+        return isAtLowerLimit();
     }
 
     public boolean isAtUpperLimit() {
