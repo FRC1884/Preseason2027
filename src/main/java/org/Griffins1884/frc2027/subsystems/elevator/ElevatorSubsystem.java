@@ -100,7 +100,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public boolean isAtUpperLimit() {
-        return Math.abs(getPositionMeters() - ElevatorConstants.MAX_HEIGHT) <= ElevatorConstants.POSITION_TOLERANCE;
+        return Math.abs(ElevatorConstants.MAX_HEIGHT - getPositionMeters()) <= ElevatorConstants.POSITION_TOLERANCE;
     }
 
     public boolean isAtTarget() {
