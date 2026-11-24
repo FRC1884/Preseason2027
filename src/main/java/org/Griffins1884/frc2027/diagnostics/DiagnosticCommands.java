@@ -4,8 +4,6 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
-import org.Griffins1884.frc2027.subsystems.swerve.SwerveSubsystem;
-import org.wpilib.math.geometry.Pose2d;
 
 public class DiagnosticCommands {
   public static TalonFX initTalonFX(int canID, CANBus bus) {
