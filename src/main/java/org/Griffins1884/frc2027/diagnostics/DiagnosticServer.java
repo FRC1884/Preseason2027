@@ -42,19 +42,21 @@ public class DiagnosticServer {
 
     data.put(
         "Turret",
-        DiagnosticCommands.initTalonFX(CanIDConstants.TURRET_ID, CanIDConstants.TURRET_BUS));
+        DiagnosticCommands.initTalonFX(CanIDConstants.TURRET_ID, CanIDConstants.TURRET_CAN_BUS));
 
     data.put(
         "Shooter 1",
-        DiagnosticCommands.initTalonFX(CanIDConstants.SHOOTER_IDS[0], CanIDConstants.SHOOTER_BUS));
+        DiagnosticCommands.initTalonFX(
+            CanIDConstants.SHOOTER_IDS[0], CanIDConstants.SHOOTER_CAN_BUS));
     data.put(
         "Shooter 2",
-        DiagnosticCommands.initTalonFX(CanIDConstants.SHOOTER_IDS[1], CanIDConstants.SHOOTER_BUS));
+        DiagnosticCommands.initTalonFX(
+            CanIDConstants.SHOOTER_IDS[1], CanIDConstants.SHOOTER_CAN_BUS));
 
     data.put(
         "Shooter Pivot",
         DiagnosticCommands.initTalonFX(
-            CanIDConstants.SHOOTER_PIVOT_IDS[0], CanIDConstants.SHOOTER_BUS));
+            CanIDConstants.SHOOTER_PIVOT_IDS[0], CanIDConstants.SHOOTER_CAN_BUS));
 
     data.put(
         "Indexer",
