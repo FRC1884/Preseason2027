@@ -34,7 +34,7 @@
             font-size: 1.2rem;
             color: var(--accent);
         }
-        .motors, .faults{
+        .motors, .faults, .info{
             background: var(--panel);
             border: 1px solid var(--border);
             border-radius: 12px;
@@ -110,6 +110,27 @@
             <table id="can-table">
             </table>
         </div>
+    </div>
+    <div class="info">
+        <h2>SysID Usage Instructions</h2>
+        <h3>Downloading a Log File</h3>
+        <ol>
+            <li>Connect to the Robot</li>
+            <li>Open the dashboard at <a style="color:white; text-decoration: underline" href="http://robot.local">robot.local</a></li>
+            <li>Navigate to the Logs Page and select the log that has the sysID test that was run</li>
+        </ol>
+        <h3>Opening the Log File and Retrieving Data</h3>
+        <ol>
+            <li>Open the System Identification Tool</li>
+            <li>Select the log file from your downloads and open it</li>
+            <li>In the search bar of the Log Loader panel, type SysID and something and open the dropdowns to find SysIDState</li>
+            <li>Drag the SysIDState into the Data Selector</li>
+            <li>For an elevator select elevator, for pivot mechanisms select arms, and for anything else (rollers & swerve) select simple.</li>
+            <li>Then ensure the searchbar of the Log Loader panel is clear and then drag the position, velocity, and voltage readings into the data selector. If there are multiple motors for the same subsystem make sure to use the one that does not say follower. In the case of swerve make sure that you repeat this process for each of the 4 swerve modules</li>
+            <li>Once you press load in the data selector panel, the analyzer panel will pop up with readings for kP, kI, kD, kG, kV, kS, and kA. If you do not see one of those values in the code have them equal 0.</li>
+            <li>Then ensure that the robot is in tuning mode (can be changed in config) and go back to advantage scope, and find the text boxes with places for each of the values in that subsystem and replace them. Then run a test by running different velocity/voltage to the subsystem several times. If the speed visibly changes then you are done. If not carefully change one value at a time in small increments/decrements until the expected results are obtained</li>
+            <li>Lastly ensure that the values are put in the constants file in their respective places</li>
+        </ol>
     </div>
     <script type="module" src="./index.js"></script>
 </body>
