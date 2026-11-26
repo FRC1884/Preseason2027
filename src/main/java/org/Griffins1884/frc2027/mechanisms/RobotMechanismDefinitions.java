@@ -4,12 +4,14 @@ import com.ctre.phoenix6.CANBus;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import org.Griffins1884.frc2027.CanIDConstants;
 import org.Griffins1884.frc2027.GlobalConstants;
 import org.Griffins1884.frc2027.subsystems.indexer.IndexerConstants;
 import org.Griffins1884.frc2027.subsystems.indexer.SpindexerConstants;
 import org.Griffins1884.frc2027.subsystems.intake.IntakeConstants;
 import org.Griffins1884.frc2027.subsystems.intake.IntakePivotConstants;
 import org.Griffins1884.frc2027.subsystems.intake.ToothRolloutConstants;
+import org.Griffins1884.frc2027.subsystems.intakePivotAlgae.IntakePivotAlgaeConstants;
 import org.Griffins1884.frc2027.subsystems.shooter.ShooterConstants;
 import org.Griffins1884.frc2027.subsystems.shooter.ShooterPivotConstants;
 import org.Griffins1884.frc2027.subsystems.turret.TurretConstants;
@@ -122,6 +124,49 @@ public final class RobotMechanismDefinitions {
                   ShooterConstants.KRAKEN_FEATURES))
           .telemetry(fullTelemetry())
           .simulation(simulation(ShooterConstants.REDUCTION, 0.0, false))
+          .build();
+
+  public static final MechanismDefinition ALGAE_INTAKE_PIVOT =
+      MechanismDefinition.builder(
+              "algaeIntakePivot", "AlgaeIntakePivot", MechanismDefinition.MechanismType.PIVOT)
+          .config(
+              mechanismConfig(
+                  motorGroup(
+                      motorController(IntakePivotAlgaeConstants.MOTOR_CONTROLLER),
+                      canBusName(CanIDConstants.ALGAE_INTAKE_PIVOT_BUS),
+                      List.of(
+                          motor(
+                              CanIDConstants.ALGAE_INTAKE_PIVOT_IDS[0],
+                              IntakePivotAlgaeConstants.INVERTED[0],
+                              MechanismDefinition.FollowerMode.INDEPENDENT,
+                              IntakePivotAlgaeConstants.CURRENT_LIMIT_AMPS),
+                          motor(
+                              CanIDConstants.ALGAE_INTAKE_PIVOT_IDS[1],
+                              IntakePivotAlgaeConstants.INVERTED[1],
+                              MechanismDefinition.FollowerMode.FOLLOW_LEADER_INVERTED,
+                              IntakePivotAlgaeConstants.CURRENT_LIMIT_AMPS)),
+                      IntakePivotAlgaeConstants.POSITION_COEFFICIENT,
+                      MechanismDefinition.FeedbackSensorType.INTERNAL,
+                      neutralMode(IntakePivotAlgaeConstants.BRAKE),
+                      IntakePivotAlgaeConstants.MAX_VOLTAGE,
+                      0.0,
+                      0.0,
+                      softLimits(
+                          IntakePivotAlgaeConstants.SOFT_LIMITS_ENABLED,
+                          IntakePivotAlgaeConstants.SOFT_LIMIT_MIN,
+                          IntakePivotAlgaeConstants.SOFT_LIMIT_MAX)),
+                  closedLoop(
+                      IntakePivotAlgaeConstants.GAINS,
+                      IntakePivotAlgaeConstants.POSITION_TOLERANCE,
+                      0.0,
+                      IntakePivotAlgaeConstants.MAX_VOLTAGE,
+                      new MechanismDefinition.MotionProfileConfig(
+                          IntakePivotAlgaeConstants.MOTION_MAGIC_CRUISE_VEL.get(),
+                          IntakePivotAlgaeConstants.MOTION_MAGIC_ACCEL.get(),
+                          IntakePivotAlgaeConstants.MOTION_MAGIC_JERK.get())),
+                  IntakePivotAlgaeConstants.KRAKEN_FEATURES))
+          .telemetry(fullTelemetry())
+          .simulation(simulation(IntakePivotAlgaeConstants.POSITION_COEFFICIENT, 0.0, true))
           .build();
 
   public static final MechanismDefinition INTAKE_PIVOT =
