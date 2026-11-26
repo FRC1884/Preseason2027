@@ -26,6 +26,9 @@ public class CanIDConstants {
 
   public static final int[] ALGAE_INTAKE_IDS = {91, 92};
   public static final CANBus ALGAE_INTAKE_BUS = new CANBus("can_s0");
+  public static final int[] ALGAE_INTAKE_PIVOT_IDS = {93, 94};
+  public static final CANBus ALGAE_INTAKE_PIVOT_BUS = new CANBus("can_s0");
+
   // Indexer
   public static int[] INDEXER_IDS = {18};
   public static final CANBus INDEXER_BUS = new CANBus("can_s0");
