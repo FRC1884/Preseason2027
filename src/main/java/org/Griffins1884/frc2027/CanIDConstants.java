@@ -26,17 +26,23 @@ public class CanIDConstants {
   public static final int[] INTAKE_PIVOT_IDS = {19, 20};
   public static int[] INTAKE_IDS = {21};
   public static int TOOTH_ROLLOUT_ID = 90;
+  public static final CANBus INTAKE_PIVOT_CAN_BUS = new CANBus("can_s0");
+  public static final CANBus INTAKE_CAN_BUS = new CANBus("can_s0");
 
   // Indexer
   public static int[] INDEXER_IDS = {18};
+  public static final CANBus INDEXER_BUS = new CANBus("can_s0");
   public static int SPINDEXER_ID = 91;
 
   // Shooter
   public static int[] SHOOTER_IDS = {22, 23};
   public static int[] SHOOTER_PIVOT_IDS = {9};
+  public static final CANBus SHOOTER_CAN_BUS = new CANBus("can_s0");
+  public static final CANBus SHOOTER_PIVOT_CAN_BUS = new CANBus("can_s0");
 
   // Turret
   public static final int TURRET_ID = 25;
+  public static final CANBus TURRET_CAN_BUS = new CANBus("can_s0");
 
   // NOTE: For the 2026 FRC Compbot The Front is the side without the intake
 

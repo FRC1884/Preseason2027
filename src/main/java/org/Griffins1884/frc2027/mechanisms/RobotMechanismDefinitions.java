@@ -211,7 +211,7 @@ public final class RobotMechanismDefinitions {
               mechanismConfig(
                   motorGroup(
                       motorController(TurretConstants.MOTOR_CONTROLLER),
-                      "rio",
+                      "can_s0",
                       List.of(
                           motor(
                               TurretConstants.TURRET_ID,
