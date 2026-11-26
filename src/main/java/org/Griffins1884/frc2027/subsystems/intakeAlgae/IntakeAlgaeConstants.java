@@ -20,6 +20,6 @@ public final class IntakeAlgaeConstants {
   public static final DCMotor INTAKE_MOTORS = DCMotor.getKrakenX60Foc(2);
 
   public static final GlobalConstants.Gains GAINS =
-          new GlobalConstants.Gains("Intake/Gains", 0.002, 0.02, 1.0, 0.32726, 0.017, 0.15908);
+      new GlobalConstants.Gains("Intake/Gains", 0.002, 0.02, 1.0, 0.32726, 0.017, 0.15908);
   public static final double VELOCITY_TOLERANCE = 0.0;
 }

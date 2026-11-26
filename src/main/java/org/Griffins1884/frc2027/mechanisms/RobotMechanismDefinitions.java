@@ -4,7 +4,6 @@ import com.ctre.phoenix6.CANBus;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-
 import org.Griffins1884.frc2027.CanIDConstants;
 import org.Griffins1884.frc2027.GlobalConstants;
 import org.Griffins1884.frc2027.subsystems.indexer.IndexerConstants;
@@ -33,39 +32,40 @@ public final class RobotMechanismDefinitions {
           MechanismDefinition.Capability.CHARACTERIZATION);
 
   public static final MechanismDefinition ALGAE_INTAKE =
-          MechanismDefinition.builder("algaeIntake", "AlgaeIntake", MechanismDefinition.MechanismType.INTAKE)
-                  .config(
-                          mechanismConfig(
-                                  motorGroup(
-                                          MechanismDefinition.MotorControllerType.TALON_FX,
-                                          canBusName(CanIDConstants.ALGAE_INTAKE_BUS),
-                                          List.of(
-                                                  motor(
-                                                          CanIDConstants.ALGAE_INTAKE_IDS[0],
-                                                          IntakeAlgaeConstants.INVERTED[0],
-                                                          MechanismDefinition.FollowerMode.FOLLOW_LEADER,
-                                                          IntakeAlgaeConstants.CURRENT_LIMIT_AMPS),
-                                                  motor(
-                                                          CanIDConstants.ALGAE_INTAKE_IDS[1],
-                                                          IntakeAlgaeConstants.INVERTED[1],
-                                                          MechanismDefinition.FollowerMode.FOLLOW_LEADER,
-                                                          IntakeAlgaeConstants.CURRENT_LIMIT_AMPS)),
-                                          IntakeAlgaeConstants.REDUCTION,
-                                          MechanismDefinition.FeedbackSensorType.INTERNAL,
-                                          neutralMode(IntakeAlgaeConstants.BRAKE),
-                                          IntakeAlgaeConstants.MAX_VOLTAGE,
-                                          0.0,
-                                          0.0,
-                                          softLimitsDisabled()),
-                                  closedLoop(
-                                          IntakeAlgaeConstants.GAINS,
-                                          0.0,
-                                          IntakeAlgaeConstants.VELOCITY_TOLERANCE,
-                                          IntakeAlgaeConstants.MAX_VOLTAGE),
-                                  IntakeConstants.KRAKEN_FEATURES))
-                  .telemetry(fullTelemetry())
-                  .simulation(simulation(IntakeConstants.REDUCTION, 0.0, false))
-                  .build();
+      MechanismDefinition.builder(
+              "algaeIntake", "AlgaeIntake", MechanismDefinition.MechanismType.INTAKE)
+          .config(
+              mechanismConfig(
+                  motorGroup(
+                      MechanismDefinition.MotorControllerType.TALON_FX,
+                      canBusName(CanIDConstants.ALGAE_INTAKE_BUS),
+                      List.of(
+                          motor(
+                              CanIDConstants.ALGAE_INTAKE_IDS[0],
+                              IntakeAlgaeConstants.INVERTED[0],
+                              MechanismDefinition.FollowerMode.FOLLOW_LEADER,
+                              IntakeAlgaeConstants.CURRENT_LIMIT_AMPS),
+                          motor(
+                              CanIDConstants.ALGAE_INTAKE_IDS[1],
+                              IntakeAlgaeConstants.INVERTED[1],
+                              MechanismDefinition.FollowerMode.FOLLOW_LEADER,
+                              IntakeAlgaeConstants.CURRENT_LIMIT_AMPS)),
+                      IntakeAlgaeConstants.REDUCTION,
+                      MechanismDefinition.FeedbackSensorType.INTERNAL,
+                      neutralMode(IntakeAlgaeConstants.BRAKE),
+                      IntakeAlgaeConstants.MAX_VOLTAGE,
+                      0.0,
+                      0.0,
+                      softLimitsDisabled()),
+                  closedLoop(
+                      IntakeAlgaeConstants.GAINS,
+                      0.0,
+                      IntakeAlgaeConstants.VELOCITY_TOLERANCE,
+                      IntakeAlgaeConstants.MAX_VOLTAGE),
+                  IntakeConstants.KRAKEN_FEATURES))
+          .telemetry(fullTelemetry())
+          .simulation(simulation(IntakeConstants.REDUCTION, 0.0, false))
+          .build();
 
   public static final MechanismDefinition INTAKE =
       MechanismDefinition.builder("intake", "Intake", MechanismDefinition.MechanismType.INTAKE)
