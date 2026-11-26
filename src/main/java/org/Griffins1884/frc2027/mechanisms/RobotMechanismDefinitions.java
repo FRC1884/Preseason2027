@@ -13,7 +13,6 @@ import org.Griffins1884.frc2027.subsystems.intake.IntakePivotConstants;
 import org.Griffins1884.frc2027.subsystems.intake.ToothRolloutConstants;
 import org.Griffins1884.frc2027.subsystems.intakeAlgae.IntakeAlgaeConstants;
 import org.Griffins1884.frc2027.subsystems.intakePivotAlgae.IntakePivotAlgaeConstants;
-import org.Griffins1884.frc2027.subsystems.intakePivotAlgae.IntakePivotAlgaeConstants;
 import org.Griffins1884.frc2027.subsystems.shooter.ShooterConstants;
 import org.Griffins1884.frc2027.subsystems.shooter.ShooterPivotConstants;
 import org.Griffins1884.frc2027.subsystems.turret.TurretConstants;
