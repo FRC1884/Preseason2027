@@ -33,7 +33,7 @@ public class IntakeAlgaeSubsystem
   public IntakeAlgaeSubsystem(String name, IntakeAlgaeIO io) {
     super(
         name,
-        RobotMechanismDefinitions.INTAKE,
+        RobotMechanismDefinitions.ALGAE_INTAKE,
         io,
         new VoltageRollerConfig(IntakeAlgaeConstants.MAX_VOLTAGE));
   }
