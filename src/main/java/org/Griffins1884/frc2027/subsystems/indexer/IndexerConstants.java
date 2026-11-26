@@ -1,12 +1,13 @@
 package org.Griffins1884.frc2027.subsystems.indexer;
 
 import com.ctre.phoenix6.CANBus;
+import org.Griffins1884.frc2027.CanIDConstants;
 import org.Griffins1884.frc2027.GlobalConstants;
 import org.Griffins1884.frc2027.mechanisms.MechanismDefinition;
 import org.Griffins1884.frc2027.util.LoggedTunableNumber;
 
 public final class IndexerConstants {
-  public static final CANBus CAN_BUS = new CANBus("rio");
+  public static final CANBus CAN_BUS = CanIDConstants.INDEXER_BUS;
 
   public static final int[] INDEXER_IDS = {18};
   public static final boolean[] INDEXER_INVERTED = {false};

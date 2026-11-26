@@ -52,7 +52,7 @@ public class MechanismRollerIOKraken implements MechanismRollerIO {
         new boolean[] {invert},
         brake,
         reduction,
-        new CANBus("rio"),
+        new CANBus("can_s0"),
         DEFAULT_CLOSED_LOOP_RAMP_SECONDS,
         VelocityControlRequest.VELOCITY_VOLTAGE);
   }
@@ -65,7 +65,7 @@ public class MechanismRollerIOKraken implements MechanismRollerIO {
         inverted,
         brake,
         reduction,
-        new CANBus("rio"),
+        new CANBus("can_s0"),
         DEFAULT_CLOSED_LOOP_RAMP_SECONDS,
         VelocityControlRequest.VELOCITY_VOLTAGE);
   }

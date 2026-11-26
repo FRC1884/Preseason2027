@@ -1,5 +1,6 @@
 package org.Griffins1884.frc2027.subsystems.turret;
 
+import org.Griffins1884.frc2027.CanIDConstants;
 import org.Griffins1884.frc2027.mechanisms.turrets.MechanismTurretIOKraken;
 
 public class TurretIOKraken extends MechanismTurretIOKraken implements TurretIO {
@@ -10,7 +11,7 @@ public class TurretIOKraken extends MechanismTurretIOKraken implements TurretIO 
         TurretConstants.INVERTED,
         TurretConstants.BRAKE_MODE,
         TurretConstants.GEAR_RATIO,
-        new com.ctre.phoenix6.CANBus("rio"),
+            CanIDConstants.TURRET_CAN_BUS,
         TurretConstants.KRAKEN_FEATURES);
   }
 }

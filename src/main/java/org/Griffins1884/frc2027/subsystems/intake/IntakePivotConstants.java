@@ -20,7 +20,7 @@ public final class IntakePivotConstants {
   }
 
   public static final MotorController MOTOR_CONTROLLER = MotorController.KRAKEN_X40;
-  public static final CANBus CAN_BUS = new CANBus("rio");
+  public static final CANBus CAN_BUS = CanIDConstants.INTAKE_PIVOT_CAN_BUS;
 
   public static final int[] MOTOR_ID = CanIDConstants.INTAKE_PIVOT_IDS;
   public static final boolean[] INVERTED = {false, true};

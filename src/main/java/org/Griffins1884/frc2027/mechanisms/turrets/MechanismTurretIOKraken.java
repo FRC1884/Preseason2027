@@ -46,7 +46,7 @@ public class MechanismTurretIOKraken implements MechanismTurretIO {
         invert,
         brake,
         gearRatio,
-        new CANBus("rio"),
+        new CANBus("can_s0"),
         new MechanismDefinition.KrakenFeatureConfig(true, true, false, 0, false));
   }
 

@@ -98,7 +98,7 @@ class PincerSubsystemTest {
     assertEquals(2, rightJaw.stopCalls);
   }
 
-  private static final class FakePincerMotorIO implements PincerMotorIO {
+  private static final class    FakePincerMotorIO implements PincerMotorIO {
     private double lastSetOutput = Double.NaN;
     private double lastSetOutputBeforeStop = Double.NaN;
     private int stopCalls;
