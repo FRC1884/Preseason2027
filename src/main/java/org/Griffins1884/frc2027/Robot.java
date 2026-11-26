@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import org.Griffins1884.frc2027.diagnostics.DiagnosticServer;
 import org.Griffins1884.frc2027.simV2.simulation.SimulatedArena;
 import org.Griffins1884.frc2027.util.LogRollover;
 import org.Griffins1884.frc2027.util.RobotLogging;
@@ -97,6 +98,7 @@ public class Robot extends LoggedRobot {
     Logger.start();
 
     initNetworkTablesLogging();
+    DiagnosticServer.publishMotorData();
 
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
