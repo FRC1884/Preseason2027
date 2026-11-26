@@ -11,7 +11,7 @@ public class TurretIOKraken extends MechanismTurretIOKraken implements TurretIO 
         TurretConstants.INVERTED,
         TurretConstants.BRAKE_MODE,
         TurretConstants.GEAR_RATIO,
-            CanIDConstants.TURRET_CAN_BUS,
+        CanIDConstants.TURRET_CAN_BUS,
         TurretConstants.KRAKEN_FEATURES);
   }
 }

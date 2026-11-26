@@ -22,7 +22,7 @@ public class CanIDConstants {
   public static int[] INTAKE_IDS = {21};
   public static int TOOTH_ROLLOUT_ID = 90;
   public static final CANBus INTAKE_PIVOT_CAN_BUS = new CANBus("can_s0");
-    public static final CANBus INTAKE_CAN_BUS = new CANBus("can_s0");
+  public static final CANBus INTAKE_CAN_BUS = new CANBus("can_s0");
 
   // Indexer
   public static int[] INDEXER_IDS = {18};
