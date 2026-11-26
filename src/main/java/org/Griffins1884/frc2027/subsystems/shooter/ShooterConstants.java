@@ -12,7 +12,7 @@ public final class ShooterConstants {
     BALLISTIC_MODEL
   }
 
-  public static final CANBus CAN_BUS = new CANBus("rio");
+  public static final CANBus CAN_BUS = CanIDConstants.SHOOTER_CAN_BUS;
 
   public static final int[] SHOOTER_IDS = CanIDConstants.SHOOTER_IDS;
   public static final boolean[] SHOOTER_INVERTED = {false, true};
