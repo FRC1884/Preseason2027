@@ -1,0 +1,97 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftBlueStartPosetoFrontLeftBlueCoral1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "HighCoral"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FrontLeftBlueCoral1toLeftBlueHumanPlayer"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftBlueHumanPlayertoFrontLeftBlueCoral1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "LowCoral"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FrontLeftBlueCoral1toLeftBlueHumanPlayer"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftBlueHumanPlayertoFrontLeftBlueCoral2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "HighCoral"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": true
+}

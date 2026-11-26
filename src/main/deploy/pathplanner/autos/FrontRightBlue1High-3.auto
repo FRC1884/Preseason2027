@@ -7,19 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "ToCenter"
+            "pathName": "RightBlueStartPosetoFrontBlueCoral3"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Intake"
+            "name": "HighCoral"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.0
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Cross"
+            "pathName": "FrontBlueCoral3toRightBlueStartPose"
           }
         }
       ]
