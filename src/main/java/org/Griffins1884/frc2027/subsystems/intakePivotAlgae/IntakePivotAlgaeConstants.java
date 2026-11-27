@@ -41,12 +41,12 @@ public class IntakePivotAlgaeConstants {
       IntakePivotAlgaeConstants.ZeroingDetectionMode.CURRENT_SPIKE;
 
   public static final LoggedTunableNumber IDLE_ANGLE_RAD =
-      new LoggedTunableNumber("IntakePivot/IDLE_RAD", -1);
+      new LoggedTunableNumber("IntakePivotAlgae/IDLE_RAD", -1);
   public static final LoggedTunableNumber PICKUP_RAD =
-      new LoggedTunableNumber("IntakePivot/PICKUP_RAD", -14);
+      new LoggedTunableNumber("IntakePivotAlgae/PICKUP_RAD", -14);
 
   public static final GlobalConstants.Gains GAINS =
-      new GlobalConstants.Gains("IntakePivot/Gains", 3000, 80, 40, 0.0, 0.0, 0.0, 3);
+      new GlobalConstants.Gains("IntakePivotAlgae/Gains", 3000, 80, 40, 0.0, 0.0, 0.0, 3);
 
   public static final double POSITION_TOLERANCE = 0.0;
   public static final boolean SOFT_LIMITS_ENABLED = true;
@@ -60,26 +60,26 @@ public class IntakePivotAlgaeConstants {
   public static final boolean ZERO_LIMIT_SWITCH_REQUIRE_BOTH = true;
 
   public static final LoggedTunableNumber MOTION_MAGIC_CRUISE_VEL =
-      new LoggedTunableNumber("IntakePivot/MotionMagic/CruiseVel", 40);
+      new LoggedTunableNumber("IntakePivotAlgae/MotionMagic/CruiseVel", 40);
   public static final LoggedTunableNumber MOTION_MAGIC_ACCEL =
-      new LoggedTunableNumber("IntakePivot/MotionMagic/Accel", 80);
+      new LoggedTunableNumber("IntakePivotAlgae/MotionMagic/Accel", 80);
   public static final LoggedTunableNumber MOTION_MAGIC_JERK =
-      new LoggedTunableNumber("IntakePivot/MotionMagic/Jerk", 500);
+      new LoggedTunableNumber("IntakePivotAlgae/MotionMagic/Jerk", 500);
 
   public static final LoggedTunableNumber HARDSTOP_STOW_SEEK_POSITION =
-      new LoggedTunableNumber("IntakePivot/HardStop/StowSeekPosition", 100.0);
+      new LoggedTunableNumber("IntakePivotAlgae/HardStop/StowSeekPosition", 100.0);
   public static final LoggedTunableNumber HARDSTOP_STOW_CURRENT_AMPS =
-      new LoggedTunableNumber("IntakePivot/HardStop/StowCurrentAmps", 3.0);
+      new LoggedTunableNumber("IntakePivotAlgae/HardStop/StowCurrentAmps", 3.0);
   public static final LoggedTunableNumber HARDSTOP_MAX_VELOCITY_RAD_PER_SEC =
-      new LoggedTunableNumber("IntakePivot/HardStop/MaxVelocityRadPerSec", 0.6);
+      new LoggedTunableNumber("IntakePivotAlgae/HardStop/MaxVelocityRadPerSec", 0.6);
   public static final LoggedTunableNumber HARDSTOP_SPIKE_DEBOUNCE_SEC =
-      new LoggedTunableNumber("IntakePivot/HardStop/SpikeDebounceSec", 0.04);
+      new LoggedTunableNumber("IntakePivotAlgae/HardStop/SpikeDebounceSec", 0.04);
   public static final LoggedTunableNumber SYNC_CORRECTION_KP =
-      new LoggedTunableNumber("IntakePivot/Sync/CorrectionKp", 0.6);
+      new LoggedTunableNumber("IntakePivotAlgae/Sync/CorrectionKp", 0.6);
   public static final LoggedTunableNumber SYNC_MAX_TRIM_RAD =
-      new LoggedTunableNumber("IntakePivot/Sync/MaxTrimRad", 0.2);
+      new LoggedTunableNumber("IntakePivotAlgae/Sync/MaxTrimRad", 0.2);
   public static final LoggedTunableNumber SYNC_DEADBAND_RAD =
-      new LoggedTunableNumber("IntakePivot/Sync/DeadbandRad", 0.01);
+      new LoggedTunableNumber("IntakePivotAlgae/Sync/DeadbandRad", 0.01);
   public static final int SIM_MOTOR_COUNT = 1;
   public static final double SIM_START_ANGLE_RAD = 0.0;
 }
