@@ -70,7 +70,7 @@ public class Superstructure extends SubsystemBase {
 
   private final SwerveSubsystem drive;
   @Setter private TurretSubsystem turret;
-  private final ElevatorSubsystem elevator;
+  private ElevatorSubsystem elevator;
 
   @Getter
   private final LoggedNetworkChooser<SuperState> stateChooser =
