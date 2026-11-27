@@ -118,7 +118,7 @@ public class Superstructure extends SubsystemBase {
 
   private double middleStageHeightMeters = 0.0; // Max: 0.75
   private LoggedTunableNumber requestedHeightMeters =
-          new LoggedTunableNumber("/Elevator/requestedHeight", 0.0);
+      new LoggedTunableNumber("/Elevator/requestedHeight", 0.0);
 
   private LoggedTunableNumber algaeRotationDegrees =
       new LoggedTunableNumber("/Intakes/algaeRotation", 0.0);
@@ -184,7 +184,7 @@ public class Superstructure extends SubsystemBase {
         new Transform3d(new Translation3d(-pivotX, -pivotY, -pivotZ), new Rotation3d()));
   }
 
-  public void updateElevatorHeight(){
+  public void updateElevatorHeight() {
     elevator.setGoalHeight(requestedHeightMeters.getAsDouble());
     middleStageHeightMeters = elevator.getPositionMeters();
   }
@@ -199,14 +199,11 @@ public class Superstructure extends SubsystemBase {
 
       Pose3d middleStagePose =
           baseStagePose.transformBy(
-              new Transform3d(
-                  new Translation3d(0, 0, middleStageHeightMeters),
-                  new Rotation3d()));
+              new Transform3d(new Translation3d(0, 0, middleStageHeightMeters), new Rotation3d()));
 
       Pose3d innerStagePose =
           middleStagePose.transformBy(
-              new Transform3d(
-                  new Translation3d(0, 0, 0), new Rotation3d()));
+              new Transform3d(new Translation3d(0, 0, 0), new Rotation3d()));
 
       Pose3d pvcMountPose = innerStagePose;
 
