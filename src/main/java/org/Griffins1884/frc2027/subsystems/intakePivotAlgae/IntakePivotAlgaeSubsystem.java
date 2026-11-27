@@ -303,7 +303,8 @@ public class IntakePivotAlgaeSubsystem extends SubsystemBase {
     }
 
     Logger.recordOutput("IntakePivotAlgae/Zeroing/LimitSwitchPrimaryConfigured", primaryConfigured);
-    Logger.recordOutput("IntakePivotAlgae/Zeroing/LimitSwitchSecondaryConfigured", secondaryConfigured);
+    Logger.recordOutput(
+        "IntakePivotAlgae/Zeroing/LimitSwitchSecondaryConfigured", secondaryConfigured);
     Logger.recordOutput("IntakePivotAlgae/Zeroing/LimitSwitchPrimaryPressed", primaryPressed);
     Logger.recordOutput("IntakePivotAlgae/Zeroing/LimitSwitchSecondaryPressed", secondaryPressed);
     Logger.recordOutput("IntakePivotAlgae/Zeroing/LimitSwitchDetected", detected);
