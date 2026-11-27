@@ -12,6 +12,7 @@ import org.Griffins1884.frc2027.GlobalConstants;
 import org.Griffins1884.frc2027.commands.ShooterCommands;
 import org.Griffins1884.frc2027.commands.TurretCommands;
 import org.Griffins1884.frc2027.mechanisms.turrets.PositionTurretMechanism.ControlMode;
+import org.Griffins1884.frc2027.subsystems.elevator.ElevatorIOKraken;
 import org.Griffins1884.frc2027.subsystems.elevator.ElevatorIOSim;
 import org.Griffins1884.frc2027.subsystems.elevator.ElevatorSubsystem;
 import org.Griffins1884.frc2027.subsystems.groups.Arms;
@@ -142,7 +143,13 @@ public class Superstructure extends SubsystemBase {
 
   public Superstructure(SwerveSubsystem drive) {
     this.drive = drive;
-    this.elevator = new ElevatorSubsystem(new ElevatorIOSim());
+    if (ELEVATOR_ENABLED) {
+      this.elevator =
+          switch (MODE) {
+            case REAL -> new ElevatorSubsystem(new ElevatorIOKraken());
+            case SIM, REPLAY -> new ElevatorSubsystem(new ElevatorIOSim());
+          };
+    }
     configureStateChooser();
   }
 
@@ -185,6 +192,7 @@ public class Superstructure extends SubsystemBase {
   }
 
   public void updateElevatorHeight() {
+    if (!ELEVATOR_ENABLED) return;
     elevator.setGoalHeight(requestedHeightMeters.getAsDouble());
     middleStageHeightMeters = elevator.getPositionMeters();
   }

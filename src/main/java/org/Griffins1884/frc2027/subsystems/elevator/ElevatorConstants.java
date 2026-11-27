@@ -18,4 +18,7 @@ public final class ElevatorConstants {
   public static final LoggedTunableNumber kD = new LoggedTunableNumber("Elevator/kD", 1.2);
 
   public static final double MAX_MOTOR_VOLTS = 12.0;
+
+  public static final double ROTATION_TO_HEIGHT_RATIO =
+      0.5; // Formula: (Sprocket teeth * Chain Pitch) / Gear Ratio
 }

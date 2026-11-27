@@ -35,6 +35,10 @@ public class CanIDConstants {
   public static final CANBus SHOOTER_CAN_BUS = new CANBus("can_s0");
   public static final CANBus SHOOTER_PIVOT_CAN_BUS = new CANBus("can_s0");
 
+  // Elevator
+  public static int[] ELEVATOR_CAN = {95, 97}; // First id is leader, second is follower
+  public static CANBus ELEVATOR_CAN_BUS = new CANBus("can_s0");
+
   // Turret
   public static final int TURRET_ID = 25;
   public static final CANBus TURRET_CAN_BUS = new CANBus("can_s0");

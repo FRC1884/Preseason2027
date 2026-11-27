@@ -86,7 +86,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public double getVelocityMetersPerSec() {
-    return inputs.velocityMetersPerSec;
+    return inputs.velocityMeterPerSecond;
   }
 
   public double getAppliedVolts() {

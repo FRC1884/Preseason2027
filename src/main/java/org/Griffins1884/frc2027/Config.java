@@ -24,6 +24,7 @@ public final class Config {
     public static final boolean INDEXER_ENABLED = true;
     public static final boolean TOOTH_ROLLOUT_ENABLED = true;
     public static final boolean SPINDEXER_ENABLED = true;
+    public static final boolean ELEVATOR_ENABLED = true;
   }
 
   public static final class WebUIConfig {
