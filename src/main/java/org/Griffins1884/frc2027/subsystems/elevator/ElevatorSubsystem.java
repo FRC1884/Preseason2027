@@ -18,10 +18,10 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public ElevatorSubsystem(ElevatorIO ioBridge) {
         this.ioBridge = ioBridge;
-        this.profiledController = getProfiledController((ElevatorConstants.kP).getAsDouble(),
+        this.profiledController = getProfiledController(ElevatorConstants.kP.getAsDouble(),
                 ElevatorConstants.kI.getAsDouble(),
                 ElevatorConstants.kD.getAsDouble());
-        this.feedforwardModel = getMotionProfileConstraints((ElevatorConstants.kS).getAsDouble(),
+        this.feedforwardModel = getMotionProfileConstraints(ElevatorConstants.kS.getAsDouble(),
                 ElevatorConstants.kV.getAsDouble(),
                 ElevatorConstants.kA.getAsDouble(),
                 ElevatorConstants.kG.getAsDouble());
@@ -43,7 +43,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                 Math.clamp(
                         targetHeightSetpoint,
                         ElevatorConstants.MIN_HEIGHT,
-                        MAX_HEIGHT);
+                        ElevatorConstants.MAX_HEIGHT);
         profiledController.setGoal(targetHeightSetpoint);
     }
 
@@ -52,17 +52,15 @@ public class ElevatorSubsystem extends SubsystemBase {
         ioBridge.updateInputs(inputs);
 
         TrapezoidProfile.State currentProfileState = profiledController.getSetpoint();
-        double feedBackVoltage = feedforwardModel.calculate(currentProfileState.velocity);
+        double feedBackVoltage = profiledController.calculate(inputs.positionMeters);
 
-        double feedForwardVoltage;
-        feedForwardVoltage = (ElevatorConstants.kS.getAsDouble() * Math.signum(currentProfileState.velocity))
-                + ElevatorConstants.kG.getAsDouble() + (ElevatorConstants.kV.getAsDouble()
-                + ElevatorConstants.kA.getAsDouble()) * currentProfileState.velocity;
+        double feedForwardVoltage = ElevatorConstants.kS.getAsDouble() * Math.signum(currentProfileState.velocity)
+                + ElevatorConstants.kG.getAsDouble() + (ElevatorConstants.kV.getAsDouble()) * currentProfileState.velocity;
         double totalDemandVoltage = feedBackVoltage + feedForwardVoltage;
 
         if (inputs.positionMeters <= ElevatorConstants.MIN_HEIGHT && totalDemandVoltage < 0.0) {
             totalDemandVoltage = 0.0;
-        } else if (inputs.positionMeters >= MAX_HEIGHT
+        } else if (inputs.positionMeters >= ElevatorConstants.MAX_HEIGHT
                 && totalDemandVoltage > 0.0) {
             totalDemandVoltage = 0.0;
         }

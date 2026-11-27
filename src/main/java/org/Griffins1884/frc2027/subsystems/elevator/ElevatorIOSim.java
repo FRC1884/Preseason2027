@@ -25,6 +25,17 @@ public class ElevatorIOSim implements ElevatorIO {
             startingHeight,0);
   }
 
+  public ElevatorIOSim() {
+    this(
+        ElevatorConstants.kV.getAsDouble(),
+        ElevatorConstants.kA.getAsDouble(),
+        DCMotor.getNEO(1),
+        ElevatorConstants.MIN_HEIGHT,
+        ElevatorConstants.MAX_HEIGHT,
+        0.0,
+        true);
+  }
+
   public void updateInputs(ElevatorIOInputs inputs) {
     double clampedVolts = Math.clamp(appliedVoltsDemand, -12.0, 12.0);
     sim.setInputVoltage(clampedVolts);
