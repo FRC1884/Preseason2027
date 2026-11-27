@@ -1,12 +1,12 @@
 package org.Griffins1884.frc2027.subsystems.elevator;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.Griffins1884.frc2027.commands.ElevatorCommands;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.wpilib.hardware.hal.HAL;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class ElevatorSimulationVerificationTest {
 
@@ -35,8 +35,21 @@ class ElevatorSimulationVerificationTest {
     double targetHeight = 0.65;
     elevatorMechanism.setGoalHeight(targetHeight);
 
-    // 100 cycles = 2.0 seconds at 20 ms steps.
-    cycle(100);
+    elevatorMechanism.setGoalHeight(targetHeight);
+
+    int maxCycles = 300; // 6 seconds at 20 ms per cycle
+    for (int i = 0;
+        i < maxCycles
+            && Math.abs(targetHeight - simulatedIO.getPosition()) > POSITION_ASSERT_MARGIN_METERS;
+        i++) {
+      elevatorMechanism.periodic();
+    }
+
+    assertEquals(
+        targetHeight,
+        simulatedIO.getPosition(),
+        POSITION_ASSERT_MARGIN_METERS,
+        "Final elevator position not right");
 
     assertTrue(elevatorMechanism.isAtTarget(), "Elevator failed to reach");
     assertEquals(
@@ -52,9 +65,7 @@ class ElevatorSimulationVerificationTest {
 
     cycle(50);
 
-    assertTrue(
-        simulatedIO.getPosition() >= 0.0,
-        "Carriage descended below physical floor datum");
+    assertTrue(simulatedIO.getPosition() >= 0.0, "Carriage descended below physical floor datum");
   }
 
   @Test
@@ -78,7 +89,22 @@ class ElevatorSimulationVerificationTest {
   void holdsAgainstGravity() {
     double targetHeight = 0.90;
     elevatorMechanism.setGoalHeight(targetHeight);
-    cycle(100);
+
+    double clampedTarget = elevatorMechanism.getTargetHeightMeters();
+    int maxCycles = 300; // 6 seconds at 20 ms per cycle
+
+    for (int i = 0;
+        i < maxCycles
+            && Math.abs(clampedTarget - simulatedIO.getPosition()) > POSITION_ASSERT_MARGIN_METERS;
+        i++) {
+      elevatorMechanism.periodic();
+    }
+
+    assertEquals(
+        clampedTarget,
+        simulatedIO.getPosition(),
+        POSITION_ASSERT_MARGIN_METERS,
+        "Elevator did not settle at its target within the timeout");
 
     double settledHeight = simulatedIO.getPosition();
 
@@ -95,8 +121,7 @@ class ElevatorSimulationVerificationTest {
   @Test
   @DisplayName("Position command reports finished only after convergence")
   void positionCommandFinishesOnConvergence() {
-    var command =
-        new ElevatorCommands().createScoreL2Command(elevatorMechanism);
+    var command = new ElevatorCommands().createScoreL2Command(elevatorMechanism);
     command.initialize();
 
     assertFalse(command.isFinished(), "Command reported finished before the carriage moved");

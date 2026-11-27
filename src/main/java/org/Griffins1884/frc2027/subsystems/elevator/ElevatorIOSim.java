@@ -15,8 +15,7 @@ public class ElevatorIOSim implements ElevatorIO {
       double maxHeight,
       double startingHeight,
       boolean simulateGravity) {
-    sim =
-        new ElevatorSim(kV, kA, gearbox, minHeight, maxHeight, simulateGravity, startingHeight);
+    sim = new ElevatorSim(kV, kA, gearbox, minHeight, maxHeight, simulateGravity, startingHeight);
   }
 
   public ElevatorIOSim() {
@@ -30,7 +29,7 @@ public class ElevatorIOSim implements ElevatorIO {
         true);
   }
 
-  public double getPosition(){
+  public double getPosition() {
     return sim.getPosition();
   }
 
