@@ -10,7 +10,7 @@ public interface ElevatorIO {
     public double appliedVolts = 0;
     public double statorCurrentAmps = 0;
     public double supplyCurrentAmps = 0;
-    public double velocityMetersPerSec = 0; //TODO;
+    public double velocityMetersPerSec = 0; // TODO;
   }
 
   public default void updateInputs(ElevatorIOInputs inputs) {}

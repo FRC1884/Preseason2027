@@ -6,6 +6,7 @@ import org.wpilib.simulation.ElevatorSim;
 public class ElevatorIOSim implements ElevatorIO {
   private ElevatorSim sim;
   private double appliedVoltsDemand = 0.0;
+
   public ElevatorIOSim(
       double kV,
       double kA,
@@ -15,14 +16,7 @@ public class ElevatorIOSim implements ElevatorIO {
       double startingHeight,
       boolean simulateGravity) {
     sim =
-        new ElevatorSim(
-            kV,
-            kA,
-            gearbox,
-            minHeight,
-            maxHeight,
-            simulateGravity,
-            startingHeight,0);
+        new ElevatorSim(kV, kA, gearbox, minHeight, maxHeight, simulateGravity, startingHeight, 0);
   }
 
   public ElevatorIOSim() {
@@ -44,14 +38,13 @@ public class ElevatorIOSim implements ElevatorIO {
     inputs.appliedVolts = clampedVolts;
     inputs.statorCurrentAmps = Math.abs(sim.getCurrentDraw());
     inputs.supplyCurrentAmps = Math.abs(sim.getCurrentDraw());
-
   }
 
-    public void setVoltage(double volts) {
-        appliedVoltsDemand = volts;
-    }
+  public void setVoltage(double volts) {
+    appliedVoltsDemand = volts;
+  }
 
-    public void stopActuators() {
-        setVoltage(0.0);
-    }
+  public void stopActuators() {
+    setVoltage(0.0);
+  }
 }
