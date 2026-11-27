@@ -257,12 +257,12 @@ public class IntakePivotAlgaeSubsystem extends SubsystemBase {
     primary.setGoalPosition(primaryGoal);
     secondary.setGoalPosition(secondaryGoal);
 
-    Logger.recordOutput("IntakePivot/Sync/PrimaryPositionRad", primaryPosition);
-    Logger.recordOutput("IntakePivot/Sync/SecondaryPositionRad", secondaryPosition);
-    Logger.recordOutput("IntakePivot/Sync/ErrorRad", syncError);
-    Logger.recordOutput("IntakePivot/Sync/CorrectionRad", correction);
-    Logger.recordOutput("IntakePivot/Sync/PrimaryGoalRad", primaryGoal);
-    Logger.recordOutput("IntakePivot/Sync/SecondaryGoalRad", secondaryGoal);
+    Logger.recordOutput("IntakePivotAlgae/Sync/PrimaryPositionRad", primaryPosition);
+    Logger.recordOutput("IntakePivotAlgae/Sync/SecondaryPositionRad", secondaryPosition);
+    Logger.recordOutput("IntakePivotAlgae/Sync/ErrorRad", syncError);
+    Logger.recordOutput("IntakePivotAlgae/Sync/CorrectionRad", correction);
+    Logger.recordOutput("IntakePivotAlgae/Sync/PrimaryGoalRad", primaryGoal);
+    Logger.recordOutput("IntakePivotAlgae/Sync/SecondaryGoalRad", secondaryGoal);
   }
 
   private void stopOpenLoopInternal() {
@@ -277,7 +277,7 @@ public class IntakePivotAlgaeSubsystem extends SubsystemBase {
 
   private boolean isZeroingConditionMet() {
     Logger.recordOutput(
-        "IntakePivot/Zeroing/DetectionMode",
+        "IntakePivotAlgae/Zeroing/DetectionMode",
         IntakePivotAlgaeConstants.ZEROING_DETECTION_MODE.name());
     return switch (IntakePivotAlgaeConstants.ZEROING_DETECTION_MODE) {
       case LIMIT_SWITCH -> isLimitSwitchZeroDetected();
@@ -302,11 +302,11 @@ public class IntakePivotAlgaeSubsystem extends SubsystemBase {
       detected = primaryPressed || secondaryPressed;
     }
 
-    Logger.recordOutput("IntakePivot/Zeroing/LimitSwitchPrimaryConfigured", primaryConfigured);
-    Logger.recordOutput("IntakePivot/Zeroing/LimitSwitchSecondaryConfigured", secondaryConfigured);
-    Logger.recordOutput("IntakePivot/Zeroing/LimitSwitchPrimaryPressed", primaryPressed);
-    Logger.recordOutput("IntakePivot/Zeroing/LimitSwitchSecondaryPressed", secondaryPressed);
-    Logger.recordOutput("IntakePivot/Zeroing/LimitSwitchDetected", detected);
+    Logger.recordOutput("IntakePivotAlgae/Zeroing/LimitSwitchPrimaryConfigured", primaryConfigured);
+    Logger.recordOutput("IntakePivotAlgae/Zeroing/LimitSwitchSecondaryConfigured", secondaryConfigured);
+    Logger.recordOutput("IntakePivotAlgae/Zeroing/LimitSwitchPrimaryPressed", primaryPressed);
+    Logger.recordOutput("IntakePivotAlgae/Zeroing/LimitSwitchSecondaryPressed", secondaryPressed);
+    Logger.recordOutput("IntakePivotAlgae/Zeroing/LimitSwitchDetected", detected);
     return detected;
   }
 
@@ -335,9 +335,9 @@ public class IntakePivotAlgaeSubsystem extends SubsystemBase {
         Math.max(Math.abs(primary.getVelocity()), Math.abs(secondary.getVelocity()));
     double currentThresholdAmps = IntakePivotAlgaeConstants.HARDSTOP_STOW_CURRENT_AMPS.get();
 
-    Logger.recordOutput("IntakePivot/HardStop/CurrentAmps", maxCurrentAmps);
-    Logger.recordOutput("IntakePivot/HardStop/VelocityRadPerSec", maxVelocityRadPerSec);
-    Logger.recordOutput("IntakePivot/HardStop/CurrentThresholdAmps", currentThresholdAmps);
+    Logger.recordOutput("IntakePivotAlgae/HardStop/CurrentAmps", maxCurrentAmps);
+    Logger.recordOutput("IntakePivotAlgae/HardStop/VelocityRadPerSec", maxVelocityRadPerSec);
+    Logger.recordOutput("IntakePivotAlgae/HardStop/CurrentThresholdAmps", currentThresholdAmps);
     return maxCurrentAmps >= currentThresholdAmps
         && maxVelocityRadPerSec
             <= IntakePivotAlgaeConstants.HARDSTOP_MAX_VELOCITY_RAD_PER_SEC.get();
@@ -347,14 +347,14 @@ public class IntakePivotAlgaeSubsystem extends SubsystemBase {
       IntakePivotAlgaeSubsystem.IntakePivotAlgaeGoal activeGoal,
       double seekPosition,
       boolean zeroConditionDetected) {
-    Logger.recordOutput("IntakePivot/Zeroing/Requested", zeroingRequested);
-    Logger.recordOutput("IntakePivot/Zeroing/ManualSeekRequested", manualZeroSeekRequested);
-    Logger.recordOutput("IntakePivot/Zeroing/Goal", activeGoal.toString());
-    Logger.recordOutput("IntakePivot/Zeroing/SeekPosition", seekPosition);
-    Logger.recordOutput("IntakePivot/Zeroing/Latched", zeroingLatched);
-    Logger.recordOutput("IntakePivot/Zeroing/Action", zeroingAction);
-    Logger.recordOutput("IntakePivot/Zeroing/DetectSamples", zeroingDetectSamples);
-    Logger.recordOutput("IntakePivot/Zeroing/ConditionDetected", zeroConditionDetected);
+    Logger.recordOutput("IntakePivotAlgae/Zeroing/Requested", zeroingRequested);
+    Logger.recordOutput("IntakePivotAlgae/Zeroing/ManualSeekRequested", manualZeroSeekRequested);
+    Logger.recordOutput("IntakePivotAlgae/Zeroing/Goal", activeGoal.toString());
+    Logger.recordOutput("IntakePivotAlgae/Zeroing/SeekPosition", seekPosition);
+    Logger.recordOutput("IntakePivotAlgae/Zeroing/Latched", zeroingLatched);
+    Logger.recordOutput("IntakePivotAlgae/Zeroing/Action", zeroingAction);
+    Logger.recordOutput("IntakePivotAlgae/Zeroing/DetectSamples", zeroingDetectSamples);
+    Logger.recordOutput("IntakePivotAlgae/Zeroing/ConditionDetected", zeroConditionDetected);
   }
 
   private static final class IntakePivotAlgaeArm
