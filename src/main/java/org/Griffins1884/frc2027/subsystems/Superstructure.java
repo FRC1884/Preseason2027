@@ -18,6 +18,7 @@ import org.Griffins1884.frc2027.subsystems.groups.Rollers;
 import org.Griffins1884.frc2027.subsystems.indexer.IndexerSubsystem.IndexerGoal;
 import org.Griffins1884.frc2027.subsystems.intake.IntakePivotSubsystem.IntakePivotGoal;
 import org.Griffins1884.frc2027.subsystems.intake.IntakeSubsystem.IntakeGoal;
+import org.Griffins1884.frc2027.subsystems.intakePivotAlgae.IntakePivotAlgaeSubsystem;
 import org.Griffins1884.frc2027.subsystems.shooter.ShooterConstants;
 import org.Griffins1884.frc2027.subsystems.shooter.ShooterPivotSubsystem.ShooterPivotGoal;
 import org.Griffins1884.frc2027.subsystems.swerve.SwerveSubsystem;
@@ -67,6 +68,7 @@ public class Superstructure extends SubsystemBase {
 
   private final SwerveSubsystem drive;
   @Setter private TurretSubsystem turret;
+  private IntakePivotAlgaeSubsystem intakePivotAlgaeSubsystem;
 
   @Getter
   private final LoggedNetworkChooser<SuperState> stateChooser =
@@ -118,8 +120,9 @@ public class Superstructure extends SubsystemBase {
   private LoggedTunableNumber innerStageHeightMeters =
       new LoggedTunableNumber("/Elevator/innerStageHeight", 0.0); // Max 0.6
 
-  private LoggedTunableNumber algaeRotationDegrees =
-      new LoggedTunableNumber("/Intakes/algaeRotation", 0.0);
+  private double algaeRotationDegrees = 0.0;
+  private LoggedTunableNumber requestedRotationDegrees =
+      new LoggedTunableNumber("/Intakes/requestedRotationAlgae", 0.0);
   private LoggedTunableNumber coralRotationDegrees =
       new LoggedTunableNumber("/Intakes/coralRotation", 0.0);
 
@@ -181,10 +184,12 @@ public class Superstructure extends SubsystemBase {
         new Transform3d(new Translation3d(-pivotX, -pivotY, -pivotZ), new Rotation3d()));
   }
 
+  public void updateAlgaeRotation() {}
+
   public void setupSim() {
     if (MODE == GlobalConstants.RobotMode.SIM) {
-
       Logger.recordOutput("AdvantageScope/RobotPose", new Pose3d(drive.getPose()));
+      Logger.recordOutput("/Intakes/algaeRotation", algaeRotationDegrees);
 
       Pose3d baseStagePose = Pose3d.ZERO;
 
@@ -217,7 +222,7 @@ public class Superstructure extends SubsystemBase {
               algaePivotX.get(),
               algaePivotY.get(),
               algaePivotZ.get(),
-              algaeRotationDegrees.getAsDouble());
+              algaeRotationDegrees);
 
       Logger.recordOutput(
           "AdvantageScope/Robot3D",

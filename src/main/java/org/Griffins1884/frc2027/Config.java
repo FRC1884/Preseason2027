@@ -24,6 +24,8 @@ public final class Config {
     public static final boolean INDEXER_ENABLED = true;
     public static final boolean TOOTH_ROLLOUT_ENABLED = true;
     public static final boolean SPINDEXER_ENABLED = true;
+    public static final boolean ALGAE_INTAKE_ENABLED = true;
+    public static final boolean ALGAE_INTAKE_PIVOT_ENABLED = true;
   }
 
   public static final class WebUIConfig {
