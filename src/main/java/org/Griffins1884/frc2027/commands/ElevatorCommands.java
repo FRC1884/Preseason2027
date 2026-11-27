@@ -41,7 +41,7 @@ public class ElevatorCommands extends Command {
     public void execute() {
       // Maintain continuous target tracking demand.
       if (subsystemRef == null) return;
-      subsystemRef.setGoalHeight(commandedTargetHeight);
+      subsystemRef.periodic();
     }
 
     public boolean isFinished() {

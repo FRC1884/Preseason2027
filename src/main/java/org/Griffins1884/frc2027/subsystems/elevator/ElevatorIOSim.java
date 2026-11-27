@@ -16,7 +16,7 @@ public class ElevatorIOSim implements ElevatorIO {
       double startingHeight,
       boolean simulateGravity) {
     sim =
-        new ElevatorSim(kV, kA, gearbox, minHeight, maxHeight, simulateGravity, startingHeight, 0);
+        new ElevatorSim(kV, kA, gearbox, minHeight, maxHeight, simulateGravity, startingHeight);
   }
 
   public ElevatorIOSim() {
@@ -30,6 +30,10 @@ public class ElevatorIOSim implements ElevatorIO {
         true);
   }
 
+  public double getPosition(){
+    return sim.getPosition();
+  }
+
   public void updateInputs(ElevatorIOInputs inputs) {
     double clampedVolts = Math.clamp(appliedVoltsDemand, -12.0, 12.0);
     sim.setInputVoltage(clampedVolts);
@@ -38,6 +42,7 @@ public class ElevatorIOSim implements ElevatorIO {
     inputs.appliedVolts = clampedVolts;
     inputs.statorCurrentAmps = Math.abs(sim.getCurrentDraw());
     inputs.supplyCurrentAmps = Math.abs(sim.getCurrentDraw());
+    sim.update(0.02);
   }
 
   public void setVoltage(double volts) {

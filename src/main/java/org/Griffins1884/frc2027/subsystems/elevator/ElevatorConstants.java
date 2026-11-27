@@ -7,8 +7,6 @@ public final class ElevatorConstants {
   public static final double MAX_HEIGHT = 0.75; // TODO change;
   public static final double MAX_VELOCITY = 0.5; // TODO change;
   public static final double MAX_ACCELERATION = 0.5; // TODO change;
-  public static final double MIN_TRAVEL_LIMIT = 0.5; // TODO change;
-  public static final double MAX_TRAVEL_LIMIT = 0.5; // TODO change;
   public static final double POSITION_TOLERANCE = 0.5; // TODO change;
 
   public static final LoggedTunableNumber kV = new LoggedTunableNumber("Elevator/kV", 7.1);

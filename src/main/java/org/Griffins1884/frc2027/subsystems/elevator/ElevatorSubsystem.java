@@ -12,7 +12,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final ProfiledPIDController profiledController;
   private final ElevatorFeedforward feedforwardModel;
 
-  private final double targetHeightSetpoint = 0.0;
+  private double targetHeightSetpoint = 0.0;
 
   public ElevatorSubsystem(ElevatorIO ioBridge) {
     this.ioBridge = ioBridge;
@@ -44,10 +44,10 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public void setGoalHeight(double targetHeightSetpoint) {
-    targetHeightSetpoint =
+    this.targetHeightSetpoint =
         Math.clamp(
             targetHeightSetpoint, ElevatorConstants.MIN_HEIGHT, ElevatorConstants.MAX_HEIGHT);
-    profiledController.setGoal(targetHeightSetpoint);
+    profiledController.setGoal(this.targetHeightSetpoint);
   }
 
   @Override
