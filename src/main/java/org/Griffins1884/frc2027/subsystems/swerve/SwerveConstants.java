@@ -268,7 +268,7 @@ public final class SwerveConstants {
   /** CanBus */
   static final boolean canivore = false;
 
-  static final CANBus canBus = new CANBus("rio");
+  static final CANBus canBus = new CANBus(CanIDConstants.SWERVE);
 
   /** Radians */
   static final double ROTATOR_PID_MIN_INPUT = 0;
