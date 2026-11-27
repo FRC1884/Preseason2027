@@ -22,10 +22,10 @@ public class ElevatorIOSim implements ElevatorIO {
     this(
         ElevatorConstants.kV.getAsDouble(),
         ElevatorConstants.kA.getAsDouble(),
-        DCMotor.getNEO(1),
+        DCMotor.getKrakenX60(2),
         ElevatorConstants.MIN_HEIGHT,
         ElevatorConstants.MAX_HEIGHT,
-        0.0,
+        ElevatorConstants.MIN_HEIGHT,
         true);
   }
 

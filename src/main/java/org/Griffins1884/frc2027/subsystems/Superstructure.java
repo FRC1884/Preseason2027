@@ -12,6 +12,8 @@ import org.Griffins1884.frc2027.GlobalConstants;
 import org.Griffins1884.frc2027.commands.ShooterCommands;
 import org.Griffins1884.frc2027.commands.TurretCommands;
 import org.Griffins1884.frc2027.mechanisms.turrets.PositionTurretMechanism.ControlMode;
+import org.Griffins1884.frc2027.subsystems.elevator.ElevatorIOSim;
+import org.Griffins1884.frc2027.subsystems.elevator.ElevatorSubsystem;
 import org.Griffins1884.frc2027.subsystems.groups.Arms;
 import org.Griffins1884.frc2027.subsystems.groups.Elevators;
 import org.Griffins1884.frc2027.subsystems.groups.Rollers;
@@ -67,6 +69,7 @@ public class Superstructure extends SubsystemBase {
 
   private final SwerveSubsystem drive;
   @Setter private TurretSubsystem turret;
+  private final ElevatorSubsystem elevator;
 
   @Getter
   private final LoggedNetworkChooser<SuperState> stateChooser =
@@ -113,10 +116,9 @@ public class Superstructure extends SubsystemBase {
   @Getter private final Arms arms = new Arms();
   private static final double SYS_ID_IDLE_WAIT_SECONDS = 0.5;
 
-  private LoggedTunableNumber middleStageHeightMeters =
-      new LoggedTunableNumber("/Elevator/middleStageHeight", 0.0); // Max: 0.75
-  private LoggedTunableNumber innerStageHeightMeters =
-      new LoggedTunableNumber("/Elevator/innerStageHeight", 0.0); // Max 0.6
+  private double middleStageHeightMeters = 0.0; // Max: 0.75
+  private LoggedTunableNumber requestedHeightMeters =
+          new LoggedTunableNumber("/Elevator/requestedHeight", 0.0);
 
   private LoggedTunableNumber algaeRotationDegrees =
       new LoggedTunableNumber("/Intakes/algaeRotation", 0.0);
@@ -140,6 +142,7 @@ public class Superstructure extends SubsystemBase {
 
   public Superstructure(SwerveSubsystem drive) {
     this.drive = drive;
+    this.elevator = new ElevatorSubsystem(new ElevatorIOSim());
     configureStateChooser();
   }
 
@@ -181,23 +184,29 @@ public class Superstructure extends SubsystemBase {
         new Transform3d(new Translation3d(-pivotX, -pivotY, -pivotZ), new Rotation3d()));
   }
 
+  public void updateElevatorHeight(){
+    elevator.setGoalHeight(requestedHeightMeters.getAsDouble());
+    middleStageHeightMeters = elevator.getPositionMeters();
+  }
+
   public void setupSim() {
     if (MODE == GlobalConstants.RobotMode.SIM) {
-
+      updateElevatorHeight();
       Logger.recordOutput("AdvantageScope/RobotPose", new Pose3d(drive.getPose()));
+      Logger.recordOutput("Elevator/middleStateHeight", middleStageHeightMeters);
 
       Pose3d baseStagePose = Pose3d.ZERO;
 
       Pose3d middleStagePose =
           baseStagePose.transformBy(
               new Transform3d(
-                  new Translation3d(0, 0, middleStageHeightMeters.getAsDouble()),
+                  new Translation3d(0, 0, middleStageHeightMeters),
                   new Rotation3d()));
 
       Pose3d innerStagePose =
           middleStagePose.transformBy(
               new Transform3d(
-                  new Translation3d(0, 0, innerStageHeightMeters.getAsDouble()), new Rotation3d()));
+                  new Translation3d(0, 0, 0), new Rotation3d()));
 
       Pose3d pvcMountPose = innerStagePose;
 
