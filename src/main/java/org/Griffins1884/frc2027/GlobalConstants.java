@@ -1,5 +1,8 @@
 package org.Griffins1884.frc2027;
 
+import static org.wpilib.math.util.Units.degreesToRadians;
+
+import com.pathplanner.lib.path.PathConstraints;
 import java.nio.file.Path;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +10,7 @@ import org.Griffins1884.frc2027.util.LoggedTunableNumber;
 import org.wpilib.fields.Field;
 import org.wpilib.fields.Fields;
 import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.math.geometry.Translation3d;
 import org.wpilib.math.util.Units;
@@ -412,6 +416,16 @@ public final class GlobalConstants {
       }
     }
   }
+
+  // For testing purposes it's just the depot pose.
+  public static final Pose2d AUTO_ALIGN_TARGET_POSE =
+      new Pose2d(0.7, 5.94, Rotation2d.fromDegrees(0.0));
+  public static final PathConstraints PATH_CONSTRAINTS =
+      new PathConstraints(
+          3.0, // Max Velocity
+          3.0, // Max Acceleration
+          degreesToRadians(540), // Max Angular Velocity
+          degreesToRadians(720)); // Max Angular Accerleration
 
   public static final double FIELD_WIDTH_METERS = Units.feetToMeters(26 + (5.0 / 12));
   public static final double FIELD_LENGTH_METERS = Units.feetToMeters(57 + (6.875 / 12));

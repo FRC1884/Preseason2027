@@ -7,7 +7,9 @@ import static org.Griffins1884.frc2027.Config.Subsystems.LEDS_ENABLED;
 import static org.Griffins1884.frc2027.Config.Subsystems.SHOOTER_PIVOT_ENABLED;
 import static org.Griffins1884.frc2027.Config.Subsystems.TURRET_ENABLED;
 import static org.Griffins1884.frc2027.Config.Subsystems.VISION_ENABLED;
+import static org.Griffins1884.frc2027.GlobalConstants.AUTO_ALIGN_TARGET_POSE;
 import static org.Griffins1884.frc2027.GlobalConstants.MODE;
+import static org.Griffins1884.frc2027.GlobalConstants.PATH_CONSTRAINTS;
 import static org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.BACK_LEFT;
 import static org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.BACK_RIGHT;
 import static org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.FRONT_LEFT;
@@ -379,10 +381,10 @@ public class RobotContainer implements AutoCloseable {
     }
 
     // Configure the button bindings
-    configureDriverButtonBindings();
     configurePathPlannerAutonomous();
     configurePathPlannerTelemetry();
     createPathPlannerRobotConfig();
+    configureDriverButtonBindings();
 
     superstructure.setTurretExternalControl(true);
 
@@ -405,12 +407,12 @@ public class RobotContainer implements AutoCloseable {
 
       // Held override: robot-relative drive with the robot front/back and rotation
       // flipped.
-      // For testing purposes it's just the depot pose.
-      Pose2d targetPose = new Pose2d(0.7, 5.94, Rotation2d.fromDegrees(0.0));
       driver
           .autoAlign()
           .onTrue(
-              new AutoAlignToPoseCommand(drive, targetPose)); // Right now it's just to the depot
+              AutoBuilder.pathfindToPose(AUTO_ALIGN_TARGET_POSE, PATH_CONSTRAINTS, 0.0)
+                  .andThen(new AutoAlignToPoseCommand(drive, AUTO_ALIGN_TARGET_POSE))
+                  .withTimeout(8.0)); // Right now it's just to the depot
 
       driver
           .alignWithBall()
