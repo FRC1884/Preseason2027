@@ -7,7 +7,9 @@ import static org.Griffins1884.frc2027.Config.Subsystems.LEDS_ENABLED;
 import static org.Griffins1884.frc2027.Config.Subsystems.SHOOTER_PIVOT_ENABLED;
 import static org.Griffins1884.frc2027.Config.Subsystems.TURRET_ENABLED;
 import static org.Griffins1884.frc2027.Config.Subsystems.VISION_ENABLED;
+import static org.Griffins1884.frc2027.GlobalConstants.AUTO_ALIGN_TARGET_POSE;
 import static org.Griffins1884.frc2027.GlobalConstants.MODE;
+import static org.Griffins1884.frc2027.GlobalConstants.PATH_CONSTRAINTS;
 import static org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.BACK_LEFT;
 import static org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.BACK_RIGHT;
 import static org.Griffins1884.frc2027.subsystems.swerve.SwerveConstants.FRONT_LEFT;
@@ -26,6 +28,7 @@ import java.io.IOException;
 import java.util.Optional;
 import org.Griffins1884.frc2027.GlobalConstants.RobotMode;
 import org.Griffins1884.frc2027.OI.DriverMap;
+import org.Griffins1884.frc2027.commands.AutoAlignToPoseCommand;
 import org.Griffins1884.frc2027.commands.AutoCommands;
 import org.Griffins1884.frc2027.commands.DriveCommands;
 import org.Griffins1884.frc2027.commands.ShooterCommands;
@@ -222,19 +225,34 @@ public class RobotContainer implements AutoCloseable {
                     },
                     LEFT_CAM_ENABLED
                         ? (IS_LIMELIGHT
-                            ? new AprilTagVisionIOLimelight(LEFT_CAM_CONSTANTS, drive)
+                            ? MODE.equals(GlobalConstants.RobotMode.REAL)
+                                ? (new AprilTagVisionIOLimelight(LEFT_CAM_CONSTANTS, drive))
+                                : (new VisionIOSim(
+                                    LEFT_CAM_CONSTANTS,
+                                    drive::getPose,
+                                    mapleDriveSimulation::getSimulatedDriveTrainPose))
                             : new AprilTagVisionIONorthstar(
                                 LEFT_CAM_CONSTANTS, LEFT_CAM_NORTHSTAR_CONFIG, drive))
                         : new VisionIO() {},
                     RIGHT_CAM_ENABLED
                         ? (IS_LIMELIGHT
-                            ? new AprilTagVisionIOLimelight(RIGHT_CAM_CONSTANTS, drive)
+                            ? MODE.equals(GlobalConstants.RobotMode.REAL)
+                                ? (new AprilTagVisionIOLimelight(RIGHT_CAM_CONSTANTS, drive))
+                                : (new VisionIOSim(
+                                    RIGHT_CAM_CONSTANTS,
+                                    drive::getPose,
+                                    mapleDriveSimulation::getSimulatedDriveTrainPose))
                             : new AprilTagVisionIONorthstar(
                                 RIGHT_CAM_CONSTANTS, RIGHT_CAM_NORTHSTAR_CONFIG, drive))
                         : new VisionIO() {},
                     MIDDLE_RIGHT_CAM_ENABLED
                         ? (IS_LIMELIGHT
-                            ? new AprilTagVisionIOLimelight(MIDDLE_RIGHT_CAM_CONSTANTS, drive)
+                            ? MODE.equals(GlobalConstants.RobotMode.REAL)
+                                ? (new AprilTagVisionIOLimelight(MIDDLE_RIGHT_CAM_CONSTANTS, drive))
+                                : (new VisionIOSim(
+                                    MIDDLE_RIGHT_CAM_CONSTANTS,
+                                    drive::getPose,
+                                    mapleDriveSimulation::getSimulatedDriveTrainPose))
                             : new AprilTagVisionIONorthstar(
                                 MIDDLE_RIGHT_CAM_CONSTANTS,
                                 MIDDLE_RIGHT_CAM_NORTHSTAR_CONFIG,
@@ -363,10 +381,10 @@ public class RobotContainer implements AutoCloseable {
     }
 
     // Configure the button bindings
-    configureDriverButtonBindings();
     configurePathPlannerAutonomous();
     configurePathPlannerTelemetry();
     createPathPlannerRobotConfig();
+    configureDriverButtonBindings();
 
     superstructure.setTurretExternalControl(true);
 
@@ -389,6 +407,13 @@ public class RobotContainer implements AutoCloseable {
 
       // Held override: robot-relative drive with the robot front/back and rotation
       // flipped.
+      driver
+          .autoAlign()
+          .onTrue(
+              AutoBuilder.pathfindToPose(AUTO_ALIGN_TARGET_POSE, PATH_CONSTRAINTS, 0.0)
+                  .andThen(new AutoAlignToPoseCommand(drive, AUTO_ALIGN_TARGET_POSE))
+                  .withTimeout(8.0)); // Right now it's just to the depot
+
       driver
           .alignWithBall()
           .whileTrue(

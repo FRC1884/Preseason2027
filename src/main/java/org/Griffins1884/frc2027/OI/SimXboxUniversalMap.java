@@ -1,5 +1,6 @@
 package org.Griffins1884.frc2027.OI;
 
+import static org.Griffins1884.frc2027.Config.Controllers.DRIVER_PORT;
 import static org.wpilib.command2.Commands.startEnd;
 import static org.wpilib.driverstation.GenericHID.RumbleType.*;
 
@@ -7,6 +8,7 @@ import java.util.function.DoubleSupplier;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.ParallelCommandGroup;
+import org.wpilib.command2.button.CommandGenericHID;
 import org.wpilib.command2.button.CommandXboxController;
 import org.wpilib.command2.button.Trigger;
 
@@ -82,6 +84,11 @@ public class SimXboxUniversalMap extends CommandXboxController implements Driver
   @Override
   public Command rumble() {
     return startEnd(() -> generateParallelGroup(1), () -> generateParallelGroup(0));
+  }
+
+  @Override
+  public Trigger autoAlign() {
+    return new CommandGenericHID(DRIVER_PORT).button(13);
   }
 
   public Trigger shooterPivotUp() {

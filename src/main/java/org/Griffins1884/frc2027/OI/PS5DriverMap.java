@@ -61,6 +61,11 @@ public class PS5DriverMap extends CommandNiDsPS5Controller implements DriverMap 
     return triangle();
   }
 
+  @Override
+  public Trigger autoAlign() {
+    return square();
+  }
+
   // Placeholder
   public Trigger shooterPivotUp() {
     return new InternalButton();
